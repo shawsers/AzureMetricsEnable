@@ -104,7 +104,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/processor/percentiowaittime",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -119,7 +119,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/processor/percentusertime",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -134,7 +134,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/processor/percentnicetime",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -149,7 +149,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/processor/percentprocessortime",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -164,7 +164,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/processor/percentinterrupttime",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -179,7 +179,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/processor/percentidletime",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -194,7 +194,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/processor/percentprivilegedtime",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -208,7 +208,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/availablememory",
             "type": "builtin",
             "unit": "Bytes",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -222,7 +222,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/percentusedswap",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -236,7 +236,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/usedmemory",
             "type": "builtin",
             "unit": "Bytes",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -250,7 +250,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/pagesreadpersec",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -264,7 +264,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/availableswap",
             "type": "builtin",
             "unit": "Bytes",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -278,7 +278,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/percentavailableswap",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -292,7 +292,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/percentavailablememory",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -306,7 +306,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/pagespersec",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -320,7 +320,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/usedswap",
             "type": "builtin",
             "unit": "Bytes",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -334,7 +334,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/percentusedmemory",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -348,7 +348,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/memory/pageswrittenpersec",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -362,7 +362,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/network/bytesreceived",
             "type": "builtin",
             "unit": "Bytes",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -376,7 +376,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/network/bytestotal",
             "type": "builtin",
             "unit": "Bytes",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -390,7 +390,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/network/bytestransmitted",
             "type": "builtin",
             "unit": "Bytes",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -404,7 +404,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/network/totalcollisions",
             "type": "builtin",
             "unit": "Count",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -418,7 +418,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/network/totalrxerrors",
             "type": "builtin",
             "unit": "Count",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -432,7 +432,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/network/packetstransmitted",
             "type": "builtin",
             "unit": "Count",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -446,7 +446,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/network/packetsreceived",
             "type": "builtin",
             "unit": "Count",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -460,7 +460,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/network/totaltxerrors",
             "type": "builtin",
             "unit": "Count",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -475,7 +475,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/transferspersecond",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -490,7 +490,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/percentfreespace",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -505,7 +505,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/percentusedspace",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -520,7 +520,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/usedspace",
             "type": "builtin",
             "unit": "Bytes",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -535,7 +535,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/bytesreadpersecond",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -550,7 +550,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/freespace",
             "type": "builtin",
             "unit": "Bytes",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -565,7 +565,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/percentfreeinodes",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -580,7 +580,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/bytespersecond",
             "type": "builtin",
             "unit": "BytesPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -595,7 +595,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/readspersecond",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -610,7 +610,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/byteswrittenpersecond",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -625,7 +625,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/writespersecond",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -640,7 +640,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/filesystem/percentusedinodes",
             "type": "builtin",
             "unit": "Percent",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -655,7 +655,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/disk/readbytespersecond",
             "type": "builtin",
             "unit": "BytesPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -670,7 +670,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/disk/writespersecond",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -685,7 +685,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/disk/averagetransfertime",
             "type": "builtin",
             "unit": "Seconds",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -700,7 +700,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/disk/transferspersecond",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -715,7 +715,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/disk/writebytespersecond",
             "type": "builtin",
             "unit": "BytesPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -730,7 +730,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/disk/averagereadtime",
             "type": "builtin",
             "unit": "Seconds",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -745,7 +745,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/disk/averagewritetime",
             "type": "builtin",
             "unit": "Seconds",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -760,7 +760,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/disk/bytespersecond",
             "type": "builtin",
             "unit": "BytesPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -775,7 +775,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/disk/readspersecond",
             "type": "builtin",
             "unit": "CountPerSecond",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           },
           {
             "annotation": [
@@ -790,12 +790,12 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "counterSpecifier": "/builtin/disk/averagediskqueuelength",
             "type": "builtin",
             "unit": "Count",
-            "sampleRate": "PT60S"
+            "sampleRate": "PT15S"
           }
         ]
       }
     },
-    "sampleRateInSeconds": 60
+    "sampleRateInSeconds": 15
   }
 }'
     $xmlCfgPath =Join-Path $deployExtensionLogDir "linuxxmlcfg.xml";
