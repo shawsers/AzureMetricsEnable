@@ -1908,10 +1908,10 @@ if($subscriptionId){
     $enddate = [system.datetime]::Now.AddYears(999)
     $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $StoragersgName -Name $storageaccount;
     $storageKey = $storageKeys[0].Value;
-    $context = new-azurestoragecontext -StorageAccountName $storageAccount -StorageAccountKey $storageKey
+    $context = new-azurestoragecontext -StorageAccountName $storageaccount -StorageAccountKey $storageKey
     $storageSas = new-azurestorageaccountsastoken -Service Blob,Table -ResourceType Container,Object -Permission wlacu -Context $context -StartTime $startdate -ExpiryTime $enddate
     $privateCfg = '{
-    "storageAccountName": "'+$storageName+'",
+    "storageAccountName": "'+$storageaccount+'",
     "storageAccountSasToken": "'+$storageSas+'"
     }'
 } else {
