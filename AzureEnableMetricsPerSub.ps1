@@ -1906,7 +1906,7 @@ if($subscriptionId){
     #save-azurermcontext -Path .\context_$TimeStamp.json
     $startdate = [system.datetime]::now.AddDays(-1)
     $enddate = [system.datetime]::Now.AddYears(999)
-    $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $StoragersgName -Name $storageName;
+    $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $StoragersgName -Name $storageaccount;
     $storageKey = $storageKeys[0].Value;
     $context = new-azurestoragecontext -StorageAccountName $storageAccount -StorageAccountKey $storageKey
     $storageSas = new-azurestorageaccountsastoken -Service Blob,Table -ResourceType Container,Object -Permission wlacu -Context $context -StartTime $startdate -ExpiryTime $enddate
