@@ -4,7 +4,7 @@
 
 .SYNOPSIS
 This script will enable Azure Basic Metrics on all running VMs in a single subscription that currently don't have metrics enabled.
-If the VM already has metrics enabled it will skip it and output that to the log for tracking.
+If the VM already has the metrics enabled it will skip it and output that to the log for tracking.
 If the VM is NOT running it will skip it and output that to the log for tracking.
 
 .DESCRIPTION
@@ -795,7 +795,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
         ]
       }
     },
-    "sampleRateInSeconds": 15
+    "sampleRateInSeconds": 60
   }
 }'
     $xmlCfgPath =Join-Path $deployExtensionLogDir "linuxxmlcfg.xml";
@@ -823,7 +823,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
 }'
     ##"storageAccountKey": "'+$storageKey+'"
     $extensionType = "LinuxDiagnostic"
-    Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName -ExtensionType $extensionType -Publisher $extensionPublisher -TypeHandlerVersion $extensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation
+    Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName -ExtensionType $extensionType -Publisher $extensionPublisher -TypeHandlerVersion $extensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
     ##Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName -Publisher $extensionPublisher -ExtensionType $extensionType -TypeHandlerVersion $extensionVersion -Settingstring $settingsString -ProtectedSettingString $privateCfg -Location $vmLocation
     ##Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storagename -StorageAccountKey $storageKey -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $xmlCfgPath -AutoUpgradeMinorVersion $True
 }
@@ -1891,7 +1891,7 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
     Out-File -FilePath $extensionTemplatePath -Force -Encoding utf8 -InputObject $extensionTemplate
     ##New-AzureRmResourceGroupDeployment -ResourceGroupName $rsgName -TemplateFile $extensionTemplatePath
     ##Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storageName -StorageAccountKey $storageKey -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $xmlCfgPath -AutoUpgradeMinorVersion $True
-    Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storageName -StorageAccountKey $storageKey -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $extensionTemplatePath -AutoUpgradeMinorVersion $True
+    Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storageName -StorageAccountKey $storageKey -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $extensionTemplatePath -AutoUpgradeMinorVersion $True -AsJob
 }
 
 $deployExtensionLogDir = split-path -parent $MyInvocation.MyCommand.Definition
