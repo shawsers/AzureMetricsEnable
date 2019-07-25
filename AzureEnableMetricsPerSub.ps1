@@ -813,6 +813,18 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
     ##$extensionVersion = "2.3"
     $extensionPublisher = 'Microsoft.Azure.Diagnostics'
     $extensionVersion = "3.0"
+    
+    $startdate = [system.datetime]::now.AddDays(-1)
+    $enddate = [system.datetime]::Now.AddYears(999)
+    $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $StoragersgName -Name $storageaccount;
+    $storageKey = $storageKeys[0].Value;
+    $context = new-azurestoragecontext -StorageAccountName $storageaccount -StorageAccountKey $storageKey
+    $storageSas = new-azurestorageaccountsastoken -Service Blob,Table -ResourceType Container,Object -Permission wlacu -Context $context -StartTime $startdate -ExpiryTime $enddate
+    $privateCfg = '{
+    "storageAccountName": "'+$storageaccount+'",
+    "storageAccountSasToken": "'+$storageSas+'"
+    }'
+    
     ##$privateCfg = '{
     ##"storageAccountName": "'+$storageName+'",
     ##"storageAccountSasToken": "'+$storageSas+'"
@@ -1886,6 +1898,17 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
     $extensionTemplatePath = Join-Path $deployExtensionLogDir "extensionTemplateForWindows.json";
     Out-File -FilePath $extensionTemplatePath -Force -Encoding utf8 -InputObject $extensionTemplate
     
+    $startdate = [system.datetime]::now.AddDays(-1)
+    $enddate = [system.datetime]::Now.AddYears(999)
+    $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $StoragersgName -Name $storageaccount;
+    $storageKey = $storageKeys[0].Value;
+    $context = new-azurestoragecontext -StorageAccountName $storageaccount -StorageAccountKey $storageKey
+    $storageSas = new-azurestorageaccountsastoken -Service Blob,Table -ResourceType Container,Object -Permission wlacu -Context $context -StartTime $startdate -ExpiryTime $enddate
+    $privateCfg = '{
+    "storageAccountName": "'+$storageaccount+'",
+    "storageAccountSasToken": "'+$storageSas+'"
+    }'
+    
     $extensionPublisher = 'Microsoft.Azure.Diagnostics'
     $extensionVersion = "1.5"
     ##"storageAccountKey": "'+$storageKey+'"
@@ -1903,16 +1926,6 @@ if($subscriptionId){
     $subname = $getsub.Name
     $storagersgName = Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $storageaccount} | Select-Object -ExpandProperty ResourceGroupName
     #save-azurermcontext -Path .\context_$TimeStamp.json
-    $startdate = [system.datetime]::now.AddDays(-1)
-    $enddate = [system.datetime]::Now.AddYears(999)
-    $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $StoragersgName -Name $storageaccount;
-    $storageKey = $storageKeys[0].Value;
-    $context = new-azurestoragecontext -StorageAccountName $storageaccount -StorageAccountKey $storageKey
-    $storageSas = new-azurestorageaccountsastoken -Service Blob,Table -ResourceType Container,Object -Permission wlacu -Context $context -StartTime $startdate -ExpiryTime $enddate
-    $privateCfg = '{
-    "storageAccountName": "'+$storageaccount+'",
-    "storageAccountSasToken": "'+$storageSas+'"
-    }'
 } else {
     Login-AzureRmAccount -ErrorAction Stop
 }
