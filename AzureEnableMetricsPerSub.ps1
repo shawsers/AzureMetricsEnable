@@ -816,7 +816,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
     ##$privateCfg = '{
     ##"storageAccountName": "'+$storageName+'",
     ##"storageAccountSasToken": "'+$storageSas+'"
-}'
+    #}'
     ##"storageAccountKey": "'+$storageKey+'"
     $extensionType = "LinuxDiagnostic"
     Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName -ExtensionType $extensionType -Publisher $extensionPublisher -TypeHandlerVersion $extensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
@@ -1889,7 +1889,6 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
     
     $extensionPublisher = 'Microsoft.Azure.Diagnostics'
     $extensionVersion = "1.5"
-}'
     ##"storageAccountKey": "'+$storageKey+'"
     Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName -ExtensionType $extensionType -Publisher $extensionPublisher -TypeHandlerVersion $extensionVersion -Settingstring $extensionTemplate -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
     ##New-AzureRmResourceGroupDeployment -ResourceGroupName $rsgName -TemplateFile $extensionTemplatePath
@@ -1914,6 +1913,7 @@ if($subscriptionId){
     $privateCfg = '{
     "storageAccountName": "'+$storageName+'",
     "storageAccountSasToken": "'+$storageSas+'"
+    }'
 } else {
     Login-AzureRmAccount -ErrorAction Stop
 }
