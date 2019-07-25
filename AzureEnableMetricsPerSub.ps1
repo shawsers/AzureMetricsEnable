@@ -841,8 +841,8 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
     Write-Host "Installing Diagnostic Extension on your Windows VM"
 
         Write-Host "storageName:" $storageName
-        $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $storagersgName -Name $storageName;
-        $storageKey = $storageKeys[0].Value;
+        ##$storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $storagersgName -Name $storageName;
+        ##$storageKey = $storageKeys[0].Value;
 
         $vmLocation = $rsgLocation
 
@@ -1885,7 +1885,6 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
 
     $extensionTemplatePath = Join-Path $deployExtensionLogDir "extensionTemplateForWindows.json";
     Out-File -FilePath $extensionTemplatePath -Force -Encoding utf8 -InputObject $extensionTemplate
-    
     
     $extensionPublisher = 'Microsoft.Azure.Diagnostics'
     $extensionVersion = "1.5"
