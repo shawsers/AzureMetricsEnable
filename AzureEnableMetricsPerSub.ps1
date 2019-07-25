@@ -3,19 +3,20 @@
 1.0
 
 .SYNOPSIS
-This script will enable Azure Basic Metrics on all running VMs in a single subscription that currently don't have metrics enabled.
+This script will the enable the defauilt Azure Basic Metrics on all running Windows and Linux VMs in a single subscription that currently don't have metrics enabled.
 If the VM already has the metrics enabled it will skip it and output that to the log for tracking.
 If the VM is NOT running it will skip it and output that to the log for tracking.
 
 .DESCRIPTION
-Use the script to Enable Basic Metrics on all running Windows and Linux VMs
+Use the script to Enable the Default Basic Metrics on all running Windows and Linux VMs in an Azure subscription
+The script will configure the VM's to write the metris to a single storage account specified as the storageaccount parameter when running the script
  
-To run the script save it inside a folder because it will need to write logs files and save the xml and json files.
+Create a new folder for the script to run in as it will save logs, xml and json files to the folder the script is run in
 
-To enable for one runnning VM
+To enable for one runnning VM make sure to specify the VM name
  .\AzureMetrics.ps1' -subscriptionId SUB-ID-HERE -vmname “vmname" -storageaccount "storageaccount"
 
-To enable for ALL running VMs in a Subscription
+To enable for ALL running VMs in a Subscription just specify your subscription id and storage account where the metrics will be stored in that subscription
  .\AzureMetrics.ps1' -subscriptionId SUB-ID-HERE -storageaccount "storageaccount"
 #>
 param(
