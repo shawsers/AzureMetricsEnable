@@ -1,5 +1,19 @@
-###install-module azuread
-Login-AzureRmAccount
+##This script will create the Turbonomic App Registration in Azure Active Directory
+##The script will then assign the delegated permissions required for Turbonomic
+##Example: .\AzureCreateTurboAppReg.ps1 -subscriptionid SUB-ID-HERE -turboappname NAME-OF-TURBO-APP
+
+param(
+
+ [Parameter(Mandatory=$True)]
+ [string]
+ $subscriptionId,
+
+ [Parameter(Mandatory=$True)]
+ [string]
+ $TurboAppName
+)
+
+Login-AzureRmAccount -subscriptionid $subscriptionId
 $svcprincipal = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match "Microsoft Graph" }
 $svcprincipal2 = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match "Windows Azure Service Management API" }
 ### Microsoft Graph
@@ -14,12 +28,11 @@ $appPermission1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAcc
 $appPermission2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "41094075-9dad-400e-a0bd-54e686782033","Scope"
 $reqGraph.ResourceAccess = $appPermission1
 $reqGraph2.ResourceAccess = $appPermission2
-$appname = "Turbonomic6"
-$myApp = New-AzureADApplication -DisplayName $appname -IdentifierUris 22 -RequiredResourceAccess @($reqGraph, $reqGraph2)
+$myApp = New-AzureADApplication -DisplayName $TurboAppName -IdentifierUris 99 -RequiredResourceAccess @($reqGraph, $reqGraph2)
 ###AppID
 $appid = $myApp.appid
-$mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myapp.ObjectId -enddate 7/20/2980 -CustomKeyIdentifier $appname
-$myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $MyApp.AppId -AppRoleAssignmentRequired $true -DisplayName $appname
+$mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myapp.ObjectId -enddate 7/20/2980 -CustomKeyIdentifier $TurboAppName
+$myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $MyApp.AppId -AppRoleAssignmentRequired $true -DisplayName $TurboAppName
 $sub = get-azurermsubscription
 $subname = $sub.name
 $tenantid = $sub.TenantId
