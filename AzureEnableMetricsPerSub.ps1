@@ -1989,7 +1989,7 @@ if($vmList){
             InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
             Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,$error'"
         }
-        $failedJobs = get-job -State Failed | Receive-Job
+        $failedJobs = get-job -State Failed
         $failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append
         $completedJobs = get-job -State Completed
         $completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append
@@ -2001,3 +2001,10 @@ if($vmList){
     Write-Output "Couldn't find any VMs on your account" | Out-File -FilePath .\NoVMs_$TimeStampLog.csv
 
 }
+while((get-job -State Running).count -gt 0){start-sleep 5}
+$failedJobs = get-job -State Failed
+$failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append
+$completedJobs = get-job -State Completed
+$completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append
+get-job -State Completed | remove-job -confirm:$false -force
+get-job -State Failed | remove-job -confirm:$false -force
