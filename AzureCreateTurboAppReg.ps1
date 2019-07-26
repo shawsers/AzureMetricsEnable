@@ -20,7 +20,7 @@ $appid = $myApp.appid
 $mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myapp.ObjectId -enddate 7/20/2980 -CustomKeyIdentifier "Turbonomic"
 $myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $MyApp.AppId -AppRoleAssignmentRequired $true -DisplayName Turbonomic
 $sub = get-azurermsubscription
-$subid = $sub.Id
+$subname = $sub.name
 $tenantid = $sub.TenantId
-$sub.Id >> .\sub.txt
-$mySecret >> .\secret.txt
+Add-Content -Path .\TurboAppInfo.csv = "Subscription Name,Applicaton ID,Application Secret Key,Tenant ID"
+Add-Content -Path .\TurboAppInfo.csv = $subname,$appid,$mySecret,$tenantid
