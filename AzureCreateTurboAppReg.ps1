@@ -1,5 +1,5 @@
 ###install-module azuread
-connect-azuread
+Login-AzureRmAccount
 $svcprincipal = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match "Microsoft Graph" }
 $svcprincipal2 = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match "Windows Azure Service Management API" }
 ### Microsoft Graph
@@ -14,13 +14,15 @@ $appPermission1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAcc
 $appPermission2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "41094075-9dad-400e-a0bd-54e686782033","Scope"
 $reqGraph.ResourceAccess = $appPermission1
 $reqGraph2.ResourceAccess = $appPermission2
-$myApp = New-AzureADApplication -DisplayName Turbonomic -IdentifierUris 2 -RequiredResourceAccess @($reqGraph, $reqGraph2)
+$appname = "Turbonomic6"
+$myApp = New-AzureADApplication -DisplayName $appname -IdentifierUris 22 -RequiredResourceAccess @($reqGraph, $reqGraph2)
 ###AppID
 $appid = $myApp.appid
-$mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myapp.ObjectId -enddate 7/20/2980 -CustomKeyIdentifier "Turbonomic"
-$myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $MyApp.AppId -AppRoleAssignmentRequired $true -DisplayName Turbonomic
+$mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myapp.ObjectId -enddate 7/20/2980 -CustomKeyIdentifier $appname
+$myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $MyApp.AppId -AppRoleAssignmentRequired $true -DisplayName $appname
 $sub = get-azurermsubscription
 $subname = $sub.name
 $tenantid = $sub.TenantId
-Add-Content -Path .\TurboAppInfo.csv = "Subscription Name,Applicaton ID,Application Secret Key,Tenant ID"
-Add-Content -Path .\TurboAppInfo.csv = $subname,$appid,$mySecret,$tenantid
+$mySecretkey = $mySecret.Value
+Add-Content -Path .\TurboAppInfo.csv -Value "Subscription Name,Applicaton ID,Application Secret Key,Tenant ID"
+Add-Content -Path .\TurboAppInfo.csv -Value "$subname,$appid,$mySecretkey,$tenantid"
