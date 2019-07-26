@@ -1990,9 +1990,9 @@ if($vmList){
             Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,$error'"
         }
         $failedJobs = get-job -State Failed
-        $failedJobs | out-file -FilePath .\Failed_$TimeStampLog.txt -Append
+        $failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append
         $completedJobs = get-job -State Completed
-        $completedJobs | out-file -FilePath .\Completed_$TimeStampLog.txt -Append
+        $completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append
         get-job -State Completed | remove-job -confirm:$false -force
         get-job -State Failed | remove-job -confirm:$false -force
     }
