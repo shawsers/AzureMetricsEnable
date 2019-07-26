@@ -10,7 +10,7 @@ If the VM is NOT running it will skip it and output that to the log for tracking
 .DESCRIPTION
 Use the script to Enable the Default Basic Metrics on all running Windows and Linux VMs in an Azure subscription
 The script will configure the VM's to write the metris to a single storage account specified as the storageaccount parameter when running the script
- 
+
 Create a new folder for the script to run in as it will save logs, xml and json files to the folder the script is run in
 
 To enable for one runnning VM make sure to specify the VM name
@@ -41,9 +41,9 @@ param(
 $TimeStampLog = Get-Date -Format o | foreach {$_ -replace ":", "."}
 $error.clear()
 function Get-TimeStamp {
-    
+
     return "[{0:dd/MM/yy} {0:HH:mm:ss}]" -f (Get-Date)
-    
+
 }
 
 function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageaccount){
@@ -824,7 +824,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
     "storageAccountName": "'+$storageName+'",
     "storageAccountSasToken": "'+$storageSas+'"
     }'
-    
+
     ##$privateCfg = '{
     ##"storageAccountName": "'+$storageName+'",
     ##"storageAccountSasToken": "'+$storageSas+'"
@@ -839,7 +839,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
 function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageaccount){
     $extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
     $extensionType = "IaaSDiagnostics"
-   
+
     $extension = Get-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName | Where-Object -Property ExtensionType -eq $extensionType
     if($extension -and $extension.ProvisioningState -eq 'Succeeded'){
         $pub = get-azurermvmextension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName
@@ -1888,7 +1888,7 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
     }
   }
 }'
-    
+
     $xmlCfgPath =Join-Path $deployExtensionLogDir "windowsxmlcfg.xml";
 
     Out-File -FilePath $xmlCfgPath -force -Encoding utf8 -InputObject $extensiontemplatewin
@@ -1908,7 +1908,7 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
     "storageAccountName": "'+$storageName+'",
     "storageAccountSasToken": "'+$storageSas+'"
     }'
-    
+
     $extensionPublisher = 'Microsoft.Azure.Diagnostics'
     $extensionVersion = "1.5"
     ##"storageAccountKey": "'+$storageKey+'"
@@ -1922,7 +1922,7 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
 }
 
 Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $storageName, $storageKey, $extensionName, $vmLocation, $extensionTemplatePath
-    
+
 }
 
 $deployExtensionLogDir = split-path -parent $MyInvocation.MyCommand.Definition
@@ -1942,7 +1942,7 @@ if($vmname -and $storageaccount){
     #$vmList = Get-AzureRmVM -Name $vmname -ResourceGroupName $resourcegroup
     $vmList = Get-AzureRmVM -Name $vmname
     Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
-} 
+}
 elseif($storageaccount) {
     #$vmList = Get-AzureRmVM -ResourceGroupName $resourcegroup
     $vmList = Get-AzureRmVM
@@ -1955,25 +1955,25 @@ if($vmList){
         $status=$vm | Get-AzureRmVM -Status $vm.ResourceGroupName
         if ($status.Statuses[1].DisplayStatus -ne "VM running")
         {
-            Write-Output $vm.Name" is not running. Skipping install." 
+            Write-Output $vm.Name" is not running. Skipping install."
             $vmName = $vm.Name
             Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmname,Not Running,Error VM Not Running power on VM and run again'"
-           
-            continue 
+
+            continue
         }
-        
+
         while((get-job -State Running).count -ge 10){start-sleep 1}
-        
+
         $rsgName = $vm.ResourceGroupName;
         $rsg = Get-AzureRmResourceGroup -Name $rsgName
         $rsgLocation = $vm.Location;
-        
+
         $storageName = $storageaccount
 
         $vmId = $vm.Id
         $vmName = $vm.Name
-        Write-Output "VM ID:" $vmId 
-        Write-Output "VM Name:" $vmName 
+        Write-Output "VM ID:" $vmId
+        Write-Output "VM Name:" $vmName
 
         $osType = $vm.StorageProfile.OsDisk.OsType
         Write-Output "OS Type:" $osType
@@ -1989,7 +1989,7 @@ if($vmList){
             InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
             Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,$error'"
         }
-        $failedJobs = get-job -State Failed
+        $failedJobs = get-job -State Failed | Receive-Job
         $failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append
         $completedJobs = get-job -State Completed
         $completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append
@@ -1999,5 +1999,5 @@ if($vmList){
 } else {
     Write-Output "Couldn't find any VMs on your account"
     Write-Output "Couldn't find any VMs on your account" | Out-File -FilePath .\NoVMs_$TimeStampLog.csv
-    
+
 }
