@@ -1990,9 +1990,11 @@ if($vmList){
             Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,$error'"
         }
         $failedJobs = get-job -State Failed
+        $failedJobs | out-file -FilePath .\Failed_$TimeStampLog.txt -Append
         $completedJobs = get-job -State Completed
-        Add-Content -Path .\Completed_$TimeStampLog.csv -Value 
+        $completedJobs | out-file -FilePath .\Completed_$TimeStampLog.txt -Append
         get-job -State Completed | remove-job -confirm:$false -force
+        get-job -State Failed | remove-job -confirm:$false -force
     }
 } else {
     Write-Output "Couldn't find any VMs on your account"
