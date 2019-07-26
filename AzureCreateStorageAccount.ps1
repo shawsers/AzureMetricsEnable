@@ -13,7 +13,7 @@ param(
  [string] $resourcegroup,
 
  [Parameter(Mandatory=$True)]
- [string] $storageaccountname,
+ [string] $storageaccountname
 )
 $error.clear()
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
