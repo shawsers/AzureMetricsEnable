@@ -1921,7 +1921,7 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
     -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $extensionTemplatePath -AutoUpgradeMinorVersion $True
 }
 
-Start-Job -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $storageName, $storageKey, $extensionName, $vmLocation, $extensionTemplatePath
+Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $storageName, $storageKey, $extensionName, $vmLocation, $extensionTemplatePath
     
 }
 
@@ -1961,6 +1961,9 @@ if($vmList){
            
             continue 
         }
+        
+        while((get-job -State Running).count -ge 10){start-sleep 1}
+        
         $rsgName = $vm.ResourceGroupName;
         $rsg = Get-AzureRmResourceGroup -Name $rsgName
         $rsgLocation = $vm.Location;
@@ -1986,6 +1989,9 @@ if($vmList){
             InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
             Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,$error'"
         }
+        $failedJobs = get-job -State Failed
+        $completedJobs = get-job -State Completed
+        get-job -State Completed | remove-job -confirm:$false -force
     }
 } else {
     Write-Host "Couldn't find any VMs on your account"
