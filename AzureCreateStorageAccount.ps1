@@ -20,3 +20,5 @@ $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
 $sub = login-azurermaccount -Subscription $subscriptionId
 $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location
 $storageAccount = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $location -Kind StorageV2 -SkuName Standard_LRS
+#test commit
+
