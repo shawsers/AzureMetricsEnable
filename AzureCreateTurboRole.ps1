@@ -10,14 +10,14 @@ param(
  [string] $storageaccount
 )
 login-azurermaccount -subscriptionid $subscriptionid
-$role = Get-AzureRmRoleDefinition -Name "Turbo-Role"
+$role = Get-AzureRmRoleDefinition -Name "Virtual Machine Contributor"
 $role.Id = $null
-$role.Name = "Turbo-Role"
+$role.Name = "Turbonomic Role"
 $role.Description = "Turbo required permissions"
 $role.Actions.Add("*/read")
 $role.Actions.Add("Microsoft.Compute/virtualMachines/write")
 $role.Actions.Add("Microsoft.Compute/virtualMachines/start/action")
-$role.Actions.Add("Microsoft.Compute/virtualMachines/deallocte/action")
+$role.Actions.Add("Microsoft.Compute/virtualMachines/deallocate/action")
 $role.Actions.Add("Microsoft.Compute/disks/write")
 $role.Actions.Add("Microsoft.Network/networkInterfaces/join/action")
 $role.AssignableScopes.Clear()
