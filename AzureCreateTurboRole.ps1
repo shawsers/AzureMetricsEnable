@@ -25,3 +25,8 @@ $role.AssignableScopes.Add("/subscriptions/$subscriptionid")
 $role.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccount")
 
 New-AzureRmRoleDefinition -Role $role
+##Add all this to the AppRegistration script
+$AppName = get-azurermadserviceprincipal -DisplayName $TurboAppName
+$AppID = $AppName.Id.Guid
+new-azurermroleassignment -ObjectId $AppID -RoleDefinitionName "Turbonomic Role" -Scope "/subscriptions/$subscriptionid"
+new-azurermroleassignment -ObjectId $AppID -RoleDefinitionName "Turbonomic Role" -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccount"
