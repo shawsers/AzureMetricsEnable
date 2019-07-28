@@ -37,5 +37,5 @@ $sub = get-azurermsubscription
 $subname = $sub.name
 $tenantid = $sub.TenantId
 $mySecretkey = $mySecret.Value
-Add-Content -Path .\TurboAppInfo.csv -Value "Subscription Name,Applicaton ID,Application Secret Key,Tenant ID"
-Add-Content -Path .\TurboAppInfo.csv -Value "$subname,$appid,$mySecretkey,$tenantid"
+Add-Content -Path .\TurboAppInfo.csv -Value "Subscription Name,Application Name,Applicaton ID,Application Secret Key,Tenant ID"
+Add-Content -Path .\TurboAppInfo.csv -Value "$subname,$TurboAppName,$appid,$mySecretkey,$tenantid"
