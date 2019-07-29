@@ -12,8 +12,8 @@ param(
 login-azurermaccount -subscriptionid $subscriptionid
 $role = Get-AzureRmRoleDefinition -Name "Virtual Machine Contributor"
 $role.Id = $null
-$role.Name = "Turbonomic Role"
-$role.Description = "Turbo required permissions"
+$role.Name = "Turbonomic Read Memory Metrics Role"
+$role.Description = "Turbonomic Permissions required to read memory metrics"
 $role.Actions.Add("*/read")
 $role.Actions.Add("Microsoft.Compute/virtualMachines/write")
 $role.Actions.Add("Microsoft.Compute/virtualMachines/start/action")

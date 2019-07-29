@@ -74,4 +74,5 @@ Add-Content -Path .\TurboAppInfo.csv -Value "$subname,$subscriptionId,$TurboAppN
 $AppName = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match $TurboAppName }
 $AppObjectID = $AppName.ObjectId
 new-azurermroleassignment -ObjectId $AppObjectID -RoleDefinitionName "Reader" -Scope "/subscriptions/$subscriptionid"
+new-azurermroleassignment -ObjectId $AppObjectID -RoleDefinitionName "Reader and Data Access" -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname"
 ##END SCRIPT
