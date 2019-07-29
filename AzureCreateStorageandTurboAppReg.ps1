@@ -2,6 +2,8 @@
 ##Then the script will create the Turbonomic App Registration in Azure AD and assign the required delegated permissions
 ##Then it will assign the Turbonomic App the "Reader" role on the subscription
 
+##This Script will prompt for login twice which is expected and requires the powershell modules "AzureRm" and "AzureAD" to be installed
+
 ##Example how to run the script: 
 ##.\AzureCreateStorageandTurboAppReg.ps1 -subscriptionId SUB-ID -location AZURE-LOC -resourcegroup NEW-RES-GROUP -TurboAppName NEW-TURBO-APP -storageaccountname NEW-STORAGE
 
@@ -33,6 +35,7 @@ $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location
 $storageAccount = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $location -Kind StorageV2 -SkuName Standard_LRS
 
 ##Turbonomic App Registration in Azure AD Script Section
+connect-azuread -Subscription $subscriptionId
 $svcprincipal = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match "Microsoft Graph" }
 $svcprincipal2 = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match "Windows Azure Service Management API" }
 
@@ -58,7 +61,6 @@ $myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $MyApp.AppId -
 $mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myapp.ObjectId -enddate 7/20/2980 -CustomKeyIdentifier $TurboAppName
 
 #Create log file for output of info needed to register Azure information in Turbonomic UI
-$sub = get-azurermsubscription
 $appid = $myApp.appid
 $subname = $sub.name
 $tenantid = $sub.TenantId
