@@ -1936,6 +1936,14 @@ if($subscriptionId){
     Login-AzureRmAccount -ErrorAction Stop
 }
 
+$verifystorage = Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $storageaccount}
+
+if($verifystorage -eq $null){
+write-host "Storage account apecified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red
+write-host "  "
+exit
+}
+
 $vmList = $null
 if($vmname -and $storageaccount){
     Write-Output "Selected Resource Group: " $resourcegroup " VM Name:" $vmname
