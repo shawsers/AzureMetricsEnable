@@ -34,8 +34,11 @@ $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location
 #Create new Storage Account for metrics
 $storageAccount = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $location -Kind StorageV2 -SkuName Standard_LRS
 
-##Turbonomic App Registration in Azure AD Script Section
-connect-azuread -Subscription $subscriptionId
+##Connect to Azure AD and create Turbonomic App Registration
+$currentContext = Get-AzureRmContext
+$tenantid = $sub.TenantId
+$accountid = $currentContext.Account.Id
+connect-azuread -TenantId $tenantid -AccountId $accountid
 $svcprincipal = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match "Microsoft Graph" }
 $svcprincipal2 = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match "Windows Azure Service Management API" }
 
@@ -63,11 +66,10 @@ $mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myapp.ObjectId -
 #Create log file for output of info needed to register Azure information in Turbonomic UI
 $appid = $myApp.appid
 $subname = $sub.name
-$tenantid = $sub.TenantId
+
 $mySecretkey = $mySecret.Value
 Add-Content -Path .\TurboAppInfo.csv -Value "Subscription Name,Subscription ID,Application Name,Applicaton ID,Application Secret Key,Tenant ID,Resource Group,Storage Account"
 Add-Content -Path .\TurboAppInfo.csv -Value "$subname,$subscriptionId,$TurboAppName,$appid,$mySecretkey,$tenantid,$resourcegroup,$storageaccountname"
-
 #Assign Turbonomic App Registration Read Only access to the subscription
 $AppName = get-azurermadserviceprincipal -DisplayName $TurboAppName
 $AppID = $AppName.Id.Guid
