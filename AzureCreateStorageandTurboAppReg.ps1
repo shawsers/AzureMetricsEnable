@@ -26,7 +26,7 @@ param(
 $error.clear()
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
 #Login Azure Account
-$sub = login-azurermaccount -Subscription $subscriptionId
+$sub = login-azurermaccount -Subscription $subscriptionId -ErrorAction Stop
 
 #Create new Resource Group for the new Stoage Account
 $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location
@@ -57,7 +57,7 @@ $reqGraph.ResourceAccess = $appPermission1
 $reqGraph2.ResourceAccess = $appPermission2
 
 #Create Turbonomic App Registration with delegations
-$myApp = New-AzureADApplication -DisplayName $TurboAppName -IdentifierUris 99 -RequiredResourceAccess @($reqGraph, $reqGraph2)
+$myApp = New-AzureADApplication -DisplayName $TurboAppName -IdentifierUris $TurboAppName -RequiredResourceAccess @($reqGraph, $reqGraph2)
 $myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $MyApp.AppId -AppRoleAssignmentRequired $true -DisplayName $TurboAppName
 
 #Create Turbonomic App Secret Key
@@ -65,13 +65,13 @@ $mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myapp.ObjectId -
 
 #Create log file for output of info needed to register Azure information in Turbonomic UI
 $appid = $myApp.appid
-$subname = $sub.name
-
+$subget = get-azurermsubscription
+$subname = $subget.name
 $mySecretkey = $mySecret.Value
 Add-Content -Path .\TurboAppInfo.csv -Value "Subscription Name,Subscription ID,Application Name,Applicaton ID,Application Secret Key,Tenant ID,Resource Group,Storage Account"
 Add-Content -Path .\TurboAppInfo.csv -Value "$subname,$subscriptionId,$TurboAppName,$appid,$mySecretkey,$tenantid,$resourcegroup,$storageaccountname"
 #Assign Turbonomic App Registration Read Only access to the subscription
-$AppName = get-azurermadserviceprincipal -DisplayName $TurboAppName
-$AppID = $AppName.Id.Guid
-new-azurermroleassignment -ObjectId $AppID -RoleDefinitionName "Reader" -Scope "/subscriptions/$subscriptionid"
+$AppName = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match $TurboAppName }
+$AppObjectID = $AppName.ObjectId
+new-azurermroleassignment -ObjectId $AppObjectID -RoleDefinitionName "Reader" -Scope "/subscriptions/$subscriptionid"
 ##END SCRIPT
