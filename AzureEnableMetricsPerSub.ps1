@@ -9,7 +9,8 @@ If the VM is NOT running it will skip it and output that to the log for tracking
 
 .DESCRIPTION
 Use the script to Enable the Default Basic Metrics on all running Windows and Linux VMs in an Azure subscription
-The script will configure the VM's to write the metris to a single storage account specified as the storageaccount parameter when running the script
+The script will configure the VM's to write the metrics to a single pre-existing storage account specified as the storageaccount parameter when running the script
+If you run the script and do not specify a pre-existing storage account the script will error out and tell you as such to re-run it.
 
 Create a new folder for the script to run in as it will save logs, xml and json files to the folder the script is run in
 
