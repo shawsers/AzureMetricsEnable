@@ -36,7 +36,7 @@ $storageAccount = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -N
 
 ##Connect to Azure AD and create Turbonomic App Registration
 $currentContext = Get-AzureRmContext
-$tenantid = $sub.Tenant.Id
+$tenantid = $currentContext.Tenant.Id
 $accountid = $currentContext.Account.Id
 connect-azuread -TenantId $tenantid -AccountId $accountid
 $svcprincipal = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match "Microsoft Graph" }
