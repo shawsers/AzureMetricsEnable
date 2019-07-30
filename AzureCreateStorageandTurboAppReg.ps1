@@ -50,18 +50,23 @@ $reqGraph.ResourceAppId = $svcprincipal.AppId
 $reqGraph2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
 $reqGraph2.ResourceAppId = $svcprincipal2.AppId
 $permission = $svcprincipal.Oauth2Permissions | ? { $_.Value -eq "User.Read" }
+$permissionid = $permission.Id
 $permission2 = $svcprincipal2.Oauth2Permissions | ? { $_.Value -eq "user_impersonation" }
-$appPermission1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "e1fe6dd8-ba31-4d61-89e7-88639da4683d","Scope"
-$appPermission2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "41094075-9dad-400e-a0bd-54e686782033","Scope"
+$permissionid2 = $permission2.Id
+$appPermission1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permissionid,"Scope"
+$appPermission2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permissionid2,"Scope"
 $reqGraph.ResourceAccess = $appPermission1
+$reqGraph.ResourceAppId = $svcprincipal.AppId
 $reqGraph2.ResourceAccess = $appPermission2
+$reqGraph2.ResourceAccess = $svcprincipal2.AppId
 
 #Create Turbonomic App Registration with delegations
-$myApp = New-AzureADApplication -DisplayName $TurboAppName -IdentifierUris $TurboAppName -RequiredResourceAccess @($reqGraph, $reqGraph2)
-$myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $MyApp.AppId -AppRoleAssignmentRequired $true -DisplayName $TurboAppName
+$myApp = New-AzureADApplication -DisplayName $TurboAppName -IdentifierUris $TurboAppName -RequiredResourceAccess $reqGraph
+$myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $myApp.AppId -AppRoleAssignmentRequired $true -DisplayName $TurboAppName
+Set-AzureADApplication -ObjectId $myApp.ObjectId -RequiredResourceAccess $reqGraph2
 
 #Create Turbonomic App Secret Key
-$mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myapp.ObjectId -enddate 7/20/2980 -CustomKeyIdentifier $TurboAppName
+$mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myApp.ObjectId -enddate 7/20/2980 -CustomKeyIdentifier $TurboAppName
 
 #Create log file for output of info needed to register Azure information in Turbonomic UI
 $appid = $myApp.appid
