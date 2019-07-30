@@ -58,16 +58,18 @@ $appPermission2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAcc
 $reqGraph.ResourceAccess = $appPermission1
 $reqGraph.ResourceAppId = $svcprincipal.AppId
 $reqGraph2.ResourceAccess = $appPermission2
-$reqGraph2.ResourceAccess = $svcprincipal2.AppId
+$reqGraph2.ResourceAppId = $svcprincipal2.AppId
 
 #Create Turbonomic App Registration with delegations
-$myApp = New-AzureADApplication -DisplayName $TurboAppName -IdentifierUris $TurboAppName -RequiredResourceAccess $reqGraph
-$myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $myApp.AppId -AppRoleAssignmentRequired $true -DisplayName $TurboAppName
-Set-AzureADApplication -ObjectId $myApp.ObjectId -RequiredResourceAccess $reqGraph2
+$myApp = New-AzureADApplication -DisplayName $TurboAppName -IdentifierUris $TurboAppName -RequiredResourceAccess @($reqGraph, $reqGraph2)
+start-sleep -Seconds 5
+$myspn = New-AzureADServicePrincipal -AccountEnabled $true -AppId $myApp.AppId -AppRoleAssignmentRequired $false -DisplayName $TurboAppName
+start-sleep -Seconds 5
+#Set-AzureADApplication -ObjectId $myApp.ObjectId -RequiredResourceAccess $reqGraph2
 
 #Create Turbonomic App Secret Key
 $mySecret = New-AzureADApplicationPasswordCredential -ObjectId $myApp.ObjectId -enddate 7/20/2980 -CustomKeyIdentifier $TurboAppName
-
+start-sleep -Seconds 5
 #Create log file for output of info needed to register Azure information in Turbonomic UI
 $appid = $myApp.appid
 $subget = get-azurermsubscription
@@ -75,9 +77,11 @@ $subname = $subget.name
 $mySecretkey = $mySecret.Value
 Add-Content -Path .\TurboAppInfo.csv -Value "Subscription Name,Subscription ID,Application Name,Applicaton ID,Application Secret Key,Tenant ID,Resource Group,Storage Account"
 Add-Content -Path .\TurboAppInfo.csv -Value "$subname,$subscriptionId,$TurboAppName,$appid,$mySecretkey,$tenantid,$resourcegroup,$storageaccountname"
+start-sleep -Seconds 5
 #Assign Turbonomic App Registration Read Only access to the subscription
-$AppName = Get-AzureADServicePrincipal -All $true | ? { $_.DisplayName -match $TurboAppName }
-$AppObjectID = $AppName.ObjectId
+while(($AppName = Get-AzurermADServicePrincipal | ? { $_.DisplayName -match $TurboAppName }) -eq $null){start-sleep 10}
+start-sleep -Seconds 30
+$AppObjectID = $AppName.Id.Guid
 new-azurermroleassignment -ObjectId $AppObjectID -RoleDefinitionName "Reader" -Scope "/subscriptions/$subscriptionid"
 new-azurermroleassignment -ObjectId $AppObjectID -RoleDefinitionName "Reader and Data Access" -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname"
 ##END SCRIPT
