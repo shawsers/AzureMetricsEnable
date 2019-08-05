@@ -11,16 +11,11 @@ foreach($azureSubscription in Get-AzureRmSubscription){
         if($turboRoleSubscription){
             Select-AzureRmSubscription -Subscription $azureSubscription.Id
             $targetSubID = $azureSubscription.Id
+            $subname = $azureSubscription.Name
             $turboCustomRole = Get-AzureRmRoleDefinition | Where-Object{$_.Name -like '*Turbonomic*'}
             $turboCustomRole.AssignableScopes.Add("/subscriptions/$targetSubID")
+            Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "Subscription Name,Subscription ID,Turbo Custom Role Name"
+            Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$subname,$targetSubID,$TurboCustomRole"
         }
     }
 }
- 
-#if an existing custom role is found, update the role's scope with target subscription info
-#if($turboRoleSubscription){
-#    Select-AzureRmSubscription -Subscription $azureSubscription.Id
-#    $turboCustomRole = Get-AzureRmRoleDefinition | Where-Object{$_.Name -like '*Turbonomic*'}
-#    $turboCustomRole.AssignableScopes.Add($targetSubID)
-# 
-#}
