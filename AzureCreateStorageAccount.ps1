@@ -21,8 +21,12 @@ $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
 login-azurermaccount -Subscription $subscriptionId -ErrorAction Stop
 $sub = Get-AzureRmSubscription 
 $subname = $sub.Name
+$valres = Get-AzureRmResourceGroup -Name $resourcegroup
+
+if ($valres -eq $null){
 #Create new Resource Group for the new Stoage Account
 $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location
+}
 
 #Get List of VM's locations
 $vmsloc = get-azurermvm | Select-Object -Unique -ExpandProperty "Location"
