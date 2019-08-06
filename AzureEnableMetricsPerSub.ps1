@@ -1932,7 +1932,14 @@ if($subscriptionId){
     Login-AzureRmAccount -SubscriptionId $subscriptionId -ErrorAction Stop
     $getsub = get-azurermsubscription
     $subname = $getsub.Name
-    #save-azurermcontext -Path .\context_$TimeStamp.json
+    $vmstat = get-azurermvm -status
+    $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
+    Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value "VM's Running Before Change"
+    @($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunning_$TimeStampLog.csv
+    Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value " "
+    $vmstat | out-file .\VMsRunning_$TimeStampLog.csv
+    Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value " "
+
 } else {
     Login-AzureRmAccount -ErrorAction Stop
 }
@@ -2017,3 +2024,10 @@ $completedJobs = get-job -State Completed | Receive-Job
 $completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append
 get-job -State Completed | remove-job -confirm:$false -force
 get-job -State Failed | remove-job -confirm:$false -force
+$vmstat = get-azurermvm -status
+$vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
+Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value "VM's Running After Change"
+@($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunning_$TimeStampLog.csv
+Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value " "
+$vmstat | out-file .\VMsRunning_$TimeStampLog.csv
+Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value " "
