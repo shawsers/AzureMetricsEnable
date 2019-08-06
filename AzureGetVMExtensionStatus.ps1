@@ -31,13 +31,17 @@ if($vmList){
                     Write-Output "VM Type Detected is Windows"
                     $WinVM = get-azurermvmdiagnosticsextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name Microsoft.Insights.VMDiagnosticsSettings -Status -Verbose
                     $WinVMStatus = $WinVM.Statuses.DisplayStatus
-                    $WinVMMessage = $WinVM.Statuses.Message 
+                    $WinVM.Statuses.Message | out-file .\Message.txt
+                    $WinVMMessage = get-content .\Message.txt | select -First 1
+                    @($WinVMMessage).Replace(",","")
                     Add-Content -Path .\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$WinVMStatus,$WinVMMessage"
                 } else {
                     Write-Output "VM Type Detected is Linux "
                     $LinuxVM = get-azurermvmextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name LinuxDiagnostic -Status -Verbose
                     $LinuxVMStatus = $LinuxVM.Statuses.DisplayStatus
-                    $LinuxVMMessage = $LinuxVM.Statuses.Message 
+                    $LinuxVM.Statuses.Message | out-file .\Message.txt
+                    $LinuxVMMessage = get-content .\Message.txt | select -First 1
+                    @($LinuxVMMessage).Replace(",","")
                     Add-Content -Path .\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$LinuxVMStatus,$LinuxVMMessage"
                 }
 
