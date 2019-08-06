@@ -1937,9 +1937,9 @@ if($subscriptionId){
     Login-AzureRmAccount -ErrorAction Stop
 }
 
-$verifystorage = Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $storageaccount}
+$verifystorage = Get-AzureRmStorageAccount | Where-Object {$_.StorageAccountName -eq $storageaccount}
 
-if($verifystorage -eq $null){
+if(!($verifystorage)){
 write-host "Storage account apecified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red
 write-host "  "
 exit
@@ -1998,9 +1998,9 @@ if($vmList){
             InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
             Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,$error'"
         }
-        $failedJobs = get-job -State Failed
+        $failedJobs = get-job -State Failed | Receive-Job
         $failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append
-        $completedJobs = get-job -State Completed
+        $completedJobs = get-job -State Completed | Receive-Job
         $completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append
         get-job -State Completed | remove-job -confirm:$false -force
         get-job -State Failed | remove-job -confirm:$false -force
@@ -2011,9 +2011,9 @@ if($vmList){
 
 }
 while((get-job -State Running).count -gt 0){start-sleep 5}
-$failedJobs = get-job -State Failed
+$failedJobs = get-job -State Failed | Receive-Job
 $failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append
-$completedJobs = get-job -State Completed
+$completedJobs = get-job -State Completed | Receive-Job
 $completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append
 get-job -State Completed | remove-job -confirm:$false -force
 get-job -State Failed | remove-job -confirm:$false -force
