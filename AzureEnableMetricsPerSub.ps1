@@ -1935,10 +1935,9 @@ if($subscriptionId){
     $vmstat = get-azurermvm -status
     $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
     Add-Content -Path .\VMsRunningPreChange_$TimeStampLog.csv -Value "VM's Running Before Change"
-    @($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunningPreChange_$TimeStampLog.csv -Append
+    @($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunningPreChange_$TimeStampLog.csv -Append ascii
     Add-Content -Path .\VMsRunningPreChange_$TimeStampLog.csv -Value " "
-    $vmstat | out-file .\VMsRunningPreChange_$TimeStampLog.csv -Append
-    Add-Content -Path .\VMsRunningPreChange_$TimeStampLog.csv -Value " "
+    $vmstat | out-file .\VMsRunningPreChange_$TimeStampLog.csv -Append ascii
 
 } else {
     Login-AzureRmAccount -ErrorAction Stop
@@ -2027,7 +2026,6 @@ get-job -State Failed | remove-job -confirm:$false -force
 $vmstat = get-azurermvm -status
 $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
 Add-Content -Path .\VMsRunningPostChange_$TimeStampLog.csv -Value "VM's Running After Change"
-@($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunningPostChange_$TimeStampLog.csv -Append
+@($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunningPostChange_$TimeStampLog.csv -Append ascii
 Add-Content -Path .\VMsRunningPostChange_$TimeStampLog.csv -Value " "
-$vmstat | out-file .\VMsRunningPostChange_$TimeStampLog.csv -Append
-Add-Content -Path .\VMsRunningPostChange_$TimeStampLog.csv -Value " "
+$vmstat | out-file .\VMsRunningPostChange_$TimeStampLog.csv -Append ascii
