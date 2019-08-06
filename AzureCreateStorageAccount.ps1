@@ -34,7 +34,7 @@ foreach($storloc in $vmsloc){
 $count++
 $storageaccountname = $storageaccount + $count
 #Create new Storage Account for metrics
-New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $location -Kind StorageV2 -SkuName Standard_LRS
+New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS
 
 Add-Content -Path .\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc"
 }
