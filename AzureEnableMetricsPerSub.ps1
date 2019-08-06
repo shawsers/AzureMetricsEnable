@@ -1934,11 +1934,11 @@ if($subscriptionId){
     $subname = $getsub.Name
     $vmstat = get-azurermvm -status
     $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
-    Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value "VM's Running Before Change"
-    @($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunning_$TimeStampLog.csv
-    Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value " "
-    $vmstat | out-file .\VMsRunning_$TimeStampLog.csv
-    Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value " "
+    Add-Content -Path .\VMsRunningPreChange_$TimeStampLog.csv -Value "VM's Running Before Change"
+    @($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunningPreChange_$TimeStampLog.csv -Append
+    Add-Content -Path .\VMsRunningPreChange_$TimeStampLog.csv -Value " "
+    $vmstat | out-file .\VMsRunningPreChange_$TimeStampLog.csv -Append
+    Add-Content -Path .\VMsRunningPreChange_$TimeStampLog.csv -Value " "
 
 } else {
     Login-AzureRmAccount -ErrorAction Stop
@@ -2026,8 +2026,8 @@ get-job -State Completed | remove-job -confirm:$false -force
 get-job -State Failed | remove-job -confirm:$false -force
 $vmstat = get-azurermvm -status
 $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
-Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value "VM's Running After Change"
-@($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunning_$TimeStampLog.csv
-Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value " "
-$vmstat | out-file .\VMsRunning_$TimeStampLog.csv
-Add-Content -Path .\VMsRunning_$TimeStampLog.csv -Value " "
+Add-Content -Path .\VMsRunningPostChange_$TimeStampLog.csv -Value "VM's Running After Change"
+@($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunningPostChange_$TimeStampLog.csv -Append
+Add-Content -Path .\VMsRunningPostChange_$TimeStampLog.csv -Value " "
+$vmstat | out-file .\VMsRunningPostChange_$TimeStampLog.csv -Append
+Add-Content -Path .\VMsRunningPostChange_$TimeStampLog.csv -Value " "
