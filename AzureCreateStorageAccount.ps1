@@ -1,6 +1,16 @@
-#The script will create a new Azure storage account in the resource group, location and subscription specified in the parameters
+#The script will create a new Azure storage account per location that the VM's are in and a new resrouce group unless the one provided already exists, then it will use it.
+#The location specified will only be used if a new resource account is needed to be created and must be in the short name ex. eastus or westus
+#It will also make the changes in the subscription specificed
+
+#This will also add the scope of the subscription and the new storage account(s) to the Turbonomic custom role
+#It will also add the Turbonomic Service Principal to the Turbonomic custom role scoped to the new storage account(s)
+#Both above are required for Turbonomic to read the sub and read the memory metrics from the new storage account(s)
+
+#Note when you specify the storage account name in the parameters leave off the trailing # as the script will automatically add the #1 to the end
+#of the storage accounts created.  So if you have VM's in 3 locations in the sub, it will create 3 new storage accounts starting with #1, then #2, then #3
 
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid SUB-ID-HERE -location AZURE-LOCATION -resourcegroup NEW-RES-GROUP-NAME - storageaccount NEW-DIAG-STORAGE
+#example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 - storageaccount diagstorage00
 
 param(
  [Parameter(Mandatory=$True)]
