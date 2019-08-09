@@ -6,6 +6,7 @@ param(
 
 )
 Login-AzureRmAccount -SubscriptionId $subscriptionId -ErrorAction Stop
+Select-AzureRmSubscription -Subscription $subscriptionId
 $getsub = get-azurermsubscription
 $subname = $getsub.Name
 $TimeStampLog = Get-Date -Format o | foreach {$_ -replace ":", "."}
