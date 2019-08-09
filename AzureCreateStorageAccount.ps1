@@ -32,13 +32,15 @@ login-azurermaccount -Subscription $subscriptionId -ErrorAction Stop
 $sub = Get-AzureRmSubscription -subscriptionid $subscriptionId
 $subname = $sub.Name
 Select-AzureRmSubscription -Subscription $subscriptionId
-$valres = Get-AzureRmResourceGroup -Name $resourcegroup
+#$valres = Get-AzureRmResourceGroup -Name $resourcegroup
 
-if ($valres -eq $null){
-#Create new Resource Group for the new Stoage Account
-$newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location
+if (($valres = Get-AzureRmResourceGroup -Name $resourcegroup -ErrorAction SilentlyContinue) -eq $null){
+    Write-Host "Resource Group does not exist, creating new one"
+    #Create new Resource Group for the new Stoage Account
+    $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location
+} else {
+    write-host "Resource Group already exists, using exising"
 }
-
 #Get List of VM's locations
 $vmsloc = get-azurermvm | Select-Object -Unique -ExpandProperty "Location"
 
@@ -52,7 +54,8 @@ $storageaccountname = $storageaccount + $count
 New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS
 Add-Content -Path .\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc"
     if(Get-AzureRmRoleDefinition | Where-Object{$_.Name -like '*Turbonomic*'}){
-            $turboCustomRole = Get-AzureRmRoleDefinition | Where-Object{$_.Name -like '*Turbonomic*'}
+            #$turboCustomRole = Get-AzureRmRoleDefinition | Where-Object{$_.Name -like '*Turbonomic*'}
+            $turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
             $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
             $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
             $turboCustomRoleName = $turboCustomRole.Name
