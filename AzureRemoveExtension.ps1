@@ -29,7 +29,7 @@ foreach($vm in $vmsRemoveExt){
 
         if($osType -eq "Windows"){
             Write-Output "VM Type Detected is Windows"
-            $WinVM = remove-azurermvmdiagnosticsextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName | Update-AzureRmVM
+            $WinVM = remove-azurermvmdiagnosticsextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName
             $WinVMStatus = $WinVM.Statuses.DisplayStatus
             $WinVM.Statuses.Message | out-file .\Message.txt
             $WinVMMessage = get-content .\Message.txt | select -First 1
