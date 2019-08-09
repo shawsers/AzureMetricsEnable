@@ -814,7 +814,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
     ##$extensionVersion = "2.3"
     $extensionPublisher = 'Microsoft.Azure.Diagnostics'
     $extensionVersion = "3.0"
-    $storageAll = Get-AzureRmStorageAccount
+    $storageAll = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageName -ErrorAction SilentlyContinue
     $storagersgName = $storageAll | where {$_.StorageAccountName -eq $storageName} | Select-Object -ExpandProperty ResourceGroupName
     $startdate = [system.datetime]::now.AddDays(-1)
     $enddate = [system.datetime]::Now.AddYears(999)
@@ -1899,7 +1899,7 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
 
     $extensionTemplatePath = Join-Path $deployExtensionLogDir "extensionTemplateForWindows.json";
     Out-File -FilePath $extensionTemplatePath -Force -Encoding utf8 -InputObject $extensionTemplate
-    $storageAll = Get-AzureRmStorageAccount
+    $storageAll = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageName -ErrorAction SilentlyContinue
     $storagersgName = $storageAll | where {$_.StorageAccountName -eq $storageName} | Select-Object -ExpandProperty ResourceGroupName
     $startdate = [system.datetime]::now.AddDays(-1)
     $enddate = [system.datetime]::Now.AddYears(999)
@@ -1946,7 +1946,7 @@ if($subscriptionId){
     Login-AzureRmAccount -ErrorAction Stop
 }
 
-$verifystorage = Get-AzureRmStorageAccount | Where-Object {$_.StorageAccountName -eq $storageaccount}
+$verifystorage = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageaccount -ErrorAction SilentlyContinue
 
 if(!($verifystorage)){
 write-host "Storage account apecified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red
@@ -1957,8 +1957,8 @@ exit
 $vmList = $null
 if($vmname -and $storageaccount){
     Write-Output "Selected Resource Group: " $resourcegroup " VM Name:" $vmname
-    #$vmList = Get-AzureRmVM -Name $vmname -ResourceGroupName $resourcegroup
-    $vmList = Get-AzureRmVM -Name $vmname
+    $vmList = Get-AzureRmVM -Name $vmname -ResourceGroupName $resourcegroup
+    #$vmList = Get-AzureRmVM -Name $vmname
     Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
 }
 elseif($storageaccount) {
