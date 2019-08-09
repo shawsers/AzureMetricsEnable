@@ -2008,9 +2008,9 @@ if($vmList){
             Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,$error'"
         }
         $failedJobs = get-job -State Failed | Receive-Job
-        $failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append
+        $failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append -Force
         $completedJobs = get-job -State Completed | Receive-Job
-        $completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append
+        $completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append -Force
         get-job -State Completed | remove-job -confirm:$false -force
         get-job -State Failed | remove-job -confirm:$false -force
     }
@@ -2021,9 +2021,9 @@ if($vmList){
 }
 while((get-job -State Running).count -gt 0){start-sleep 5}
 $failedJobs = get-job -State Failed | Receive-Job
-$failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append
+$failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append -Force
 $completedJobs = get-job -State Completed | Receive-Job
-$completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append
+$completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append -Force
 get-job -State Completed | remove-job -confirm:$false -force
 get-job -State Failed | remove-job -confirm:$false -force
 $vmstat = get-azurermvm -status
