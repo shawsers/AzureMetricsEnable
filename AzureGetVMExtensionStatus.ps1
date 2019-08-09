@@ -27,7 +27,6 @@ if($vmList){
                 $vmName = $vm.Name
                 $osType = $vm.StorageProfile.OsDisk.OsType
                 Write-Output "OS Type:" $osType
-        
                 if($osType -eq "Windows"){
                     Write-Output "VM Type Detected is Windows"
                     $WinVM = get-azurermvmdiagnosticsextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name Microsoft.Insights.VMDiagnosticsSettings -Status -Verbose
@@ -37,7 +36,7 @@ if($vmList){
                     @($WinVMMessage).Replace(",","")
                     Add-Content -Path .\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$WinVMStatus,$WinVMMessage"
                 } else {
-                    Write-Output "VM Type Detected is Linux "
+                    Write-Output "VM Type Detected is Linux"
                     $LinuxVM = get-azurermvmextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name LinuxDiagnostic -Status -Verbose
                     $LinuxVMStatus = $LinuxVM.Statuses.DisplayStatus
                     $LinuxVM.Statuses.Message | out-file .\Message.txt
@@ -45,7 +44,6 @@ if($vmList){
                     @($LinuxVMMessage).Replace(",","")
                     Add-Content -Path .\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$LinuxVMStatus,$LinuxVMMessage"
                 }
-
             }
         }
     }
