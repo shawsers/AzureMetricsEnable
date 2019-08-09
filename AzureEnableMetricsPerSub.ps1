@@ -814,7 +814,8 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
     ##$extensionVersion = "2.3"
     $extensionPublisher = 'Microsoft.Azure.Diagnostics'
     $extensionVersion = "3.0"
-    $storagersgName = Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $storageName} | Select-Object -ExpandProperty ResourceGroupName
+    $storageAll = Get-AzureRmStorageAccount
+    $storagersgName = $storageAll | where {$_.StorageAccountName -eq $storageName} | Select-Object -ExpandProperty ResourceGroupName
     $startdate = [system.datetime]::now.AddDays(-1)
     $enddate = [system.datetime]::Now.AddYears(999)
     $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $StoragersgName -Name $storageName;
@@ -1898,7 +1899,8 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
 
     $extensionTemplatePath = Join-Path $deployExtensionLogDir "extensionTemplateForWindows.json";
     Out-File -FilePath $extensionTemplatePath -Force -Encoding utf8 -InputObject $extensionTemplate
-    $storagersgName = Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $storageName} | Select-Object -ExpandProperty ResourceGroupName
+    $storageAll = Get-AzureRmStorageAccount
+    $storagersgName = $storageAll | where {$_.StorageAccountName -eq $storageName} | Select-Object -ExpandProperty ResourceGroupName
     $startdate = [system.datetime]::now.AddDays(-1)
     $enddate = [system.datetime]::Now.AddYears(999)
     $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $StoragersgName -Name $storageName;
@@ -1930,6 +1932,7 @@ $deployExtensionLogDir = split-path -parent $MyInvocation.MyCommand.Definition
 
 if($subscriptionId){
     Login-AzureRmAccount -SubscriptionId $subscriptionId -ErrorAction Stop
+    Select-AzureRmSubscription -Subscription $subscriptionId
     $getsub = get-azurermsubscription
     $subname = $getsub.Name
     $vmstat = get-azurermvm -status
