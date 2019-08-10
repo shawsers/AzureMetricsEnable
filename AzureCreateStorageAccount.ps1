@@ -47,7 +47,7 @@ if (($valres = Get-AzureRmResourceGroup -Name $resourcegroup -ErrorAction Silent
     #Create new Resource Group for the new Stoage Account
     $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location
 } else {
-    write-host "Resource Group already exists, using exising" - -ForegroundColor Green
+    write-host "Resource Group already exists, using exising" -ForegroundColor Green
 }
 #Get List of VM's locations
 $vmsloc = get-azurermvm | Select-Object -Unique -ExpandProperty "Location"
@@ -61,19 +61,21 @@ foreach($storloc in $vmsloc){
     #Create new Storage Account for metrics
     $getStorage = get-azurermresourcegroup | get-azurermstorageaccount -name $storageaccountname -ErrorAction SilentlyContinue
     if ($getStorage -eq $null){
-        Write-Host "Storage does not exist, creating new one" -ForegroundColor Green
+        Write-Host "Storage account does not exist, creating new one" -ForegroundColor Green
         #Creating new storage account
-        New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS
-    } else {
-        Write-Host "Storage already exists, using existing" -ForegroundColor Green
+        $newStorage = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS
         Add-Content -Path .\$subname\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc"
+    } else {
+        Write-Host "Storage account already exists, using existing" -ForegroundColor Green
+        Add-Content -Path .\$subname\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc"
+    }
+    if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
+        $newsub = Read-Host -Prompt 'Cannot find Turbonomic Custom Role, please enter a subscription ID that already has it listed'
+        Select-AzureRmSubscription -Subscription $newsub
         if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
-            $newsub = Read-Host -Prompt 'Cannot find Turbonomic Custom Role, please enter a subscription ID that already has it listed'
-            Select-AzureRmSubscription -Subscription $newsub
-            if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
-                Write-Host "Still cannot find Turbonomic Custom Role, please run the script again after verifying role exists in the subscription" -ForegroundColor Red -BackgroundColor Black
-                Exit
-            } else {
+            Write-Host "Still cannot find Turbonomic Custom Role, please run the script again after verifying role exists in the subscription" -ForegroundColor Red -BackgroundColor Black
+            Exit
+        } else {
             Write-Host "Found Turbonomic Custom Role and assigning scope" -ForegroundColor Green    
             #$turboCustomRole = Get-AzureRmRoleDefinition | Where-Object{$_.Name -like '*Turbonomic*'}
             #$turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
@@ -91,32 +93,25 @@ foreach($storloc in $vmsloc){
                 new-azurermroleassignment -ObjectId $turboSPNid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname"
                 }
             Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$targetSubID,$TurboCustomRoleName"
-        } else {
-            Write-Host "Cannot find Turbonomic Custom Role, might be a delayed sync in Azure AD" -ForegroundColor Red -BackgroundColor Black
-            Write-Host "Please run the script again after you verify that the Turbonomic Custom roles exists in the subscription" -ForegroundColor Red -BackgroundColor Black
         }
     } else {
         Write-Host "Found Turbonomic Custom Role and assigning scope" -ForegroundColor Green
-            #$turboCustomRole = Get-AzureRmRoleDefinition | Where-Object{$_.Name -like '*Turbonomic*'}
-            #$turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
-            $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
-            $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
-            $turboCustomRoleName = $turboCustomRole.Name
-            Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
-            Set-AzureRmRoleDefinition -Role $turboCustomRole
-            $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
-            #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -like '*Turbo*'}
-            foreach($turboSPN in $turboSPNlist){
-                $turboSPNid = $turboSPN.Id.Guid
-                Write-Host "Assinging Turbonomic SPN App Reg permissions on subscription and storage" -ForegroundColor Green
-                new-azurermroleassignment -ObjectId $turboSPNid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid"
-                new-azurermroleassignment -ObjectId $turboSPNid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname"
+        #$turboCustomRole = Get-AzureRmRoleDefinition | Where-Object{$_.Name -like '*Turbonomic*'}
+        #$turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
+        $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
+        $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
+        $turboCustomRoleName = $turboCustomRole.Name
+        Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
+        Set-AzureRmRoleDefinition -Role $turboCustomRole
+        $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
+        #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -like '*Turbo*'}
+        foreach($turboSPN in $turboSPNlist){
+            $turboSPNid = $turboSPN.Id.Guid
+            Write-Host "Assinging Turbonomic SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+            new-azurermroleassignment -ObjectId $turboSPNid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid"
+            new-azurermroleassignment -ObjectId $turboSPNid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname"
                 }
-            Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$targetSubID,$TurboCustomRoleName"
-        } else {
-            Write-Host "Cannot find Turbonomic Custom Role, might be a delayed sync in Azure AD" -ForegroundColor Red -BackgroundColor Black
-            Write-Host "Please run the script again after you verify that the Turbonomic Custom roles exists in the subscription" -ForegroundColor Red -BackgroundColor Black
-        }
+        Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$targetSubID,$TurboCustomRoleName"
     } 
 }
 $date = date
