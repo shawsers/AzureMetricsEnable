@@ -75,6 +75,8 @@ foreach($storloc in $vmsloc){
     if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
         $newsub = Read-Host -Prompt 'Cannot find Turbonomic Custom Role, please enter a subscription ID that already has it listed'
         $readNewSub = Select-AzureRmSubscription -Subscription $newsub
+        #Add in login to check Azure AD and wait for 5 mins and check again
+        #possibly wait until Azure AD sync completes before continuing
         if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
             Write-Host "Still cannot find Turbonomic Custom Role, please run the script again after verifying role exists in the subscription" -ForegroundColor Red -BackgroundColor Black
             Exit
