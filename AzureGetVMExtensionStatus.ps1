@@ -44,26 +44,41 @@ if($vmList){
                 if($osType -eq "Windows"){
                     Write-Output "VM Type Detected is Windows"
                     #add start-job to run as background job
-                    $WinVM = get-azurermvmdiagnosticsextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name Microsoft.Insights.VMDiagnosticsSettings -Status -Verbose
-                    $WinVMStatus = $WinVM.Statuses.DisplayStatus
-                    $WinVM.Statuses.Message | out-file .\$subname\Message.txt
-                    $WinVMMessage = get-content .\$subname\Message.txt | select -First 1
-                    @($WinVMMessage).Replace(",","")
-                    Add-Content -Path .\$subname\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$WinVMStatus,$WinVMMessage"
+                    if(($WinVM = get-azurermvmdiagnosticsextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name Microsoft.Insights.VMDiagnosticsSettings -Status -Verbose -ErrorAction SilentlyContinue) -eq $null){
+                        Write-Host "Extension NOT found on VM: ""$vmName"" " -ForegroundColor Red -BackgroundColor Black
+                        $WinVMStatus = "Extension NOT found"
+                        $WinVMMessage = "Extension NOT installed"
+                        Add-Content -Path .\$subname\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$WinVMStatus,$WinVMMessage"  
+                    } else {
+                        Write-Host "Extension found on VM: ""$vmName"" " -ForegroundColor Green
+                        $WinVMStatus = $WinVM.Statuses.DisplayStatus
+                        $WinVM.Statuses.Message | out-file .\$subname\Message.txt
+                        $WinVMMessage = get-content .\$subname\Message.txt | select -First 1
+                        @($WinVMMessage).Replace(",","")
+                        Add-Content -Path .\$subname\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$WinVMStatus,$WinVMMessage"
+                    }
                 } else {
                     Write-Output "VM Type Detected is Linux"
                     #add start-job to run as background job
-                    $LinuxVM = get-azurermvmextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name LinuxDiagnostic -Status -Verbose
-                    $LinuxVMStatus = $LinuxVM.Statuses.DisplayStatus
-                    $LinuxVM.Statuses.Message | out-file .\$subname\Message.txt
-                    $LinuxVMMessage = get-content .\$subname\Message.txt | select -First 1
-                    @($LinuxVMMessage).Replace(",","")
-                    Add-Content -Path .\$subname\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$LinuxVMStatus,$LinuxVMMessage"
+                    if(($LinuxVM = get-azurermvmextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name LinuxDiagnostic -Status -Verbose -ErrorAction SilentlyContinue) -eq $null){
+                        Write-Host "Extension NOT found on VM: ""$vmName"" " -ForegroundColor Red -BackgroundColor Black
+                        $LinuxVMStatus = "Extension NOT found"
+                        $LinuxVMMessage = "Extension NOT installed"
+                        Add-Content -Path .\$subname\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$LinuxVMStatus,$LinuxVMMessage"
+                    } else {
+                        Write-Host "Extension found on VM: ""$vmName"" " -ForegroundColor Green
+                        $LinuxVMStatus = $LinuxVM.Statuses.DisplayStatus
+                        $LinuxVM.Statuses.Message | out-file .\$subname\Message.txt
+                        $LinuxVMMessage = get-content .\$subname\Message.txt | select -First 1
+                        @($LinuxVMMessage).Replace(",","")
+                        Add-Content -Path .\$subname\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$LinuxVMStatus,$LinuxVMMessage"
+                    }
                 }
             }
         }
     }
     #add logic to check for long running jobs
+    #remember to add logic for jobs running for over 5 mins to cancel them and capture job detail
     $date = date
     Write-Host "**Script finished at $date " -ForegroundColor Green
     Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
