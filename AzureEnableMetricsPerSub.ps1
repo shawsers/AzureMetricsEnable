@@ -1934,7 +1934,7 @@ if($subscriptionId){
     Login-AzureRmAccount -SubscriptionId $subscriptionId -ErrorAction Stop
     $getsub = get-azurermsubscription -subscriptionId $subscriptionId
     $subname = $getsub.Name
-    Select-AzureRmSubscription -Subscription $subscriptionId -InformationAction SilentlyContinue
+    $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId -InformationAction SilentlyContinue
     if((Test-Path -Path .\$subname) -ne 'True'){
       Write-Host "Creating new sub directory for log files" -ForegroundColor Green
       $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
