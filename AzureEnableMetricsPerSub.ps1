@@ -61,7 +61,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
         Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,Skipping Install as diagnostics already installed on the VM: $vmName in Resource Group: $rsgName diagnostics storage currently being used is: $currentsg'"
         return
     }
-    Write-Output "Installing VM Extension for your Linux VM"
+    Write-Host "Installing VM Extension for your Linux VM" -ForegroundColor Green
     Write-Output "storageName:" $storageName
     ##sastoken moved out of loop
 
@@ -852,7 +852,7 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
 
         return
     }
-    Write-Output "Installing Diagnostic Extension on your Windows VM"
+    Write-Host "Installing Diagnostic Extension on your Windows VM" -ForegroundColor Green
 
         Write-Output "storageName:" $storageName
         ##$storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $storagersgName -Name $storageName;
@@ -1934,16 +1934,23 @@ if($subscriptionId){
     Login-AzureRmAccount -SubscriptionId $subscriptionId -ErrorAction Stop
     $getsub = get-azurermsubscription -subscriptionId $subscriptionId
     $subname = $getsub.Name
-    Select-AzureRmSubscription -Subscription $subscriptionId
+    Select-AzureRmSubscription -Subscription $subscriptionId -InformationAction SilentlyContinue
     if((Test-Path -Path .\$subname) -ne 'True'){
       Write-Host "Creating new sub directory for log files" -ForegroundColor Green
-      new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
+      $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
+      $fullPath = $path.FullName
+    } else {
+      Write-Host "Using existing directory for logs" -ForegroundColor Green
+      $path = Get-Location
+      $fullPath = $path.Path + "\" + $subname 
     }
     #Verify if storage account already exists, if not exit the script
-    Write-Host "Verifying if storage account exists" -ForegroundColor Green
+    Write-Host "Verifying if storage account exists..." -ForegroundColor Green
     if(($verifystorage = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageaccount -ErrorAction SilentlyContinue) -eq $null){
       write-host "Storage account specified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red -BackgroundColor Black
       exit
+    } else {
+      Write-Host "Storage account found, proceeding..." -ForegroundColor Green 
     }
     $date = date
     Write-Host "Script started at $date" -ForegroundColor Green
@@ -2026,13 +2033,13 @@ if($vmList){
         get-job -State Failed | remove-job -confirm:$false -force
     }
 } else {
-    Write-Output "Couldn't find any VMs on your account"
+    Write-Host "Couldn't find any VMs on your account" -ForegroundColor Red -BackgroundColor Black
     Write-Output "Couldn't find any VMs on your account" | Out-File -FilePath .\$subname\NoVMs_$TimeStampLog.csv
 
 }
 Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
 while((get-job -State Running).count -gt 0){start-sleep 5}
-Write-Host "All background jobs have finished running now, saving final log files" -ForegroundColor Green
+Write-Host "All background jobs have finished running now, saving job log files" -ForegroundColor Green
 $failedJobs = get-job -State Failed | Receive-Job
 $failedJobs | export-csv -Path .\$subname\Failed_$TimeStampLog.csv -Append -Force
 $completedJobs = get-job -State Completed | Receive-Job
@@ -2049,4 +2056,5 @@ Write-Host "Saving VM's running to log file" -ForegroundColor Green
 Add-Content -Path .\$subname\VMsRunningPostChange_$TimeStampLog.csv -Value " "
 $vmstat | out-file .\$subname\VMsRunningPostChange_$TimeStampLog.csv -Append ascii
 $date = date
-Write-Host "Script Finished at $date" -ForegroundColor Green
+Write-Host "Script finished at $date " -ForegroundColor Green
+Write-Host "Check path: ""$fullPath"" for the logs" -ForegroundColor Green
