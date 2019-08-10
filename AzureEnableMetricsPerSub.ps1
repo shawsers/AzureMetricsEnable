@@ -833,6 +833,8 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
     #}'
     ##"storageAccountKey": "'+$storageKey+'"
     $extensionType = "LinuxDiagnostic"
+    #set this up to run via start-job
+    #make sure to remove the -AsJob at the end of the script before adding to start-job
     Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName -ExtensionType $extensionType -Publisher $extensionPublisher -TypeHandlerVersion $extensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
     ##Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName -Publisher $extensionPublisher -ExtensionType $extensionType -TypeHandlerVersion $extensionVersion -Settingstring $settingsString -ProtectedSettingString $privateCfg -Location $vmLocation
     ##Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storagename -StorageAccountKey $storageKey -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $xmlCfgPath -AutoUpgradeMinorVersion $True
@@ -2038,6 +2040,7 @@ if($vmList){
 
 }
 Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
+#Add logic to check for long running job and kill it after 5 mins and save job info
 while((get-job -State Running).count -gt 0){start-sleep 5}
 Write-Host "All background jobs have finished running now, saving job log files" -ForegroundColor Green
 $failedJobs = get-job -State Failed | Receive-Job
