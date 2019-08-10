@@ -1953,7 +1953,7 @@ if($subscriptionId){
       Write-Host "Storage account found, proceeding..." -ForegroundColor Green 
     }
     $date = date
-    Write-Host "Script started at $date" -ForegroundColor Green
+    Write-Host "**Script started at $date" -ForegroundColor Green
     Write-Host "Getting VM's current status" -ForegroundColor Green
     $vmstat = get-azurermvm -status
     $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
@@ -2056,5 +2056,5 @@ Write-Host "Saving VM's running to log file" -ForegroundColor Green
 Add-Content -Path .\$subname\VMsRunningPostChange_$TimeStampLog.csv -Value " "
 $vmstat | out-file .\$subname\VMsRunningPostChange_$TimeStampLog.csv -Append ascii
 $date = date
-Write-Host "Script finished at $date " -ForegroundColor Green
-Write-Host "Check path: ""$fullPath"" for the logs" -ForegroundColor Green
+Write-Host "**Script finished at $date " -ForegroundColor Green
+Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
