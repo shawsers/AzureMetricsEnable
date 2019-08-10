@@ -1932,26 +1932,31 @@ $deployExtensionLogDir = split-path -parent $MyInvocation.MyCommand.Definition
 
 if($subscriptionId){
     Login-AzureRmAccount -SubscriptionId $subscriptionId -ErrorAction Stop
-    Select-AzureRmSubscription -Subscription $subscriptionId
-    $getsub = get-azurermsubscription
+    $getsub = get-azurermsubscription -subscriptionId $subscriptionId
     $subname = $getsub.Name
+    Select-AzureRmSubscription -Subscription $subscriptionId
     $vmstat = get-azurermvm -status
     $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
-    Add-Content -Path .\VMsRunningPreChange_$TimeStampLog.csv -Value "VM's Running Before Change"
-    @($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunningPreChange_$TimeStampLog.csv -Append ascii
-    Add-Content -Path .\VMsRunningPreChange_$TimeStampLog.csv -Value " "
-    $vmstat | out-file .\VMsRunningPreChange_$TimeStampLog.csv -Append ascii
+    if((Test-Path -Path .\$subname) -eq 'True'){
+      Continue
+    } else {
+      new-item -Path . -ItemType "directory" -Name $subname
+    }
+    Add-Content -Path .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Value "VM's Running Before Change"
+    @($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Append ascii
+    Add-Content -Path .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Value " "
+    $vmstat | out-file .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Append ascii
 
 } else {
     Login-AzureRmAccount -ErrorAction Stop
 }
 
-$verifystorage = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageaccount -ErrorAction SilentlyContinue
-
-if(!($verifystorage)){
-write-host "Storage account apecified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red
-write-host "  "
+#Verify if storage account already exists, if not exit the script
+if(($verifystorage = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageaccount -ErrorAction SilentlyContinue) -eq $null){
+write-host "Storage account specified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red -BackgroundColor Black
 exit
+} else {
+continue
 }
 
 $vmList = $null
