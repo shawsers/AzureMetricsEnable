@@ -1935,41 +1935,47 @@ if($subscriptionId){
     $getsub = get-azurermsubscription -subscriptionId $subscriptionId
     $subname = $getsub.Name
     Select-AzureRmSubscription -Subscription $subscriptionId
+    if((Test-Path -Path .\$subname) -ne 'True'){
+      Write-Host "Creating new sub directory for log files" -ForegroundColor Green
+      new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
+    }
+    #Verify if storage account already exists, if not exit the script
+    Write-Host "Verifying if storage account exists" -ForegroundColor Green
+    if(($verifystorage = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageaccount -ErrorAction SilentlyContinue) -eq $null){
+      write-host "Storage account specified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red -BackgroundColor Black
+      exit
+    }
+    $date = date
+    Write-Host "Script started at $date" -ForegroundColor Green
+    Write-Host "Getting VM's current status" -ForegroundColor Green
     $vmstat = get-azurermvm -status
     $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
-    if((Test-Path -Path .\$subname) -eq 'True'){
-      Continue
-    } else {
-      new-item -Path . -ItemType "directory" -Name $subname
-    }
-    Add-Content -Path .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Value "VM's Running Before Change"
+
+    Write-Host "Saving VM power status = running to log file" -ForegroundColor Green
+    $date = date
+    Add-Content -Path .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Value "VM's Running Before Change at $date"
     @($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Append ascii
     Add-Content -Path .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Value " "
     $vmstat | out-file .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Append ascii
+    Write-host "Finished saving VM's running to log file" -ForegroundColor Green
 
 } else {
     Login-AzureRmAccount -ErrorAction Stop
 }
 
-#Verify if storage account already exists, if not exit the script
-if(($verifystorage = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageaccount -ErrorAction SilentlyContinue) -eq $null){
-write-host "Storage account specified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red -BackgroundColor Black
-exit
-} else {
-continue
-}
+
 
 $vmList = $null
 if($vmname -and $storageaccount){
     Write-Output "Selected Resource Group: " $resourcegroup " VM Name:" $vmname
     $vmList = Get-AzureRmVM -Name $vmname -ResourceGroupName $resourcegroup
-    #$vmList = Get-AzureRmVM -Name $vmname
-    Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
+    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
 }
 elseif($storageaccount) {
     #$vmList = Get-AzureRmVM -ResourceGroupName $resourcegroup
+    Write-Host "Getting all VM's in the subscription" -ForegroundColor Green
     $vmList = Get-AzureRmVM
-    Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
+    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
     }
 
 
@@ -1980,7 +1986,7 @@ if($vmList){
         {
             Write-Output $vm.Name" is not running. Skipping install."
             $vmName = $vm.Name
-            Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmname,Not Running,Error VM Not Running power on VM and run again'"
+            Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmname,Not Running,Error VM Not Running power on VM and run again'"
 
             continue
         }
@@ -2005,35 +2011,42 @@ if($vmList){
             Write-Output "VM Type Detected is Windows"
             $error.clear()
             InstallWindowsExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
-            Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Windows,$error'"
+            Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Windows,$error'"
         } else {
             Write-Output "VM Type Detected is Linux "
             $error.clear()
             InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
-            Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,$error'"
+            Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,$error'"
         }
         $failedJobs = get-job -State Failed | Receive-Job
-        $failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append -Force
+        $failedJobs | export-csv -Path .\$subname\Failed_$TimeStampLog.csv -Append -Force
         $completedJobs = get-job -State Completed | Receive-Job
-        $completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append -Force
+        $completedJobs | export-csv -Path .\$subname\Completed_$TimeStampLog.csv -Append -Force
         get-job -State Completed | remove-job -confirm:$false -force
         get-job -State Failed | remove-job -confirm:$false -force
     }
 } else {
     Write-Output "Couldn't find any VMs on your account"
-    Write-Output "Couldn't find any VMs on your account" | Out-File -FilePath .\NoVMs_$TimeStampLog.csv
+    Write-Output "Couldn't find any VMs on your account" | Out-File -FilePath .\$subname\NoVMs_$TimeStampLog.csv
 
 }
+Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
 while((get-job -State Running).count -gt 0){start-sleep 5}
+Write-Host "All background jobs have finished running now, saving final log files" -ForegroundColor Green
 $failedJobs = get-job -State Failed | Receive-Job
-$failedJobs | export-csv -Path .\Failed_$TimeStampLog.csv -Append -Force
+$failedJobs | export-csv -Path .\$subname\Failed_$TimeStampLog.csv -Append -Force
 $completedJobs = get-job -State Completed | Receive-Job
-$completedJobs | export-csv -Path .\Completed_$TimeStampLog.csv -Append -Force
+$completedJobs | export-csv -Path .\$subname\Completed_$TimeStampLog.csv -Append -Force
 get-job -State Completed | remove-job -confirm:$false -force
 get-job -State Failed | remove-job -confirm:$false -force
+Write-Host "Getting status of VM's post change" -ForegroundColor Green
 $vmstat = get-azurermvm -status
 $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
-Add-Content -Path .\VMsRunningPostChange_$TimeStampLog.csv -Value "VM's Running After Change"
-@($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\VMsRunningPostChange_$TimeStampLog.csv -Append ascii
-Add-Content -Path .\VMsRunningPostChange_$TimeStampLog.csv -Value " "
-$vmstat | out-file .\VMsRunningPostChange_$TimeStampLog.csv -Append ascii
+$date = date
+Add-Content -Path .\$subname\VMsRunningPostChange_$TimeStampLog.csv -Value "VM's Running After Change at $date"
+Write-Host "Saving VM's running to log file" -ForegroundColor Green
+@($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\$subname\VMsRunningPostChange_$TimeStampLog.csv -Append ascii
+Add-Content -Path .\$subname\VMsRunningPostChange_$TimeStampLog.csv -Value " "
+$vmstat | out-file .\$subname\VMsRunningPostChange_$TimeStampLog.csv -Append ascii
+$date = date
+Write-Host "Script Finished at $date" -ForegroundColor Green
