@@ -40,9 +40,8 @@ if($vmList){
             } else {
                 $vmName = $vm.Name
                 $osType = $vm.StorageProfile.OsDisk.OsType
-                Write-Output "OS Type:" $osType
                 if($osType -eq "Windows"){
-                    Write-Output "VM Type Detected is Windows"
+                    Write-Host "VM: ""$vmName"" Type Detected is Windows" -ForegroundColor Green
                     #add start-job to run as background job
                     if(($WinVM = get-azurermvmdiagnosticsextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name Microsoft.Insights.VMDiagnosticsSettings -Status -Verbose -ErrorAction SilentlyContinue) -eq $null){
                         Write-Host "Extension NOT found on VM: ""$vmName"" " -ForegroundColor Red -BackgroundColor Black
@@ -58,7 +57,7 @@ if($vmList){
                         Add-Content -Path .\$subname\VerifyLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$WinVMStatus,$WinVMMessage"
                     }
                 } else {
-                    Write-Output "VM Type Detected is Linux"
+                    Write-Host "VM: ""$vmName"" Type Detected is Linux" -ForegroundColor Green
                     #add start-job to run as background job
                     if(($LinuxVM = get-azurermvmextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name LinuxDiagnostic -Status -Verbose -ErrorAction SilentlyContinue) -eq $null){
                         Write-Host "Extension NOT found on VM: ""$vmName"" " -ForegroundColor Red -BackgroundColor Black
