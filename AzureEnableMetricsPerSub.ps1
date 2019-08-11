@@ -2041,6 +2041,7 @@ if($vmList){
 }
 Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
 #Add logic to check for long running job and kill it after 5 mins and save job info
+## test this logic if((get-job -state Running).count -gt 0) {start-sleep 30}
 while((get-job -State Running).count -gt 0){start-sleep 5}
 Write-Host "All background jobs have finished running now, saving job log files" -ForegroundColor Green
 $failedJobs = get-job -State Failed | Receive-Job
