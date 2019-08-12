@@ -1978,30 +1978,41 @@ if($subscriptionId){
 $vmList = $null
 if($vmname -and $storageaccount){
     Write-Output "Selected Resource Group: " $resourcegroup " VM Name:" $vmname
-    $vmList = Get-AzureRmVM -Name $vmname -ResourceGroupName $resourcegroup
+    $vmStatus = Get-AzureRmVM -Name $vmname -ResourceGroupName $resourcegroup -Status | Where-Object{$_.Statuses[1].DisplayStatus -eq 'VM running'}
+    if($vmStatus -eq $null){
+      Write-Host "VM must be running to enable metrics, skipping VM"
+    } else {
+      $vmList = Get-AzureRmVM -Name $vmname -ResourceGroupName $resourcegroup
+      $vmsRunning = $vmList
+    }
     Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
 }
 elseif($storageaccount) {
     #$vmList = Get-AzureRmVM -ResourceGroupName $resourcegroup
     Write-Host "Getting all VM's in the subscription" -ForegroundColor Green
-    $vmList = Get-AzureRmVM
+    $vmList = Get-AzureRmVM -Status
+    $vmsRunning = $vmList | where{$_.PowerState -eq 'VM running'}
+    $vmsNotRunning = $vmList | where{$_.PowerState -ne 'VM running'}
+    Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value "Total NOT Running VMs in Subscription at $date"
+    Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value "These VMs have to be powered on before metrics can be enabled"
+    $vmsNotRunning.count | out-file .\$subname\VMsNotRunning_$TimeStampLog.csv -Append ascii
+    Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value " "
+    $vmsNotRunning | out-file .\$subname\VMsNotRunning_$TimeStampLog.csv -Append ascii
     Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
     }
 
-
 if($vmList){
-    foreach($vm in $vmList){
-        $status=$vm | Get-AzureRmVM -Status $vm.ResourceGroupName
-        if ($status.Statuses[1].DisplayStatus -ne "VM running")
-        {
-            Write-Output $vm.Name" is not running. Skipping install."
-            $vmName = $vm.Name
-            Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmname,Not Running,Error VM Not Running power on VM and run again'"
+    foreach($vm in $vmsRunning){
+        #$status=$vm | Get-AzureRmVM -Status $vm.ResourceGroupName
+        #if ($status.Statuses[1].DisplayStatus -ne "VM running")
+        #{
+        #    Write-Output $vm.Name" is not running. Skipping install."
+        #    $vmName = $vm.Name
+        #    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmname,Not Running,Error VM Not Running power on VM and run again'"
+        #    continue
+        #}
 
-            continue
-        }
-
-        while((get-job -State Running).count -ge 10){start-sleep 1}
+        while((get-job -State Running).count -ge 50){start-sleep 1}
 
         $rsgName = $vm.ResourceGroupName;
         $rsg = Get-AzureRmResourceGroup -Name $rsgName
@@ -2036,9 +2047,12 @@ if($vmList){
         get-job -State Failed | remove-job -confirm:$false -force
     }
 } else {
-    Write-Host "Couldn't find any VMs on your account" -ForegroundColor Red -BackgroundColor Black
-    Write-Output "Couldn't find any VMs on your account" | Out-File -FilePath .\$subname\NoVMs_$TimeStampLog.csv
-
+    Write-Host "Couldn't find any powered on VMs in your subscription" -ForegroundColor Red -BackgroundColor Black
+    Write-Output "Couldn't find any powered on VMs in your subscription" | Out-File -FilePath .\$subname\NoVMs_$TimeStampLog.csv
+    $date = date
+    Write-Host "**Script finished at $date " -ForegroundColor Green
+    Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
+    Exit
 }
 Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
 Write-Host "Waiting for up to 10 mins for all background jobs to complete..." -ForegroundColor Green
