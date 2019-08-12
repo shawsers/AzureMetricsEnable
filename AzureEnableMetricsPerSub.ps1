@@ -1995,7 +1995,7 @@ elseif($storageaccount) {
     $LinuxVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Linux'} | where{$_.Extensions.Id -notlike '*LinuxDiagnostic*'}
     Write-Host "Getting list of running Windows VMs that do not have metrics enabled yet..." -ForegroundColor Green
     $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notlike '*Microsoft.Insights.VMDiagnosticsSettings*'}
-    Write-Host "Getting list of VMs that are NOT running to logging that for later..." -ForegroundColor Green
+    Write-Host "Getting list of VMs that are NOT running and logging that for later..." -ForegroundColor Green
     $vmsNotRunning = $vmList | where{$_.PowerState -ne 'VM running'}
     Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value "Total NOT Running VMs in Subscription at $date"
     Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value "These VMs have to be powered on before metrics can be enabled"
