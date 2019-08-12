@@ -2040,10 +2040,28 @@ if($vmList){
 
 }
 Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
-#Add logic to check for long running job and kill it after 5 mins and save job info
-## test this logic if((get-job -state Running).count -gt 0) {start-sleep 30}
-while((get-job -State Running).count -gt 0){start-sleep 5}
-Write-Host "All background jobs have finished running now, saving job log files" -ForegroundColor Green
+Write-Host "Waiting for up to 10 mins for all background jobs to complete..." -ForegroundColor Green
+#New logic to check for long running job and kill it after 10 mins and save job info
+if((get-job -state Running).count -gt 0) {start-sleep 120}
+if((get-job -state Running).count -gt 0) {start-sleep 120}
+if((get-job -state Running).count -gt 0) {start-sleep 120}
+if((get-job -state Running).count -gt 0) {start-sleep 120}
+if((get-job -state Running).count -gt 0) {start-sleep 120}
+$runningJobs = get-job -state Running
+$runJobsCount = $runningJobs.count
+if (($runningJobs.count) -gt 0){
+  Write-Host "There are still ""$runJobsCount"" job(s) running in the background listed below" -ForegroundColor Red -BackgroundColor Black
+  $runningJobs
+  $count = 0
+  foreach($runningJob in $runningJobs){
+    $count++
+    $jobId = $runningJob.Id
+    Receive-Job -Id $jobId | Out-File .\$subname\RunningJob_$count_Details.txt
+  }
+} else {
+  Write-Host "All background jobs have finished running now, saving job log files" -ForegroundColor Green
+}
+#while((get-job -State Running).count -gt 0){start-sleep 5}
 $failedJobs = get-job -State Failed | Receive-Job
 $failedJobs | export-csv -Path .\$subname\Failed_$TimeStampLog.csv -Append -Force
 $completedJobs = get-job -State Completed | Receive-Job
