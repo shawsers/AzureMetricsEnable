@@ -15,10 +15,10 @@ If you run the script and do not specify a pre-existing storage account the scri
 Create a new folder for the script to run in as it will save logs, xml and json files to the folder the script is run in
 
 To enable for one runnning VM make sure to specify the VM name
- .\AzureMetrics.ps1' -subscriptionId SUB-ID-HERE -vmname “vmname" -resourcegroup "resourcegroup_of_vm" -storageaccount "storageaccount"
+ .\AzureEnableMetricsPerSub.ps1 -subscriptionId SUB-ID-HERE -vmname vm_name -resourcegroup resourcegroup_of_vm -storageaccount storageaccount_name
 
 To enable for ALL running VMs in a Subscription just specify your subscription id and storage account where the metrics will be stored in that subscription
- .\AzureMetrics.ps1' -subscriptionId SUB-ID-HERE -storageaccount "storageaccount"
+ .\AzureEnableMetricsPerSub.ps1 -subscriptionId SUB-ID-HERE -storageaccount storageaccount_name
 #>
 param(
 
