@@ -51,16 +51,16 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
     $extensionType="LinuxDiagnostic"
     #$extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
     $extensionName = "LinuxDiagnostic"
-    $vm = Get-AzureRmVM -Name $vmName -ResourceGroupName $rsgName
-    $extension = $vm.Extensions | Where-Object -Property 'VirtualMachineExtensionType' -eq $extensionType
-    if($extension -and $extension.ProvisioningState -eq 'Succeeded'){
-        $pub = get-azurermvmextension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionType
-        ($pub.PublicSettings -match '.*StorageAccount.*').matches
-        $currentsg = $matches[0].split('"')[3]
-        Write-Output "Diagnostics already installed on the VM : "$vmName " in storage account "$currentsg ".  You need to review or update the extension manually. Skipping Install."
-        Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,Skipping Install as diagnostics already installed on the VM: $vmName in Resource Group: $rsgName diagnostics storage currently being used is: $currentsg'"
-        return
-    }
+    #$vm = Get-AzureRmVM -Name $vmName -ResourceGroupName $rsgName
+    #$extension = $vm.Extensions | Where-Object -Property 'VirtualMachineExtensionType' -eq $extensionType
+    #if($extension -and $extension.ProvisioningState -eq 'Succeeded'){
+    #    $pub = get-azurermvmextension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionType
+    #    ($pub.PublicSettings -match '.*StorageAccount.*').matches
+    #    $currentsg = $matches[0].split('"')[3]
+    #    Write-Output "Diagnostics already installed on the VM : "$vmName " in storage account "$currentsg ".  You need to review or update the extension manually. Skipping Install."
+    #    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,Skipping Install as diagnostics already installed on the VM: $vmName in Resource Group: $rsgName diagnostics storage currently being used is: $currentsg'"
+    #    return
+    #}
     Write-Host "Installing VM Extension for your Linux VM" -ForegroundColor Green
     Write-Output "storageName:" $storageName
     ##sastoken moved out of loop
@@ -844,16 +844,15 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
     $extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
     $extensionType = "IaaSDiagnostics"
 
-    $extension = Get-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName | Where-Object -Property ExtensionType -eq $extensionType
-    if($extension -and $extension.ProvisioningState -eq 'Succeeded'){
-        $pub = get-azurermvmextension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName
-        ($pub.PublicSettings -match '.*StorageAccount.*').matches
-        $currentsg = $matches[0].split('"')[3]
-        Write-Output "Diagnostics already installed on the VM : "$vmName " in storage account "$currentsg ".  You need to review or update the extension manually. Skipping Install."
-        Add-Content -Path .\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Windows,Skipping Install as diagnostics already installed on the VM: $vmName in Resource Group: $rsgName diagnostics storage currently being used is: $currentsg'"
-
-        return
-    }
+    #$extension = Get-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName | Where-Object -Property ExtensionType -eq $extensionType
+    #if($extension -and $extension.ProvisioningState -eq 'Succeeded'){
+    #    $pub = get-azurermvmextension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName
+    #    ($pub.PublicSettings -match '.*StorageAccount.*').matches
+    #    $currentsg = $matches[0].split('"')[3]
+    #    Write-Output "Diagnostics already installed on the VM : "$vmName " in storage account "$currentsg ".  You need to review or update the extension manually. Skipping Install."
+    #    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Windows,Skipping Install as diagnostics already installed on the VM: $vmName in Resource Group: $rsgName diagnostics storage currently being used is: $currentsg'"
+    #    return
+    #}
     Write-Host "Installing Diagnostic Extension on your Windows VM" -ForegroundColor Green
 
         Write-Output "storageName:" $storageName
@@ -1980,18 +1979,23 @@ if($vmname -and $storageaccount){
     Write-Output "Selected Resource Group: " $resourcegroup " VM Name:" $vmname
     $vmStatus = Get-AzureRmVM -Name $vmname -ResourceGroupName $resourcegroup -Status | Where-Object{$_.Statuses[1].DisplayStatus -eq 'VM running'}
     if($vmStatus -eq $null){
-      Write-Host "VM must be running to enable metrics, skipping VM"
+      Write-Host "VM must be running to enable metrics, skipping VM" -ForegroundColor Red -BackgroundColor Black
     } else {
       $vmList = Get-AzureRmVM -Name $vmname -ResourceGroupName $resourcegroup
-      $vmsRunning = $vmList
+      Write-Host "Checking if VM is running, if it is Windows or Linux and if metrics enabled yet or not..." -ForegroundColor Green
+      $LinuxVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Linux'} | where{$_.Extensions.Id -notlike '*LinuxDiagnostic*'}
+      $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notlike '*Microsoft.Insights.VMDiagnosticsSettings*'}  
     }
     Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
 }
 elseif($storageaccount) {
-    #$vmList = Get-AzureRmVM -ResourceGroupName $resourcegroup
     Write-Host "Getting all VM's in the subscription" -ForegroundColor Green
     $vmList = Get-AzureRmVM -Status
-    $vmsRunning = $vmList | where{$_.PowerState -eq 'VM running'}
+    Write-Host "Getting list of running Linux VMs that do not have metrics enabled yet..." -ForegroundColor Green
+    $LinuxVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Linux'} | where{$_.Extensions.Id -notlike '*LinuxDiagnostic*'}
+    Write-Host "Getting list of running Windows VMs that do not have metrics enabled yet..." -ForegroundColor Green
+    $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notlike '*Microsoft.Insights.VMDiagnosticsSettings*'}
+    Write-Host "Getting list of VMs that are NOT running to logging that for later..." -ForegroundColor Green
     $vmsNotRunning = $vmList | where{$_.PowerState -ne 'VM running'}
     Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value "Total NOT Running VMs in Subscription at $date"
     Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value "These VMs have to be powered on before metrics can be enabled"
@@ -1999,10 +2003,25 @@ elseif($storageaccount) {
     Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value " "
     $vmsNotRunning | out-file .\$subname\VMsNotRunning_$TimeStampLog.csv -Append ascii
     Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
+    Write-Host "Getting list of Rersource Groups..." -ForegroundColor Green
+    $Getrg = Get-AzureRmResourceGroup -ErrorAction SilentlyContinue
+    Write-Host "Checking for any ReadOnly locks on the Resource Groups..." -ForegroundColor Green
+    foreach($rgr in $Getrg){
+      $rgrName = $rgr.ResourceGroupName
+      if(($lockedRG = Get-AzureRmResourceLock -ResourceGroupName $rgrName | where{$_.Properties.level -eq 'ReadOnly'}) -eq $null){
+        Write-Host "No ReadOnly lock found on Resource Group $rgrName" -ForegroundColor Green
+      } else {
+        Write-Host "ReadOnly lock found on Resource Group $rgrName, Lock needs to be removed before metrics can be enabled on the VMs" -ForegroundColor Red -BackgroundColor Black
+        Add-Content -Path .\$subname\LockedResourceGroups_$TimeStampLog.csv -Value 'Subscription Name, Resource Group, Comment'
+        $comment = "ReadOnly lock needs to be removed before metrics can be enabled on the VMs in the Resource Group"
+        Add-Content -Path .\$subname\LockedResourceGroups_$TimeStampLog.csv -Value "$subname, $rgrName, $comment"
+      }
     }
+}
 
 if($vmList){
-    foreach($vm in $vmsRunning){
+    Write-Host "Starting Windows VMs" -ForegroundColor Green
+    foreach($vm in $WinVmsRunning){
         #$status=$vm | Get-AzureRmVM -Status $vm.ResourceGroupName
         #if ($status.Statuses[1].DisplayStatus -ne "VM running")
         #{
@@ -2011,8 +2030,10 @@ if($vmList){
         #    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmname,Not Running,Error VM Not Running power on VM and run again'"
         #    continue
         #}
-
-        while((get-job -State Running).count -ge 50){start-sleep 1}
+        $countjobs = (get-job -state Running).count
+        Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
+        
+        while((get-job -State Running).count -ge 100){start-sleep 1}
 
         $rsgName = $vm.ResourceGroupName;
         $rsg = Get-AzureRmResourceGroup -Name $rsgName
@@ -2024,27 +2045,50 @@ if($vmList){
         $vmName = $vm.Name
         Write-Output "VM ID:" $vmId
         Write-Output "VM Name:" $vmName
+        Write-Host "VM Type Detected is Windows" -ForegroundColor Green
+        $error.clear()
+        InstallWindowsExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
+        $WinOS = "Windows"
+        Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$subname,$vmName,$WinOS,$error"
 
-        $osType = $vm.StorageProfile.OsDisk.OsType
-        Write-Output "OS Type:" $osType
-
-        if($osType -eq 0){
-            Write-Output "VM Type Detected is Windows"
-            $error.clear()
-            InstallWindowsExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
-            Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Windows,$error'"
-        } else {
-            Write-Output "VM Type Detected is Linux "
-            $error.clear()
-            InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
-            Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,$error'"
-        }
         $failedJobs = get-job -State Failed | Receive-Job
         $failedJobs | export-csv -Path .\$subname\Failed_$TimeStampLog.csv -Append -Force
         $completedJobs = get-job -State Completed | Receive-Job
         $completedJobs | export-csv -Path .\$subname\Completed_$TimeStampLog.csv -Append -Force
         get-job -State Completed | remove-job -confirm:$false -force
         get-job -State Failed | remove-job -confirm:$false -force
+
+    }
+  Write-Host "Starting Linux VMs" -ForegroundColor Green
+    foreach($vm in $LinuxVmsRunning){
+      $countjobs = (get-job -state Running).count
+      Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
+
+      while((get-job -State Running).count -ge 100){start-sleep 1}
+
+      $rsgName = $vm.ResourceGroupName;
+      $rsg = Get-AzureRmResourceGroup -Name $rsgName
+      $rsgLocation = $vm.Location;
+
+      $storageName = $storageaccount
+
+      $vmId = $vm.Id
+      $vmName = $vm.Name
+      Write-Output "VM ID:" $vmId
+      Write-Output "VM Name:" $vmName
+
+      Write-Host "VM Type Detected is Linux" -ForegroundColor Green
+      $error.clear()
+      InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
+      $LinOS = "Linux"
+      Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$subname,$vmName,$LinOS,$error"
+
+      $failedJobs = get-job -State Failed | Receive-Job
+      $failedJobs | export-csv -Path .\$subname\Failed_$TimeStampLog.csv -Append -Force
+      $completedJobs = get-job -State Completed | Receive-Job
+      $completedJobs | export-csv -Path .\$subname\Completed_$TimeStampLog.csv -Append -Force
+      get-job -State Completed | remove-job -confirm:$false -force
+      get-job -State Failed | remove-job -confirm:$false -force
     }
 } else {
     Write-Host "Couldn't find any powered on VMs in your subscription" -ForegroundColor Red -BackgroundColor Black
@@ -2055,37 +2099,37 @@ if($vmList){
     Exit
 }
 Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
-Write-Host "Waiting for up to 10 mins for all background jobs to complete..." -ForegroundColor Green
+Write-Host "Waiting for up to 25 mins for all background jobs to complete..." -ForegroundColor Green
 #New logic to check for long running job and kill it after 10 mins and save job info
 if((get-job -state Running).count -gt 0) {
   $runningJobs = get-job -state Running
   $runJobsCount = $runningJobs.count
-  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting for 2 mins..." -ForegroundColor Red -BackgroundColor Black
-  start-sleep 120
+  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting for 5 mins..." -ForegroundColor Red -BackgroundColor Black
+  start-sleep 300
 }
 if((get-job -state Running).count -gt 0) {
   $runningJobs = get-job -state Running
   $runJobsCount = $runningJobs.count
-  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting another 2 mins..." -ForegroundColor Red -BackgroundColor Black
-  start-sleep 120
+  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting another 5 mins..." -ForegroundColor Red -BackgroundColor Black
+  start-sleep 300
 }
 if((get-job -state Running).count -gt 0) {
   $runningJobs = get-job -state Running
   $runJobsCount = $runningJobs.count
-  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting yet another 2 mins..." -ForegroundColor Red -BackgroundColor Black
-  start-sleep 120
+  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting yet another 5 mins..." -ForegroundColor Red -BackgroundColor Black
+  start-sleep 300
 }
 if((get-job -state Running).count -gt 0) {
   $runningJobs = get-job -state Running
   $runJobsCount = $runningJobs.count
-  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting final 2 mins..." -ForegroundColor Red -BackgroundColor Black
-  start-sleep 120
+  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting yet another 5 mins...yes this does take time..." -ForegroundColor Red -BackgroundColor Black
+  start-sleep 300
 }
 if((get-job -state Running).count -gt 0) {
   $runningJobs = get-job -state Running
   $runJobsCount = $runningJobs.count
-  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting final 2 mins..." -ForegroundColor Red -BackgroundColor Black
-  start-sleep 120
+  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting final 5 mins..." -ForegroundColor Red -BackgroundColor Black
+  start-sleep 300
 }
 $runningJobs = get-job -state Running
 $runJobsCount = $runningJobs.count
