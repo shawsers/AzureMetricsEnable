@@ -1972,8 +1972,6 @@ if($subscriptionId){
     Login-AzureRmAccount -ErrorAction Stop
 }
 
-
-
 $vmList = $null
 if($vmname -and $storageaccount){
     Write-Output "Selected Resource Group: " $resourcegroup " VM Name:" $vmname
@@ -2040,23 +2038,42 @@ if($vmList){
 
 }
 Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
-Write-Host "Waiting for up to 10 mins for all background jobs to complete..." -ForegroundColor Green
+Write-Host "Waiting for up to 8 mins for all background jobs to complete..." -ForegroundColor Green
 #New logic to check for long running job and kill it after 10 mins and save job info
-if((get-job -state Running).count -gt 0) {start-sleep 120}
-if((get-job -state Running).count -gt 0) {start-sleep 120}
-if((get-job -state Running).count -gt 0) {start-sleep 120}
-if((get-job -state Running).count -gt 0) {start-sleep 120}
-if((get-job -state Running).count -gt 0) {start-sleep 120}
+if((get-job -state Running).count -gt 0) {
+  $runningJobs = get-job -state Running
+  $runJobsCount = $runningJobs.count
+  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting for 2 mins..." -ForegroundColor Red -BackgroundColor Black
+  start-sleep 120
+}
+if((get-job -state Running).count -gt 0) {
+  $runningJobs = get-job -state Running
+  $runJobsCount = $runningJobs.count
+  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting another 2 mins..." -ForegroundColor Red -BackgroundColor Black
+  start-sleep 120
+}
+if((get-job -state Running).count -gt 0) {
+  $runningJobs = get-job -state Running
+  $runJobsCount = $runningJobs.count
+  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting yet another 2 mins..." -ForegroundColor Red -BackgroundColor Black
+  start-sleep 120
+}
+if((get-job -state Running).count -gt 0) {
+  $runningJobs = get-job -state Running
+  $runJobsCount = $runningJobs.count
+  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting final 2 mins..." -ForegroundColor Red -BackgroundColor Black
+  start-sleep 120
+}
 $runningJobs = get-job -state Running
 $runJobsCount = $runningJobs.count
 if (($runningJobs.count) -gt 0){
-  Write-Host "There are still ""$runJobsCount"" job(s) running in the background listed below" -ForegroundColor Red -BackgroundColor Black
+  Write-Host "There are still ""$runJobsCount"" job(s) running in the background listed below that need to be looked into further" -ForegroundColor Red -BackgroundColor Black
   $runningJobs
   $count = 0
   foreach($runningJob in $runningJobs){
     $count++
     $jobId = $runningJob.Id
-    Receive-Job -Id $jobId | Out-File .\$subname\RunningJob_$count_Details.txt
+    Receive-Job -Id $jobId | Out-File .\$subname\LongRunningJob_$count.txt
   }
 } else {
   Write-Host "All background jobs have finished running now, saving job log files" -ForegroundColor Green
