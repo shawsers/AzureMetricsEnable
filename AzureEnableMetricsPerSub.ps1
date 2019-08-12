@@ -1997,11 +1997,15 @@ elseif($storageaccount) {
     $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notlike '*Microsoft.Insights.VMDiagnosticsSettings*'}
     Write-Host "Getting list of VMs that are NOT running and logging that for later..." -ForegroundColor Green
     $vmsNotRunning = $vmList | where{$_.PowerState -ne 'VM running'}
+    if($vmsNotRunning.count = 0){
+      Write-Host "All VMs in the subscription are running" -ForegroundColor Green
+    } else {
     Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value "Total NOT Running VMs in Subscription at $date"
     Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value "These VMs have to be powered on before metrics can be enabled"
     $vmsNotRunning.count | out-file .\$subname\VMsNotRunning_$TimeStampLog.csv -Append ascii
     Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value " "
     $vmsNotRunning | out-file .\$subname\VMsNotRunning_$TimeStampLog.csv -Append ascii
+    }
     Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
     Write-Host "Getting list of Rersource Groups..." -ForegroundColor Green
     $Getrg = Get-AzureRmResourceGroup -ErrorAction SilentlyContinue
@@ -2033,7 +2037,7 @@ if($vmList){
         $countjobs = (get-job -state Running).count
         Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
         
-        while((get-job -State Running).count -ge 100){start-sleep 1}
+        while((get-job -State Running).count -ge 50){start-sleep 1}
 
         $rsgName = $vm.ResourceGroupName;
         $rsg = Get-AzureRmResourceGroup -Name $rsgName
