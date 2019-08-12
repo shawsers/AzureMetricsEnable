@@ -1960,8 +1960,11 @@ if($subscriptionId){
     $vmstat = get-azurermvm -status
     $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
 
-    Write-Host "Saving VM power status = running to log file" -ForegroundColor Green
+    Write-Host "Saving total VM's and total VM's where power status = running to log file" -ForegroundColor Green
     $date = date
+    Add-Content -Path .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Value "Total VM's in Subscription at $date"
+    $vmstat.count | out-file .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Append ascii
+    Add-Content -Path .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Value " "
     Add-Content -Path .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Value "VM's Running Before Change at $date"
     @($vmpowerstate | ? {$_ -eq "VM running"}).count | out-file .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Append ascii
     Add-Content -Path .\$subname\VMsRunningPreChange_$TimeStampLog.csv -Value " "
@@ -2038,7 +2041,7 @@ if($vmList){
 
 }
 Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
-Write-Host "Waiting for up to 8 mins for all background jobs to complete..." -ForegroundColor Green
+Write-Host "Waiting for up to 10 mins for all background jobs to complete..." -ForegroundColor Green
 #New logic to check for long running job and kill it after 10 mins and save job info
 if((get-job -state Running).count -gt 0) {
   $runningJobs = get-job -state Running
@@ -2056,6 +2059,12 @@ if((get-job -state Running).count -gt 0) {
   $runningJobs = get-job -state Running
   $runJobsCount = $runningJobs.count
   Write-Host "There are still ""$runJobsCount"" job(s) running, waiting yet another 2 mins..." -ForegroundColor Red -BackgroundColor Black
+  start-sleep 120
+}
+if((get-job -state Running).count -gt 0) {
+  $runningJobs = get-job -state Running
+  $runJobsCount = $runningJobs.count
+  Write-Host "There are still ""$runJobsCount"" job(s) running, waiting final 2 mins..." -ForegroundColor Red -BackgroundColor Black
   start-sleep 120
 }
 if((get-job -state Running).count -gt 0) {
