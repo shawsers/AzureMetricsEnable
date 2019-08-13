@@ -2000,7 +2000,7 @@ elseif($storageaccount) {
     $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notlike '*Microsoft.Insights.VMDiagnosticsSettings*'}
     Write-Host "Getting list of VMs that are NOT running and logging that for later..." -ForegroundColor Green
     $vmsNotRunning = $vmList | where{$_.PowerState -ne 'VM running'}
-    if(($vmsNotRunning).count = 0){
+    if($vmsNotRunning -eq $null){
       Write-Host "All VMs in the subscription are running" -ForegroundColor Green
     } else {
       Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value "Total NOT Running VMs in Subscription at $date"
