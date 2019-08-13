@@ -78,19 +78,20 @@ foreach($storloc in $vmsloc){
         $newStorage = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS -ErrorAction SilentlyContinue
         if(($error) -like '*is already taken*'){
             Write-Host "Storage account name is NOT unique, please re-run the script and speciy a unique storage account name" -ForegroundColor Red -BackgroundColor Black
-            Write-Host "Script will now exit"
+            Write-Host "**Script will now exit" -ForegroundColor Red -BackgroundColor Black
             Exit
         }
+        Write-Host "Storage account is unique, storage account created" -ForegroundColor Green
         Add-Content -Path .\$subname\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc"
     } else {
         Write-Host "Storage account already exists, using existing" -ForegroundColor Green
         Add-Content -Path .\$subname\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc"
     }
     if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
-        $newsub = Read-Host -Prompt 'Cannot find Turbonomic Custom Role, please enter a subscription ID that already has it listed'
+        $newsub = Read-Host -Prompt 'Cannot find Turbonomic Custom Role, please enter a subscription ID that already has it listed:'
         $readNewSub = Select-AzureRmSubscription -Subscription $newsub
-        #Add in login to check Azure AD and wait for 5 mins and check again
-        #possibly wait until Azure AD sync completes before continuing
+        Write-Host "Waiting 3 mins for Azure AD Sync to complete before checking again..."
+        Start-Sleep 180
         if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
             Write-Host "Still cannot find Turbonomic Custom Role, please run the script again after verifying role exists in the subscription" -ForegroundColor Red -BackgroundColor Black
             Exit
@@ -103,6 +104,7 @@ foreach($storloc in $vmsloc){
             $turboCustomRoleName = $turboCustomRole.Name
             Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
             $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
+            $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
             $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
             #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -like '*Turbo*'}
             foreach($turboSPN in $turboSPNlist){
