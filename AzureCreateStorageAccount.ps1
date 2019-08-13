@@ -78,14 +78,15 @@ foreach($storloc in $vmsloc){
         $error.clear()
         $newStorage = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS
         if(($error) -like '*is already taken*'){
-            Write-Host "Storage account name is already in use in Azure and is NOT unique, please re-run the script and specify a unique storage account name" -ForegroundColor Red -BackgroundColor Black
+            Write-Host "Storage account name ""$storageaccountname"" is already in use in Azure and is NOT unique" -ForegroundColor Red -BackgroundColor Black
+            Write-Host "please re-run the script and specify a unique storage account name" -ForegroundColor Red -BackgroundColor Black
             Write-Host "**Script will now exit" -ForegroundColor Red -BackgroundColor Black
             Exit
         }
-        Write-Host "Storage account is unique, storage account created" -ForegroundColor Green
+        Write-Host "Storage account name is unique, storage account created named: ""$storageaccountname"" " -ForegroundColor Green
         Add-Content -Path .\$subname\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc"
     } else {
-        Write-Host "Storage account already exists, using existing" -ForegroundColor Green
+        Write-Host "Storage account named: ""$storageaccountname"" already exists, using existing instead of creating a new one" -ForegroundColor Green
         Add-Content -Path .\$subname\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc"
     }
     if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
