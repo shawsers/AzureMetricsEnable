@@ -2027,6 +2027,7 @@ elseif($storageaccount) {
 }
 
 if($vmList){
+    $vmsCompleted = 0
     Write-Host "Starting Windows VMs" -ForegroundColor Green
     foreach($vm in $WinVmsRunning){
         #$status=$vm | Get-AzureRmVM -Status $vm.ResourceGroupName
@@ -2039,6 +2040,7 @@ if($vmList){
         #}
         $countjobs = (get-job -state Running).count
         Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
+        Write-Host "Number of VMs completed is ""$vmsCompleted""" -ForegroundColor Green
         
         while((get-job -State Running).count -ge 50){start-sleep 1}
 
@@ -2064,14 +2066,15 @@ if($vmList){
         $completedJobs | export-csv -Path .\$subname\Completed_$TimeStampLog.csv -Append -Force
         get-job -State Completed | remove-job -confirm:$false -force
         get-job -State Failed | remove-job -confirm:$false -force
-
+        $vmsCompleted++
     }
   Write-Host "Starting Linux VMs" -ForegroundColor Green
     foreach($vm in $LinuxVmsRunning){
       $countjobs = (get-job -state Running).count
       Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
+      Write-Host "Number of VMs completed is ""$vmsCompleted""" -ForegroundColor Green
 
-      while((get-job -State Running).count -ge 100){start-sleep 1}
+      while((get-job -State Running).count -ge 50){start-sleep 1}
 
       $rsgName = $vm.ResourceGroupName;
       $rsg = Get-AzureRmResourceGroup -Name $rsgName
@@ -2096,6 +2099,7 @@ if($vmList){
       $completedJobs | export-csv -Path .\$subname\Completed_$TimeStampLog.csv -Append -Force
       get-job -State Completed | remove-job -confirm:$false -force
       get-job -State Failed | remove-job -confirm:$false -force
+      $vmsCompleted++
     }
 } else {
     Write-Host "Couldn't find any powered on VMs in your subscription" -ForegroundColor Red -BackgroundColor Black
@@ -2107,7 +2111,7 @@ if($vmList){
 }
 Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
 Write-Host "Waiting for up to 25 mins for all background jobs to complete..." -ForegroundColor Green
-#New logic to check for long running job and kill it after 10 mins and save job info
+#New logic to check for long running job and finish the job after so many mins and save job info
 if((get-job -state Running).count -gt 0) {
   $runningJobs = get-job -state Running
   $runJobsCount = $runningJobs.count
