@@ -1,6 +1,9 @@
 <#
 .VERSION
-1.0
+2.0
+Release Date: Aug 12, 2019
+Updated By: Jason Shaw 
+Email: Jason.Shaw@turbonomic.com
 
 .SYNOPSIS
 This script will the enable the defauilt Azure Basic Metrics on all running Windows and Linux VMs in a single subscription that currently don't have metrics enabled.
