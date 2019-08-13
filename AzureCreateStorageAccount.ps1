@@ -1,3 +1,10 @@
+<#
+.VERSION
+2.0
+Updated Date: Aug 13, 2019
+Updated By: Jason Shaw 
+Email: Jason.Shaw@turbonomic.com
+
 #The script will create a new Azure storage account per location that the VM's are in and a new resrouce group unless the one provided already exists, then it will use it.
 #The location specified will only be used if a new resource account is needed to be created and must be in the short name ex. eastus or westus
 #It will also make the changes in the subscription specificed
@@ -11,6 +18,7 @@
 
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid SUB-ID-HERE -location AZURE-LOCATION -resourcegroup NEW-RES-GROUP-NAME -storageaccount NEW-DIAG-STORAGE
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount diagstorage00
+#>
 
 param(
  [Parameter(Mandatory=$True)]
@@ -66,7 +74,13 @@ foreach($storloc in $vmsloc){
     if ($getStorage -eq $null){
         Write-Host "Storage account does not exist, creating new one" -ForegroundColor Green
         #Creating new storage account
-        $newStorage = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS
+        $error.clear()
+        $newStorage = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS -ErrorAction SilentlyContinue
+        if(($error) -like '*is already taken*'){
+            Write-Host "Storage account name is NOT unique, please re-run the script and speciy a unique storage account name" -ForegroundColor Red -BackgroundColor Black
+            Write-Host "Script will now exit"
+            Exit
+        }
         Add-Content -Path .\$subname\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc"
     } else {
         Write-Host "Storage account already exists, using existing" -ForegroundColor Green
