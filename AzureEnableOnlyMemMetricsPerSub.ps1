@@ -87,13 +87,13 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
       "performanceCounters": {
         "performanceCounterConfiguration": [
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Memory available",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "availablememory",
             "counterSpecifier": "/builtin/memory/availablememory",
             "type": "builtin",
@@ -101,13 +101,13 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "sampleRate": "PT15S"
           },
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Swap percent used",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "percentusedswap",
             "counterSpecifier": "/builtin/memory/percentusedswap",
             "type": "builtin",
@@ -115,13 +115,13 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "sampleRate": "PT15S"
           },
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Memory used",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "usedmemory",
             "counterSpecifier": "/builtin/memory/usedmemory",
             "type": "builtin",
@@ -129,13 +129,13 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "sampleRate": "PT15S"
           },
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Page reads",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "pagesreadpersec",
             "counterSpecifier": "/builtin/memory/pagesreadpersec",
             "type": "builtin",
@@ -143,13 +143,13 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "sampleRate": "PT15S"
           },
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Swap available",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "availableswap",
             "counterSpecifier": "/builtin/memory/availableswap",
             "type": "builtin",
@@ -157,13 +157,13 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "sampleRate": "PT15S"
           },
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Swap percent available",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "percentavailableswap",
             "counterSpecifier": "/builtin/memory/percentavailableswap",
             "type": "builtin",
@@ -171,13 +171,13 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "sampleRate": "PT15S"
           },
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Mem. percent available",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "percentavailablememory",
             "counterSpecifier": "/builtin/memory/percentavailablememory",
             "type": "builtin",
@@ -185,13 +185,13 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "sampleRate": "PT15S"
           },
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Pages",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "pagespersec",
             "counterSpecifier": "/builtin/memory/pagespersec",
             "type": "builtin",
@@ -199,13 +199,13 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "sampleRate": "PT15S"
           },
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Swap used",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "usedswap",
             "counterSpecifier": "/builtin/memory/usedswap",
             "type": "builtin",
@@ -213,13 +213,13 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "sampleRate": "PT15S"
           },
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Memory percentage",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "percentusedmemory",
             "counterSpecifier": "/builtin/memory/percentusedmemory",
             "type": "builtin",
@@ -227,20 +227,23 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
             "sampleRate": "PT15S"
           },
           {
+            "class": "memory",
             "annotation": [
               {
                 "displayName": "Page writes",
                 "locale": "en-us"
               }
             ],
-            "class": "memory",
             "counter": "pageswrittenpersec",
             "counterSpecifier": "/builtin/memory/pageswrittenpersec",
             "type": "builtin",
             "unit": "CountPerSecond",
             "sampleRate": "PT15S"
-          },
+          }
         ]
+      },
+      "syslogEvents": {
+        "syslogEventConfiguration": {}
       }
     },
     "sampleRateInSeconds": 15
@@ -371,8 +374,25 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
             "unit": "CountPerSecond",
             "sampleRate": "PT60S"
           },
+          {
+            "counterSpecifier": "\\Process(_Total)\\Working Set",
+            "unit": "Count",
+            "sampleRate": "PT60S"
+          },
+          {
+            "counterSpecifier": "\\Process(_Total)\\Working Set - Private",
+            "unit": "Count",
+            "sampleRate": "PT60S"
+          }
         ]
       },
+      "Directories": {
+        "scheduledTransferPeriod": "PT1M"
+      },
+      "WindowsEventLog": {
+        "scheduledTransferPeriod": "PT1M",
+        "DataSource": []
+      }
     }
   }
 }'
@@ -381,7 +401,7 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageac
 
     #Out-File -FilePath $xmlCfgPath -force -Encoding utf8 -InputObject $extensiontemplatewin
 
-    $encodingXmlCfg =  [System.Convert]::ToBase64String([system.Text.Encoding]::UTF8.GetBytes($extensiontemplatewin));
+    #$encodingXmlCfg =  [System.Convert]::ToBase64String([system.Text.Encoding]::UTF8.GetBytes($extensiontemplatewin));
 
     $extensionTemplatePath = Join-Path $deployExtensionLogDir "extensionTemplateForWindows.json";
     Out-File -FilePath $extensionTemplatePath -Force -Encoding utf8 -InputObject $extensionTemplate
