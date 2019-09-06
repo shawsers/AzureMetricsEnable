@@ -1989,7 +1989,7 @@ if($vmname -and $storageaccount){
       $LinuxVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Linux'} | where{$_.Extensions.Id -notlike '*LinuxDiagnostic*'}
       $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notlike '*Microsoft.Insights.VMDiagnosticsSettings*'}  
     }
-    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
+    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Date and Time,Subscription Name,VM Name,OS Type,Errors'
 }
 elseif($storageaccount) {
     Write-Host "Getting all VM's in the subscription" -ForegroundColor Green
@@ -2009,7 +2009,7 @@ elseif($storageaccount) {
       Add-Content -Path .\$subname\VMsNotRunning_$TimeStampLog.csv -Value " "
       $vmsNotRunning | out-file .\$subname\VMsNotRunning_$TimeStampLog.csv -Append ascii
     }
-    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Subscription Name,VM Name,OS Type,Errors'
+    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Date and Time,Subscription Name,VM Name,OS Type,Errors'
     Write-Host "Getting list of Rersource Groups..." -ForegroundColor Green
     $Getrg = Get-AzureRmResourceGroup -ErrorAction SilentlyContinue
     Write-Host "Checking for any ReadOnly locks on the Resource Groups..." -ForegroundColor Green
@@ -2058,7 +2058,8 @@ if($vmList){
         $error.clear()
         InstallWindowsExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
         $WinOS = "Windows"
-        Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$subname,$vmName,$WinOS,$error"
+        $date = date
+        Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$date,$subname,$vmName,$WinOS,$error"
 
         $failedJobs = get-job -State Failed | Receive-Job
         $failedJobs | export-csv -Path .\$subname\Failed_$TimeStampLog.csv -Append -Force
@@ -2091,7 +2092,8 @@ if($vmList){
       $error.clear()
       InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
       $LinOS = "Linux"
-      Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$subname,$vmName,$LinOS,$error"
+      $date = date
+      Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$date,$subname,$vmName,$LinOS,$error"
 
       $failedJobs = get-job -State Failed | Receive-Job
       $failedJobs | export-csv -Path .\$subname\Failed_$TimeStampLog.csv -Append -Force
