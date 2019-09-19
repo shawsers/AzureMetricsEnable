@@ -1,7 +1,7 @@
 <#
 .VERSION
-2.0
-Updated Date: Aug 13, 2019
+2.1 - Stage
+Updated Date: Sep 19, 2019
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -10,7 +10,7 @@ Email: Jason.Shaw@turbonomic.com
 #It will also make the changes in the subscription specificed
 
 #This will also add the scope of the subscription and the new storage account(s) to the Turbonomic custom role
-#It will also add the Turbonomic Service Principal to the Turbonomic custom role scoped to the new storage account(s)
+#It will also add the Turbonomic Stage Service Principal to the Turbonomic custom role scoped to the new storage account(s)
 #Both above are required for Turbonomic to read the sub and read the memory metrics from the new storage account(s)
 
 #Note when you specify the storage account name in the parameters leave off the trailing # as the script will automatically add the #1 to the end
@@ -110,7 +110,7 @@ foreach($storloc in $vmsloc){
             $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
             Start-Sleep 30
             $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
-            $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
+            $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-Stage'}
             #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -like '*Turbo*'}
             foreach($turboSPN in $turboSPNlist){
                 $turboSPNid = $turboSPN.Id.Guid
@@ -130,7 +130,7 @@ foreach($storloc in $vmsloc){
         Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
         $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
         Start-Sleep 30
-        $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
+        $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-Stage'}
         #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -like '*Turbo*'}
         foreach($turboSPN in $turboSPNlist){
             $turboSPNid = $turboSPN.Id.Guid

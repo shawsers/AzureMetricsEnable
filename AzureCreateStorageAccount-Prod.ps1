@@ -1,7 +1,7 @@
 <#
 .VERSION
-2.0
-Updated Date: Aug 13, 2019
+2.1 - Prod
+Updated Date: Sep 19, 2019
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -10,7 +10,7 @@ Email: Jason.Shaw@turbonomic.com
 #It will also make the changes in the subscription specificed
 
 #This will also add the scope of the subscription and the new storage account(s) to the Turbonomic custom role
-#It will also add the Turbonomic Service Principal to the Turbonomic custom role scoped to the new storage account(s)
+#It will also add the Turbonomic Production Service Principal to the Turbonomic custom role scoped to the new storage account(s)
 #Both above are required for Turbonomic to read the sub and read the memory metrics from the new storage account(s)
 
 #Note when you specify the storage account name in the parameters leave off the trailing # as the script will automatically add the #1 to the end
