@@ -75,6 +75,7 @@ foreach($storloc in $vmsloc){
         Write-Host "Storage account does not exist in the subscription" -ForegroundColor Green
         Write-Host "Checking if storage account is unique in Azure..."
         #Creating new storage account
+        $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
         $error.clear()
         $newStorage = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS
         if(($error) -like '*is already taken*'){
