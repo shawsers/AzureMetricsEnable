@@ -111,7 +111,7 @@ foreach($storloc in $vmsloc){
             Start-Sleep 30
             $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
             #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
-            $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -like 'turbo'}
+            $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -like 'turbo*'}
             foreach($turboSPN in $turboSPNlist){
                 $turboSPNid = $turboSPN.Id.Guid
                 Write-Host "Assinging Turbonomic SPN App Reg permissions on subscription and storage" -ForegroundColor Green
@@ -131,7 +131,7 @@ foreach($storloc in $vmsloc){
         $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
         Start-Sleep 30
         #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
-        $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -like 'turbo'}
+        $turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -like 'turbo*'}
         foreach($turboSPN in $turboSPNlist){
             $turboSPNid = $turboSPN.Id.Guid
             Write-Host "Assinging Turbonomic SPN App Reg permissions on subscription and storage" -ForegroundColor Green
