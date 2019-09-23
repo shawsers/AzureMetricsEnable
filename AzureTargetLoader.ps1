@@ -1,0 +1,1 @@
+AzureTargetLoader.ps1 -AddMode TargetsOnly -TurboInstance turbonomic.mycompany.com -TurboCredential $TurboCred -CsvFilePath ./AzureTargets.Csv
