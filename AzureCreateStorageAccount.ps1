@@ -61,7 +61,7 @@ if (($valres = Get-AzureRmResourceGroup -Name $resourcegroup -ErrorAction Silent
 }
 #Get List of VM's locations
 $vmsloc = get-azurermvm | Select-Object -Unique -ExpandProperty "Location"
-
+if ($vmsloc -eq $null){$vmsloc = $location} 
 Add-Content -Path .\$subname\ResandStorage.csv -Value "Subscription Name,Subscription ID,Resource Group,Storage Account,Storage Location"
 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "Subscription Name,Subscription ID,Turbonomic Custom Role Name"
 #Add foreach loop for creating storage account per $vmsloc variable
