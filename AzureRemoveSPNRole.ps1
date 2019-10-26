@@ -18,7 +18,7 @@ $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
 #Login Azure Account
 connect-azurermaccount -ErrorAction Stop
 #add logging
-foreah ($substorage in $spnsubstorage){
+foreach ($substorage in $spnsubstorage){
     $sub = $substorage.SUBNAME 
     $spn = $substorage.SPN
     $storage = $substorage.STORAGE 
