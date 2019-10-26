@@ -17,9 +17,9 @@ Email: Jason.Shaw@turbonomic.com
 #of the storage accounts created.  So if you have VM's in 3 locations in the sub, it will create 3 new storage accounts starting with #1, then #2, then #3
 
 #You also have to specify an environment parameter now which you have to input one of the following
-PRODUS1 - which will apply the role and scope for PRODUS1, Stage1, Dev
-PRODUS2 - which will apply the role and scope for PRODUS2, Stage2, Dev
-PRODEU - which will apply the role and scope for PRODEU, Stage3, Dev
+#PRODUS1 - which will apply the role and scope for PRODUS1, Stage1, Dev
+#PRODUS2 - which will apply the role and scope for PRODUS2, Stage3, Dev
+#PRODEU - which will apply the role and scope for PRODEU, Stage2, Dev
 
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid SUB-ID-HERE -location AZURE-LOCATION -resourcegroup NEW-RES-GROUP-NAME -storageaccount NEW-DIAG-STORAGE -environment PRODUS1
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount diagstorage00 -environment PRODUS1
