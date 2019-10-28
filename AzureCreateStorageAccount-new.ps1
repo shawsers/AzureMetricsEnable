@@ -121,8 +121,8 @@ foreach($storloc in $vmsloc){
             Start-Sleep 60
             $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
             #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
-            if ($environment -eq "PRODUS1"){
-                $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonimic'}
+            if ($environment -eq "STAGE"){
+                $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
                 $turboSPNstage1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-Stage'}
                 $turboSPNstage1id = $turboSPNstage1.Id.Guid
@@ -133,8 +133,8 @@ foreach($storloc in $vmsloc){
                 $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
                 }
-            if ($environment -eq "PRODEU"){
-                $turboSPNprodeu = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonimic-EU'}
+            if ($environment -eq "STAGE2"){
+                $turboSPNprodeu = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
                 $turboSPNprodeuid = $turboSPNprodeu.Id.Guid
                 $turboSPNstage2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Stage2'}
                 $turboSPNstage2id = $turboSPNstage2.Id.Guid
@@ -145,8 +145,8 @@ foreach($storloc in $vmsloc){
                 $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
                 }
-            if ($environment -eq "PRODUS2"){
-                $turboSPNprodus2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonimic2'}
+            if ($environment -eq "STAGE3"){
+                $turboSPNprodus2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
                 $turboSPNprodus2id = $turboSPNprodus2.Id.Guid
                 $turboSPNstage3 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Stage3'}
                 $turboSPNstage3id = $turboSPNstage3.Id.Guid
