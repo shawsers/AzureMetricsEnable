@@ -17,9 +17,9 @@ Email: Jason.Shaw@turbonomic.com
 #of the storage accounts created.  So if you have VM's in 3 locations in the sub, it will create 3 new storage accounts starting with #1, then #2, then #3
 
 #You also have to specify an environment parameter now which you have to input one of the following
-#STAGE - which will apply the role and scope for PRODUS1, Stage1, Dev
-#STAGE2 - which will apply the role and scope for PRODUS2, Stage3, Dev
-#STAGE3 - which will apply the role and scope for PRODEU, Stage2, Dev
+#STAGE - which will apply the role and scope for Stage1, Dev
+#STAGE2 - which will apply the role and scope for Stage2, Dev
+#STAGE3 - which will apply the role and scope for Stage3, Dev
 
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid SUB-ID-HERE -location AZURE-LOCATION -resourcegroup NEW-RES-GROUP-NAME -storageaccount NEW-DIAG-STORAGE -environment STAGE
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount diagstorage00 -environment STAGE
@@ -63,17 +63,19 @@ if((Test-Path -Path .\$subname) -ne 'True'){
 if (($valres = Get-AzureRmResourceGroup -Name $resourcegroup -ErrorAction SilentlyContinue) -eq $null){
     Write-Host "Resource Group does not exist, creating new one" -ForegroundColor Green
     #Create new Resource Group for the new Stoage Account
-    $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location
+    $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location -ErrorAction Stop
 } else {
     write-host "Resource Group already exists, using exising" -ForegroundColor Green
 }
 #Get List of VM's locations
-$vmsloc = get-azurermvm | Select-Object -Unique -ExpandProperty "Location"
-if ($vmsloc -eq $null){$vmsloc = $location} 
+#$vmsloc = get-azurermvm | Select-Object -Unique -ExpandProperty "Location"
+#if ($vmsloc -eq $null){$vmsloc = $location} 
+$vmsloc = $location
 Add-Content -Path .\$subname\ResandStorage.csv -Value "Subscription Name,Subscription ID,Resource Group,Storage Account,Storage Location,Storage Path"
 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "Subscription Name,Subscription ID,Turbonomic Custom Role Name, SPN Name"
 #Add foreach loop for creating storage account per $vmsloc variable
 $count = 0
+$error.clear()
 foreach($storloc in $vmsloc){
     $count++
     $storageaccountname = $storageaccount + $count
@@ -85,7 +87,7 @@ foreach($storloc in $vmsloc){
         #Creating new storage account
         $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
         $error.clear()
-        $newStorage = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS  -EnableHttpsTrafficOnly $true
+        $newStorage = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS -EnableHttpsTrafficOnly $true -ErrorAction Stop
         if(($error) -like '*is already taken*'){
             Write-Host "Storage account name ""$storageaccountname"" is already in use in Azure and is NOT unique" -ForegroundColor Red -BackgroundColor Black
             Write-Host "please re-run the script and specify a unique storage account name" -ForegroundColor Red -BackgroundColor Black
@@ -95,11 +97,14 @@ foreach($storloc in $vmsloc){
         $newStorageId = $newStorage.Id
         Write-Host "Storage account name is unique, storage account created named: ""$storageaccountname"" " -ForegroundColor Green
         Add-Content -Path .\$subname\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc,$newStorageId"
+        Add-Content -Path .\$subname\ResandStorage.csv -Value "$error"
     } else {
         Write-Host "Storage account named: ""$storageaccountname"" already exists, using existing instead of creating a new one" -ForegroundColor Green
         $getStorageId = $getStorage.Id
         Add-Content -Path .\$subname\ResandStorage.csv -Value "$subname,$subscriptionId,$resourcegroup,$storageaccountname,$storloc,$getStorageId"
+        Add-Content -Path .\$subname\ResandStorage.csv -Value "$error"
     }
+    $error.clear()
     if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
         $newsub = Read-Host -Prompt 'Cannot find Turbonomic Custom Role in subscription, please enter a subscription ID that already has it listed:'
         $readNewSub = Select-AzureRmSubscription -Subscription $newsub -ErrorAction Stop
@@ -111,8 +116,6 @@ foreach($storloc in $vmsloc){
             Exit
         } else {
             Write-Host "Found Turbonomic Custom Role and assigning scope" -ForegroundColor Green    
-            #$turboCustomRole = Get-AzureRmRoleDefinition | Where-Object{$_.Name -like '*Turbonomic*'}
-            #$turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
             $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
             $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
             $turboCustomRoleName = $turboCustomRole.Name
@@ -120,55 +123,57 @@ foreach($storloc in $vmsloc){
             $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
             Start-Sleep 60
             $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
-            #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
             if ($environment -eq "STAGE"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
                 $turboSPNstage1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-Stage'}
                 $turboSPNstage1id = $turboSPNstage1.Id.Guid
-                Write-Host "Assinging Turbonomic Prod US1 and Stage 1 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+                Write-Host "Assinging Turbonomic Dev and Stage 1 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                $error.clear()
                 }
             if ($environment -eq "STAGE2"){
                 $turboSPNprodeu = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
                 $turboSPNprodeuid = $turboSPNprodeu.Id.Guid
                 $turboSPNstage2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Stage2'}
                 $turboSPNstage2id = $turboSPNstage2.Id.Guid
-                Write-Host "Assinging Turbonomic Prod EU and Stage 2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+                Write-Host "Assinging Turbonomic Dev and Stage 2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage2id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                $error.clear()
                 }
             if ($environment -eq "STAGE3"){
                 $turboSPNprodus2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
                 $turboSPNprodus2id = $turboSPNprodus2.Id.Guid
                 $turboSPNstage3 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Stage3'}
                 $turboSPNstage3id = $turboSPNstage3.Id.Guid
-                Write-Host "Assinging Turbonomic Prod EU and Stage 2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+                Write-Host "Assinging Turbonomic Dev and Stage 3 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage3id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage3id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                $error.clear()
                 }    
         }
     } else {
         Write-Host "Found Turbonomic Custom Role and assigning scope" -ForegroundColor Green
-        #$turboCustomRole = Get-AzureRmRoleDefinition | Where-Object{$_.Name -like '*Turbonomic*'}
-        #$turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
         $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
         $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
         $turboCustomRoleName = $turboCustomRole.Name
         Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
         $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
         Start-Sleep 60
-        #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
         if ($environment -eq "STAGE"){
             $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
             $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
@@ -180,6 +185,8 @@ foreach($storloc in $vmsloc){
             $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+            Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+            $error.clear()
             }
         if ($environment -eq "STAGE2"){
             $turboSPNprodeu = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
@@ -192,6 +199,8 @@ foreach($storloc in $vmsloc){
             $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage2id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+            Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+            $error.clear()
             }
         if ($environment -eq "STAGE3"){
             $turboSPNprodus2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
@@ -204,6 +213,8 @@ foreach($storloc in $vmsloc){
             $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage3id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage3id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+            Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+            $error.clear()
             }
     } 
 }
