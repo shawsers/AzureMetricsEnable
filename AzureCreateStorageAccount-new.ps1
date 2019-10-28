@@ -1,7 +1,7 @@
 <#
 .VERSION
-2.2 - All Turbonomic SPNs
-Updated Date: Oct 26, 2019
+2.3 - All Turbonomic SPNs
+Updated Date: Oct 28, 2019
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -17,12 +17,12 @@ Email: Jason.Shaw@turbonomic.com
 #of the storage accounts created.  So if you have VM's in 3 locations in the sub, it will create 3 new storage accounts starting with #1, then #2, then #3
 
 #You also have to specify an environment parameter now which you have to input one of the following
-#PRODUS1 - which will apply the role and scope for PRODUS1, Stage1, Dev
-#PRODUS2 - which will apply the role and scope for PRODUS2, Stage3, Dev
-#PRODEU - which will apply the role and scope for PRODEU, Stage2, Dev
+#STAGE - which will apply the role and scope for PRODUS1, Stage1, Dev
+#STAGE2 - which will apply the role and scope for PRODUS2, Stage3, Dev
+#STAGE3 - which will apply the role and scope for PRODEU, Stage2, Dev
 
-#example: .\AzureCreateStorageAccount.ps1 -subscriptionid SUB-ID-HERE -location AZURE-LOCATION -resourcegroup NEW-RES-GROUP-NAME -storageaccount NEW-DIAG-STORAGE -environment PRODUS1
-#example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount diagstorage00 -environment PRODUS1
+#example: .\AzureCreateStorageAccount.ps1 -subscriptionid SUB-ID-HERE -location AZURE-LOCATION -resourcegroup NEW-RES-GROUP-NAME -storageaccount NEW-DIAG-STORAGE -environment STAGE
+#example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount diagstorage00 -environment STAGE
 #>
 
 param(
@@ -169,8 +169,8 @@ foreach($storloc in $vmsloc){
         $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
         Start-Sleep 60
         #$turboSPNlist = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
-        if ($environment -eq "PRODUS1"){
-            $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonimic'}
+        if ($environment -eq "STAGE"){
+            $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
             $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
             $turboSPNstage1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-Stage'}
             $turboSPNstage1id = $turboSPNstage1.Id.Guid
@@ -181,8 +181,8 @@ foreach($storloc in $vmsloc){
             $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
             }
-        if ($environment -eq "PRODEU"){
-            $turboSPNprodeu = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonimic-EU'}
+        if ($environment -eq "STAGE2"){
+            $turboSPNprodeu = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
             $turboSPNprodeuid = $turboSPNprodeu.Id.Guid
             $turboSPNstage2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Stage2'}
             $turboSPNstage2id = $turboSPNstage2.Id.Guid
@@ -193,8 +193,8 @@ foreach($storloc in $vmsloc){
             $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
             }
-        if ($environment -eq "PRODUS2"){
-            $turboSPNprodus2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonimic2'}
+        if ($environment -eq "STAGE3"){
+            $turboSPNprodus2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
             $turboSPNprodus2id = $turboSPNprodus2.Id.Guid
             $turboSPNstage3 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Stage3'}
             $turboSPNstage3id = $turboSPNstage3.Id.Guid
