@@ -24,9 +24,10 @@ foreach ($substorage in $spnsubstorage){
     $storage = $substorage.STORAGE 
     $storpath = $substorage.FULLPATH 
     $selectSub = Select-AzureRmSubscription -Subscription $sub
+    $subid = $selectSub.subscription.id
     $turboSPN = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq $spn}
     $spnid = $turboSPN.Id.Guid
-    Remove-AzureRmRoleAssignment -ObjectId $spnid -RoleDefinitionName Reader -Scope $storpath
+    Remove-AzureRmRoleAssignment -ObjectId $spnid -RoleDefinitionName Reader -Scope "/subscriptions/$subid"
     Remove-AzureRmRoleAssignment -ObjectId $spnid -RoleDefinitionName "Turbonomic Operator ReadOnly" -Scope $storpath
     #add logging
 }
