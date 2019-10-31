@@ -9,12 +9,12 @@ Email: Jason.Shaw@turbonomic.com
 #You need to specify a correctly formatted CSV file with the "Sub name, SPN Name, Storage id/path"
 #Make sure to update the import-csv file path below with the path to your actual file
 
-#example: .\AzureRemoveSPNRole.ps1
+#example: .\AzureFixRoles.ps1
 #>
  #this script will add the SPN's roles and scopes in the subs listed in the path in import-csv provided on 2 lines below
  write-host "starting the script" -ForegroundColor Green
  write-host "reading input file..." -ForegroundColor Green
- $spnsubstorage = Import-Csv C:\Users\jshaw037\Downloads\scripts\file.csv
+ $spnsubstorage = Import-Csv C:\Users\username\Downloads\scripts\file.csv
  $error.clear()
  $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
  #Login Azure Account
