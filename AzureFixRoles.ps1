@@ -31,18 +31,18 @@ Email: Jason.Shaw@turbonomic.com
      write-host "starting Sub named ""$sub"" now" -ForegroundColor Green
      $turboSPN = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq $spn}
      $spnid = $turboSPN.Id.Guid
-     write-host "removing SPN named ""$spn"" from Sub named ""$sub"" Turbo storage account then waiting for Azure AD to update" -ForegroundColor Green
-     Remove-AzureRmRoleAssignment -ObjectId $spnid -RoleDefinitionName "Turbonomic Operator ReadOnly" -Scope $storpath -ErrorAction SilentlyContinue
+     write-host "adding SPN named ""$spn"" to Sub named ""$sub"" Turbo storage account then waiting for Azure AD to update" -ForegroundColor Green
+     New-AzureRmRoleAssignment -ObjectId $spnid -RoleDefinitionName "Turbonomic Operator ReadOnly" -Scope $storpath -ErrorAction SilentlyContinue
      sleep 30
-     write-host "removing SPN named ""$spn"" from Sub named ""$sub"" then waiting for Azure AD to update" -ForegroundColor Green
-     Remove-AzureRmRoleAssignment -ObjectId $spnid -RoleDefinitionName Reader -Scope "/subscriptions/$subid" -ErrorAction SilentlyContinue
+     write-host "adding SPN named ""$spn"" to Sub named ""$sub"" then waiting for Azure AD to update" -ForegroundColor Green
+     New-AzureRmRoleAssignment -ObjectId $spnid -RoleDefinitionName Reader -Scope "/subscriptions/$subid" -ErrorAction SilentlyContinue
      sleep 30
      write-host "starting validation part of the script now..." -ForegroundColor Green
      $turbo = get-azurermroleassignment | where-object{$_.DisplayName -eq $spn}
      $turborole = $turbo.RoleDefinitionName
      $turboscope = $turbo.Scope
      write-host "done this sub.....writing output to log file now" -ForegroundColor Green
-     Add-Content -Path .\RemovedAzureRoles.csv -Value "$sub,$subid,$spn,$storpath,$error,$turborole,$turboscope"
+     Add-Content -Path .\AddedAzureRoles.csv -Value "$sub,$subid,$spn,$storpath,$error,$turborole,$turboscope"
  }
  write-host "script is done please review the log files named RemovedAzureRoles.csv and SPN_Scope_Sub_Role_Audit.csv in the current working directory" -ForegroundColor Green
  #End of script 
