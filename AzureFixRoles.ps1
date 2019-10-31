@@ -20,7 +20,7 @@ Email: Jason.Shaw@turbonomic.com
  #Login Azure Account
  connect-azurermaccount -ErrorAction Stop
  #add logging
- Add-Content -Path .\RemovedAzureRoles.csv -Value "Sub Name,Sub ID,SPN Name,Storage Path Scope,Errors, SPN Role after Chanage, SPN Scope after Change"
+ Add-Content -Path .\AddedAzureRoles.csv -Value "Sub Name,Sub ID,SPN Name,Storage Path Scope,Errors, SPN Role after Chanage, SPN Scope after Change"
  foreach ($substorage in $spnsubstorage){
      $error.clear()
      $sub = $substorage.SUBNAME 
