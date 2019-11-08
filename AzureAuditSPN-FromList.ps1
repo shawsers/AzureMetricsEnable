@@ -7,7 +7,7 @@ Connect-AzureRmAccount
 $prodsubs = Get-Content -Path .\prodsub.txt
 $report=@()
 foreach($azureSubscription in $prodsubs){
-    Select-AzureRmSubscription -SubscriptionObject $azureSubscription
+    Select-AzureRmSubscription -SubscriptionName $azureSubscription
     foreach($assignment in Get-AzureRmRoleAssignment){
         if($assignment.DisplayName -like '*Turbo*'){
             $report += New-Object psobject -Property @{
