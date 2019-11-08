@@ -22,7 +22,7 @@ foreach($azureSubscription in Get-AzureRmSubscription){
         }
     }
 }
- 
+Write-Host "make sure to check the running directory for the output file name" -ForegroundColor Green 
 ## Export the report
 $report | Export-Csv $exportFile -NoTypeInformation
 ## END OF SCRIPT
