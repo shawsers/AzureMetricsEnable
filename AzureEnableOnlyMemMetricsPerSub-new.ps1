@@ -1,7 +1,7 @@
 <#
 .VERSION
-2.1
-Updated Date: Nov. 8, 2019 - 11:41AM
+2.5
+Updated Date: Nov. 8, 2019 - 5:11PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -28,18 +28,6 @@ param(
  [Parameter(Mandatory=$True)]
  [string]
  $subscriptionId,
-
- [Parameter(Mandatory=$False)]
- [string]
- $resourcegroup,
-
- [Parameter(Mandatory=$False)]
- [string]
- $vmname,
-
- [Parameter(Mandatory=$True)]
- [string]
- $storageaccount
 )
 
 $TimeStampLog = Get-Date -Format o | foreach {$_ -replace ":", "."}
