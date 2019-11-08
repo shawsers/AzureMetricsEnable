@@ -50,7 +50,7 @@ function Get-TimeStamp {
 
 }
 
-function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageaccount){
+function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageName){
     $extensionType="LinuxDiagnostic"
     #$extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
     $extensionName = "LinuxDiagnostic"
@@ -294,7 +294,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageaccou
     ##Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storagename -StorageAccountKey $storageKey -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $xmlCfgPath -AutoUpgradeMinorVersion $True
 }
 
-function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageaccount){
+function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageName){
     $extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
     $extensionType = "IaaSDiagnostics"
 
@@ -558,7 +558,7 @@ if($vmList){
         Write-Output "VM Name:" $vmName
         Write-Host "VM Type Detected is Windows" -ForegroundColor Green
         $error.clear()
-        InstallWindowsExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
+        InstallWindowsExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName -storageName $storageName
         $WinOS = "Windows"
         $date = date
         Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$date,$subname,$vmName,$WinOS,$error"
@@ -592,7 +592,7 @@ if($vmList){
 
       Write-Host "VM Type Detected is Linux" -ForegroundColor Green
       $error.clear()
-      InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName
+      InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName -storageName $storageName
       $LinOS = "Linux"
       $date = date
       Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$date,$subname,$vmName,$LinOS,$error"
