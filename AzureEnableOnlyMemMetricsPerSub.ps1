@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.0
-Updated Date: Sept 6, 2019
+Updated Date: Nov. 8, 2019
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -50,7 +50,7 @@ function Get-TimeStamp {
 
 }
 
-function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageaccount){
+function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageaccount){
     $extensionType="LinuxDiagnostic"
     #$extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
     $extensionName = "LinuxDiagnostic"
@@ -294,7 +294,7 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageacco
     ##Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storagename -StorageAccountKey $storageKey -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $xmlCfgPath -AutoUpgradeMinorVersion $True
 }
 
-function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName, $storageaccount){
+function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageaccount){
     $extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
     $extensionType = "IaaSDiagnostics"
 
