@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.5
-Updated Date: Nov. 8, 2019 - 5:11PM
+Updated Date: Nov. 10, 2019 - 1:38PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -39,23 +39,8 @@ function Get-TimeStamp {
 }
 
 function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageName){
-    $extensionType="LinuxDiagnostic"
-    #$extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
-    $extensionName = "LinuxDiagnostic"
-    #$vm = Get-AzureRmVM -Name $vmName -ResourceGroupName $rsgName
-    #$extension = $vm.Extensions | Where-Object -Property 'VirtualMachineExtensionType' -eq $extensionType
-    #if($extension -and $extension.ProvisioningState -eq 'Succeeded'){
-    #    $pub = get-azurermvmextension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionType
-    #    ($pub.PublicSettings -match '.*StorageAccount.*').matches
-    #    $currentsg = $matches[0].split('"')[3]
-    #    Write-Output "Diagnostics already installed on the VM : "$vmName " in storage account "$currentsg ".  You need to review or update the extension manually. Skipping Install."
-    #    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Linux,Skipping Install as diagnostics already installed on the VM: $vmName in Resource Group: $rsgName diagnostics storage currently being used is: $currentsg'"
-    #    return
-    #}
     Write-Host "Installing VM Extension for your Linux VM" -ForegroundColor Green
     Write-Output "storageName:" $storageName
-    ##sastoken moved out of loop
-
     $jsonfilelinux = '{
   "StorageAccount": "'+$storageName+'",
   "ladCfg": {
@@ -237,25 +222,15 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageName)
     "sampleRateInSeconds": 15
   }
 }'
-    #$xmlCfgPath =Join-Path $deployExtensionLogDir "linuxxmlcfg.xml";
-
-    #Out-File -FilePath $xmlCfgPath -force -Encoding utf8 -InputObject $xmlCfgContentForLinux
-
-    #$encodingXmlCfg =  [System.Convert]::ToBase64String([system.Text.Encoding]::UTF8.GetBytes($xmlCfgContentForLinux));
-
     $vmLocation = $rsgLocation
     $settingsString = '{
             "StorageAccount": "'+$storageName+'",
             "xmlCfg": "'+$encodingXmlCfg+'"
     }'
-    #$settingsStringPath = Join-Path $deployExtensionLogDir "LinuxSettingsFile.json"
-
-    #Out-File -FilePath $settingsStringPath -Force -Encoding utf8 -InputObject $settingsString
-
-    ##$extensionPublisher = 'Microsoft.OSTCExtensions'
-    ##$extensionVersion = "2.3"
-    $extensionPublisher = 'Microsoft.Azure.Diagnostics'
-    $extensionVersion = "3.0"
+    $LinExtensionType="LinuxDiagnostic"
+    $LinExtensionName = "LinuxDiagnostic"
+    $LinExtensionPublisher = 'Microsoft.Azure.Diagnostics'
+    $LinExtensionVersion = "3.0"
     #$storageAll = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageName -ErrorAction SilentlyContinue
     $storageAll = get-azurermresourcegroup | where {$_.ResourceGroupName -like '*turbo*'}
     #$storagersgName = $storageAll | where {$_.StorageAccountName -eq $storageName} | Select-Object -ExpandProperty ResourceGroupName
@@ -270,38 +245,14 @@ function InstallLinuxExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageName)
     "storageAccountName": "'+$storageName+'",
     "storageAccountSasToken": "'+$storageSas+'"
     }'
-
-    ##$privateCfg = '{
-    ##"storageAccountName": "'+$storageName+'",
-    ##"storageAccountSasToken": "'+$storageSas+'"
-    #}'
-    ##"storageAccountKey": "'+$storageKey+'"
-    $extensionType = "LinuxDiagnostic"
     #set this up to run via start-job
     #make sure to remove the -AsJob at the end of the script before adding to start-job
-    Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName -ExtensionType $extensionType -Publisher $extensionPublisher -TypeHandlerVersion $extensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
-    ##Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName -Publisher $extensionPublisher -ExtensionType $extensionType -TypeHandlerVersion $extensionVersion -Settingstring $settingsString -ProtectedSettingString $privateCfg -Location $vmLocation
-    ##Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storagename -StorageAccountKey $storageKey -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $xmlCfgPath -AutoUpgradeMinorVersion $True
+    Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $LinExtensionName -ExtensionType $LinExtensionType -Publisher $LinExtensionPublisher -TypeHandlerVersion $LinExtensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
 }
 
 function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageName){
-    $extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
-    $extensionType = "IaaSDiagnostics"
-
-    #$extension = Get-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName | Where-Object -Property ExtensionType -eq $extensionType
-    #if($extension -and $extension.ProvisioningState -eq 'Succeeded'){
-    #    $pub = get-azurermvmextension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName
-    #    ($pub.PublicSettings -match '.*StorageAccount.*').matches
-    #    $currentsg = $matches[0].split('"')[3]
-    #    Write-Output "Diagnostics already installed on the VM : "$vmName " in storage account "$currentsg ".  You need to review or update the extension manually. Skipping Install."
-    #    Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "'$subname,$vmName,Windows,Skipping Install as diagnostics already installed on the VM: $vmName in Resource Group: $rsgName diagnostics storage currently being used is: $currentsg'"
-    #    return
-    #}
     Write-Host "Installing Diagnostic Extension on your Windows VM" -ForegroundColor Green
-
         Write-Output "storageName:" $storageName
-        ##$storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $storagersgName -Name $storageName;
-        ##$storageKey = $storageKeys[0].Value;
 
         $vmLocation = $rsgLocation
 
@@ -387,12 +338,8 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageNam
   }
 }'
 
-    #$xmlCfgPath =Join-Path $deployExtensionLogDir "windowsxmlcfg.xml";
-
-    #Out-File -FilePath $xmlCfgPath -force -Encoding utf8 -InputObject $extensiontemplatewin
-
-    #$encodingXmlCfg =  [System.Convert]::ToBase64String([system.Text.Encoding]::UTF8.GetBytes($extensiontemplatewin));
-
+    $extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
+    $extensionType = "IaaSDiagnostics"
     $extensionTemplatePath = Join-Path $deployExtensionLogDir "extensionTemplateForWindows.json";
     Out-File -FilePath $extensionTemplatePath -Force -Encoding utf8 -InputObject $extensionTemplate
     $storageAll = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageName -ErrorAction SilentlyContinue
@@ -410,11 +357,6 @@ function InstallWindowsExtension($rsgName,$rsgLocation,$vmId,$vmName,$storageNam
 
     $extensionPublisher = 'Microsoft.Azure.Diagnostics'
     $extensionVersion = "1.5"
-    ##"storageAccountKey": "'+$storageKey+'"
-    ##Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $extensionName -ExtensionType $extensionType -Publisher $extensionPublisher -TypeHandlerVersion $extensionVersion -Settingstring $extensionTemplate -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
-    ##New-AzureRmResourceGroupDeployment -ResourceGroupName $rsgName -TemplateFile $extensionTemplatePath
-    ##Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storageName -StorageAccountKey $storageKey -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $xmlCfgPath -AutoUpgradeMinorVersion $True
-    ####Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storageName -StorageAccountKey $storageKey -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $extensionTemplatePath -AutoUpgradeMinorVersion $True
     [scriptblock]$sb = { param($rsgName, $vmName, $storageName, $storageKey, $extensionName, $vmLocation, $extensionTemplatePath)
     Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storageName -StorageAccountKey $storageKey `
     -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $extensionTemplatePath -AutoUpgradeMinorVersion $True
