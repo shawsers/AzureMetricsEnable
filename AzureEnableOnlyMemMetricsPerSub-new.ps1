@@ -21,7 +21,7 @@ To enable for one runnning VM make sure to specify the VM name
  .\AzureEnableMetricsPerSub.ps1 -subscriptionId SUB-ID-HERE -vmname vm_name -resourcegroup resourcegroup_of_vm -storageaccount storageaccount_name
 
 To enable for ALL running VMs in a Subscription just specify your subscription id and storage account where the metrics will be stored in that subscription
- .\AzureEnableMetricsPerSub.ps1 -subscriptionId SUB-ID-HERE -storageaccount storageaccount_name
+ .\AzureEnableMetricsPerSub.ps1 -subscriptionId SUB-ID-HERE
 #>
 param(
 
@@ -486,10 +486,6 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
     }
   }'
       $vmLocation = $rsgLocation
-      $settingsString = '{
-              "StorageAccount": "'+$storageName+'",
-              "xmlCfg": "'+$encodingXmlCfg+'"
-      }'
   
       #set this up to run via start-job
       #make sure to remove the -AsJob at the end of the script before adding to start-job
