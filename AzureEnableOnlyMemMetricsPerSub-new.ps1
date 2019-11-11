@@ -27,7 +27,7 @@ param(
 
  [Parameter(Mandatory=$True)]
  [string]
- $subscriptionId,
+ $subscriptionId
 )
 
 $TimeStampLog = Get-Date -Format o | foreach {$_ -replace ":", "."}
@@ -58,8 +58,9 @@ if($subscriptionId){
     Write-Host "Verifying if storage account exists..." -ForegroundColor Green
     $storageAll = get-azurermresourcegroup | where {$_.ResourceGroupName -like '*turbo*'}
     $storagersgName = $storageAll.ResourceGroupName
-    $storageName = Get-AzureRmStorageAccount -ResourceGroupName $storagersgName | where {$_.StorageAccountName -like '*turbo*'} | select -First 1
-    if(($verifystorage = get-azurermresourcegroup | Get-AzureRmStorageAccount -name $storageName -ErrorAction SilentlyContinue) -eq $null){
+    $storageTurboName = Get-AzureRmStorageAccount -ResourceGroupName $storagersgName | where {$_.StorageAccountName -like '*turbo*'} | select -First 1
+    $storageName = $storageTurboName.StorageAccountName
+    if(($verifystorage = get-azurermresourcegroup | Get-AzureRmStorageAccount -Name $storageName -ErrorAction SilentlyContinue) -eq $null){
       write-host "Storage account specified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red -BackgroundColor Black
       exit
     } else {
