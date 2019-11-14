@@ -490,7 +490,7 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
   
       #set this up to run via start-job
       #make sure to remove the -AsJob at the end of the script before adding to start-job
-      Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $LinExtensionName -Type $LinExtensionType -Publisher $LinExtensionPublisher -TypeHandlerVersion $LinExtensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
+      Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $LinExtensionName -ExtensionType $LinExtensionType -Publisher $LinExtensionPublisher -TypeHandlerVersion $LinExtensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
       $LinOS = "Linux"
       $date = date
       Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$date,$subname,$vmName,$LinOS,$error"
