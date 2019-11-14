@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.5
-Updated Date: Nov. 14, 2019 - 1:45PM
+Updated Date: Nov. 14, 2019 - 4:45PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -284,7 +284,7 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
     }
 
   Write-Host "Starting Linux VMs" -ForegroundColor Green
-    foreach($vm in $LinuxVmsRunning){
+    foreach($lvm in $LinuxVmsRunning){
       $countjobs = (get-job -state Running).count
       Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
       Write-Host "Number of VMs completed is ""$vmsCompleted""" -ForegroundColor Green
@@ -295,8 +295,8 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
       $rsg = Get-AzureRmResourceGroup -Name $rsgName
       $rsgLocation = $vm.Location
 
-      $vmId = $vm.Id
-      $vmName = $vm.Name
+      $vmId = $lvm.Id
+      $vmName = $lvm.Name
       #Write-Output "VM ID:" $vmId
       Write-Output "VM Name:" $vmName
 
