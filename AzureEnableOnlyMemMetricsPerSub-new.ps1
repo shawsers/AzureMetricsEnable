@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.5
-Updated Date: Nov. 14, 2019 - 11:10AM
+Updated Date: Nov. 14, 2019 - 1:45PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -85,7 +85,7 @@ if($subscriptionId){
     #extenstion and Storage related
     $extensionName = "Microsoft.Insights.VMDiagnosticsSettings"
     $extensionType = "IaaSDiagnostics"
-    $extensionPublisher = 'Microsoft.Azure.Diagnostics'
+    $extensionPublisher = "Microsoft.Azure.Diagnostics"
     $extensionVersion = "1.5"
     $startdate = [system.datetime]::now.AddDays(-1)
     $enddate = [system.datetime]::Now.AddYears(999)
@@ -99,7 +99,7 @@ if($subscriptionId){
     }'
     $LinExtensionType="LinuxDiagnostic"
     $LinExtensionName = "LinuxDiagnostic"
-    $LinExtensionPublisher = 'Microsoft.Azure.Diagnostics'
+    $LinExtensionPublisher = "Microsoft.Azure.Diagnostics"
     $LinExtensionVersion = "3.0"
 } else {
     Login-AzureRmAccount -ErrorAction Stop
@@ -164,19 +164,19 @@ if($vmList){
         
         while((get-job -State Running).count -ge 50){start-sleep 1}
 
-        $rsgName = $vm.ResourceGroupName;
+        $rsgName = $vm.ResourceGroupName
         $rsg = Get-AzureRmResourceGroup -Name $rsgName
         $rsgLocation = $vm.Location
 
         $vmId = $vm.Id
         $vmName = $vm.Name
-        Write-Output "VM ID:" $vmId
+        #Write-Output "VM ID:" $vmId
         Write-Output "VM Name:" $vmName
         Write-Host "VM Type Detected is Windows" -ForegroundColor Green
         $error.clear()
         #InstallWindowsExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName -storageName $storageName
         Write-Host "Installing Diagnostic Extension on your Windows VM" -ForegroundColor Green
-        Write-Output "storageName:" $storageName
+        #Write-Output "storageName:" $storageName
 
         $vmLocation = $rsgLocation
 
@@ -291,20 +291,20 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
 
       while((get-job -State Running).count -ge 50){start-sleep 1}
 
-      $rsgName = $vm.ResourceGroupName;
+      $rsgName = $vm.ResourceGroupName
       $rsg = Get-AzureRmResourceGroup -Name $rsgName
-      $rsgLocation = $vm.Location;
+      $rsgLocation = $vm.Location
 
       $vmId = $vm.Id
       $vmName = $vm.Name
-      Write-Output "VM ID:" $vmId
+      #Write-Output "VM ID:" $vmId
       Write-Output "VM Name:" $vmName
 
       Write-Host "VM Type Detected is Linux" -ForegroundColor Green
       $error.clear()
       #InstallLinuxExtension -rsgName $rsgName -rsgLocation $rsgLocation -vmId $vmId -vmName $vmName -storageName $storageName
       Write-Host "Installing VM Extension for your Linux VM" -ForegroundColor Green
-      Write-Output "storageName:" $storageName
+      #Write-Output "storageName:" $storageName
       $jsonfilelinux = '{
     "StorageAccount": "'+$storageName+'",
     "ladCfg": {
