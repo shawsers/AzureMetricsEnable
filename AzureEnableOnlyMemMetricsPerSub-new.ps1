@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.5
-Updated Date: Nov. 14, 2019 - 10:45PM
+Updated Date: Nov. 15, 2019 - 12:15AM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -306,191 +306,196 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
       Write-Host "Installing VM Extension for your Linux VM" -ForegroundColor Green
       #Write-Output "storageName:" $storageName
       $jsonfilelinux = '{
-    "StorageAccount": "'+$storageName+'",
-    "ladCfg": {
-      "diagnosticMonitorConfiguration": {
-        "eventVolume": "Medium",
-        "metrics": {
-          "metricAggregation": [
-            {
-              "scheduledTransferPeriod": "PT1M"
-            },
-            {
-              "scheduledTransferPeriod": "PT1H"
-            }
-          ],
-          "resourceId": "'+$vmId+'"
-        },
-        "performanceCounters": {
-          "performanceCounterConfiguration": [
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Memory available",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "availablememory",
-              "counterSpecifier": "/builtin/memory/availablememory",
-              "type": "builtin",
-              "unit": "Bytes",
-              "sampleRate": "PT15S"
-            },
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Swap percent used",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "percentusedswap",
-              "counterSpecifier": "/builtin/memory/percentusedswap",
-              "type": "builtin",
-              "unit": "Percent",
-              "sampleRate": "PT15S"
-            },
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Memory used",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "usedmemory",
-              "counterSpecifier": "/builtin/memory/usedmemory",
-              "type": "builtin",
-              "unit": "Bytes",
-              "sampleRate": "PT15S"
-            },
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Page reads",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "pagesreadpersec",
-              "counterSpecifier": "/builtin/memory/pagesreadpersec",
-              "type": "builtin",
-              "unit": "CountPerSecond",
-              "sampleRate": "PT15S"
-            },
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Swap available",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "availableswap",
-              "counterSpecifier": "/builtin/memory/availableswap",
-              "type": "builtin",
-              "unit": "Bytes",
-              "sampleRate": "PT15S"
-            },
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Swap percent available",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "percentavailableswap",
-              "counterSpecifier": "/builtin/memory/percentavailableswap",
-              "type": "builtin",
-              "unit": "Percent",
-              "sampleRate": "PT15S"
-            },
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Mem. percent available",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "percentavailablememory",
-              "counterSpecifier": "/builtin/memory/percentavailablememory",
-              "type": "builtin",
-              "unit": "Percent",
-              "sampleRate": "PT15S"
-            },
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Pages",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "pagespersec",
-              "counterSpecifier": "/builtin/memory/pagespersec",
-              "type": "builtin",
-              "unit": "CountPerSecond",
-              "sampleRate": "PT15S"
-            },
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Swap used",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "usedswap",
-              "counterSpecifier": "/builtin/memory/usedswap",
-              "type": "builtin",
-              "unit": "Bytes",
-              "sampleRate": "PT15S"
-            },
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Memory percentage",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "percentusedmemory",
-              "counterSpecifier": "/builtin/memory/percentusedmemory",
-              "type": "builtin",
-              "unit": "Percent",
-              "sampleRate": "PT15S"
-            },
-            {
-              "class": "memory",
-              "annotation": [
-                {
-                  "displayName": "Page writes",
-                  "locale": "en-us"
-                }
-              ],
-              "counter": "pageswrittenpersec",
-              "counterSpecifier": "/builtin/memory/pageswrittenpersec",
-              "type": "builtin",
-              "unit": "CountPerSecond",
-              "sampleRate": "PT15S"
-            }
-          ]
-        },
-        "syslogEvents": {
-          "syslogEventConfiguration": {}
-        }
+  "StorageAccount": "'+$storageName+'",
+  "ladCfg": {
+    "diagnosticMonitorConfiguration": {
+      "eventVolume": "Medium",
+      "metrics": {
+        "metricAggregation": [
+          {
+            "scheduledTransferPeriod": "PT1M"
+          },
+          {
+            "scheduledTransferPeriod": "PT1H"
+          }
+        ],
+        "resourceId": "'+$vmId+'"
       },
-      "sampleRateInSeconds": 15
-    }
-  }'
+      "performanceCounters": {
+        "performanceCounterConfiguration": [
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Memory available",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "availablememory",
+            "counterSpecifier": "/builtin/memory/availablememory",
+            "type": "builtin",
+            "unit": "Bytes",
+            "sampleRate": "PT15S"
+          },
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Swap percent used",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "percentusedswap",
+            "counterSpecifier": "/builtin/memory/percentusedswap",
+            "type": "builtin",
+            "unit": "Percent",
+            "sampleRate": "PT15S"
+          },
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Memory used",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "usedmemory",
+            "counterSpecifier": "/builtin/memory/usedmemory",
+            "type": "builtin",
+            "unit": "Bytes",
+            "sampleRate": "PT15S"
+          },
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Page reads",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "pagesreadpersec",
+            "counterSpecifier": "/builtin/memory/pagesreadpersec",
+            "type": "builtin",
+            "unit": "CountPerSecond",
+            "sampleRate": "PT15S"
+          },
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Swap available",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "availableswap",
+            "counterSpecifier": "/builtin/memory/availableswap",
+            "type": "builtin",
+            "unit": "Bytes",
+            "sampleRate": "PT15S"
+          },
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Swap percent available",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "percentavailableswap",
+            "counterSpecifier": "/builtin/memory/percentavailableswap",
+            "type": "builtin",
+            "unit": "Percent",
+            "sampleRate": "PT15S"
+          },
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Mem. percent available",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "percentavailablememory",
+            "counterSpecifier": "/builtin/memory/percentavailablememory",
+            "type": "builtin",
+            "unit": "Percent",
+            "sampleRate": "PT15S"
+          },
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Pages",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "pagespersec",
+            "counterSpecifier": "/builtin/memory/pagespersec",
+            "type": "builtin",
+            "unit": "CountPerSecond",
+            "sampleRate": "PT15S"
+          },
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Swap used",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "usedswap",
+            "counterSpecifier": "/builtin/memory/usedswap",
+            "type": "builtin",
+            "unit": "Bytes",
+            "sampleRate": "PT15S"
+          },
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Memory percentage",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "percentusedmemory",
+            "counterSpecifier": "/builtin/memory/percentusedmemory",
+            "type": "builtin",
+            "unit": "Percent",
+            "sampleRate": "PT15S"
+          },
+          {
+            "class": "memory",
+            "annotation": [
+              {
+                "displayName": "Page writes",
+                "locale": "en-us"
+              }
+            ],
+            "counter": "pageswrittenpersec",
+            "counterSpecifier": "/builtin/memory/pageswrittenpersec",
+            "type": "builtin",
+            "unit": "CountPerSecond",
+            "sampleRate": "PT15S"
+          }
+        ]
+      },
+      "syslogEvents": {
+        "syslogEventConfiguration": {}
+      }
+    },
+    "sampleRateInSeconds": 15
+  }
+}'
       $vmLocation = $rsgLocation
   
       #set this up to run via start-job
       #make sure to remove the -AsJob at the end of the script before adding to start-job
-      Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $LinExtensionName -ExtensionType $LinExtensionType -Publisher $LinExtensionPublisher -TypeHandlerVersion $LinExtensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
+      #Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $LinExtensionName -ExtensionType $LinExtensionType -Publisher $LinExtensionPublisher -TypeHandlerVersion $LinExtensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
+      [scriptblock]$sbl = { param($LinExtensionType, $LinExtensionPublisher, $rsgName, $vmName, $LinExtensionName, $vmLocation, $LinExtensionVersion, $jsonfilelinux, $privateCfg)
+        Set-AzureRmVMExtension -ExtensionType $LinExtensionType -Publisher $LinExtensionPublisher -ResourceGroupName $rsgName -VMName $vmName -Name $LinExtensionName -Location $vmLocation -TypeHandlerVersion $LinExtensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg
+        }
+
+      Start-Job -Name $vmName -ScriptBlock $sbl -ArgumentList $LinExtensionType, $LinExtensionPublisher, $rsgName, $vmName, $LinExtensionName, $vmLocation, $LinExtensionVersion, $jsonfilelinux, $privateCfg
       $LinOS = "Linux"
       $date = date
       Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$date,$subname,$vmName,$LinOS,$error"
