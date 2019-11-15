@@ -16,6 +16,8 @@ Email: Jason.Shaw@turbonomic.com
 #Note when you specify the storage account name in the parameters leave off the trailing # as the script will automatically add the #1 to the end
 #of the storage accounts created.  So if you have VM's in 3 locations in the sub, it will create 3 new storage accounts starting with #1, then #2, then #3
 
+Make sure to create a file named subs-prod.txt and that it is in the directory you are running the script from.  It needs to contain a list of sub names to read in and run the script against
+
 #You also have to specify an environment parameter now which you have to input one of the following
 #PROD - which will apply the role and scope for PROD US
 #PROD2 - which will apply the role and scope for PROD US 2
@@ -34,23 +36,24 @@ param(
 )
 $error.clear()
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
-#Login Azure Account
-login-azurermaccount -Subscription $subscriptionId -ErrorAction Stop
-
-$sub = Get-AzureRmSubscription -subscriptionid $subscriptionId
-$subname = $sub.Name
-$selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
-$date = date
-Write-Host "**Script started at $date" -ForegroundColor Green
-if((Test-Path -Path .\$subname) -ne 'True'){
-    Write-Host "Creating new sub directory for log files" -ForegroundColor Green
-    $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
-    $fullPath = $path.FullName
-  } else {
-    Write-Host "Using existing directory for logs" -ForegroundColor Green
-    $path = Get-Location
-    $fullPath = $path.Path + "\" + $subname 
-  }
+$readsubsfile = get-content -path .\subs-prod.txt
+if($subscriptionId){
+    $logsub = Login-AzureRmAccount -SubscriptionId $subscriptionId -ErrorAction Stop
+    }
+foreach ($azuresub in $readsubsfile){
+    $selectSub = Select-AzureRmSubscription -SubscriptionName $azuresub -InformationAction SilentlyContinue
+    $subname = $azuresub
+    $date = date
+    Write-Host "**Script started at $date" -ForegroundColor Green
+    if((Test-Path -Path .\$subname) -ne 'True'){
+        Write-Host "Creating new sub directory for log files" -ForegroundColor Green
+        $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
+        $fullPath = $path.FullName
+    } else {
+        Write-Host "Using existing directory for logs" -ForegroundColor Green
+        $path = Get-Location
+        $fullPath = $path.Path + "\" + $subname 
+    }
 
 if (($valres = Get-AzureRmResourceGroup -Name $resourcegroup -ErrorAction SilentlyContinue) -eq $null){
     Write-Host "Resource Group does not exist, creating new one" -ForegroundColor Green
@@ -214,3 +217,4 @@ foreach($storloc in $vmsloc){
 $date = date
 Write-Host "**Script completed at $date" -ForegroundColor Green
 Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
+}
