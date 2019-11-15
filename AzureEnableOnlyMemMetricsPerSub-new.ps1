@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.5
-Updated Date: Nov. 14, 2019 - 4:45PM
+Updated Date: Nov. 14, 2019 - 10:45PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -89,10 +89,10 @@ if($subscriptionId){
     $extensionVersion = "1.5"
     $startdate = [system.datetime]::now.AddDays(-1)
     $enddate = [system.datetime]::Now.AddYears(999)
-    $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $StoragersgName -Name $storageName;
-    $storageKey = $storageKeys[0].Value;
+    $storageKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $StoragersgName -Name $storageName
+    $storageKey = $storageKeys[0].Value
     $context = new-azurestoragecontext -StorageAccountName $storageName -StorageAccountKey $storageKey
-    $storageSas = new-azurestorageaccountsastoken -Service Blob,Table -ResourceType Container,Object -Permission wlacu -Context $context -StartTime $startdate -ExpiryTime $enddate
+    $storageSas = new-azurestorageaccountsastoken -Service Blob,Table -ResourceType Container,Object -Permission wlacu -Context $context -StartTime $startdate -ExpiryTime $enddate -Protocol HttpsOnly
     $privateCfg = '{
     "storageAccountName": "'+$storageName+'",
     "storageAccountSasToken": "'+$storageSas+'"
@@ -261,7 +261,7 @@ if($vmList){
     }
   }
 }'
-$extensionTemplatePath = Join-Path $deployExtensionLogDir "extensionTemplateForWindows.json";
+$extensionTemplatePath = Join-Path $deployExtensionLogDir "extensionTemplateForWindows.json"
 Out-File -FilePath $extensionTemplatePath -Force -Encoding utf8 -InputObject $extensionTemplate
 
     [scriptblock]$sb = { param($rsgName, $vmName, $storageName, $storageKey, $extensionName, $vmLocation, $extensionTemplatePath)
