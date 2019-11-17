@@ -13,8 +13,7 @@ Email: Jason.Shaw@turbonomic.com
 #It will also add all of the Turbonomic Service Principals to the Turbonomic custom role scoped to the new storage account(s)
 #Both above are required for Turbonomic to read the sub and read the memory metrics from the new storage account(s)
 
-#Note when you specify the storage account name in the parameters leave off the trailing # as the script will automatically add the #1 to the end
-#of the storage accounts created.  So if you have VM's in 3 locations in the sub, it will create 3 new storage accounts starting with #1, then #2, then #3
+#Make sure to specify a unique storage account name, otherwise the script will exit/stop
 
 #You also have to specify an environment parameter now which you have to input one of the following
 #STAGE - which will apply the role and scope for Stage1, Dev
@@ -22,7 +21,7 @@ Email: Jason.Shaw@turbonomic.com
 #STAGE3 - which will apply the role and scope for Stage3, Dev
 
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid SUB-ID-HERE -location AZURE-LOCATION -resourcegroup NEW-RES-GROUP-NAME -storageaccount NEW-DIAG-STORAGE -environment STAGE
-#example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount diagstorage00 -environment STAGE
+#example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount turbostorage001 -environment STAGE
 #>
 
 param(
@@ -74,11 +73,12 @@ $vmsloc = $location
 Add-Content -Path .\$subname\ResandStorage.csv -Value "Subscription Name,Subscription ID,Resource Group,Storage Account,Storage Location,Storage Path"
 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "Subscription Name,Subscription ID,Turbonomic Custom Role Name, SPN Name"
 #Add foreach loop for creating storage account per $vmsloc variable
-$count = 0
+#$count = 0
 $error.clear()
 foreach($storloc in $vmsloc){
-    $count++
-    $storageaccountname = $storageaccount + $count
+ #   $count++
+ #   $storageaccountname = $storageaccount + $count
+    $storageaccountname = $storageaccount
     #Create new Storage Account for metrics
     $getStorage = get-azurermresourcegroup | get-azurermstorageaccount -name $storageaccountname -ErrorAction SilentlyContinue
     if ($getStorage -eq $null){
