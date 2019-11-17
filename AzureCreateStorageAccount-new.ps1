@@ -1,7 +1,7 @@
 <#
 .VERSION
-2.3 - All Turbonomic SPNs
-Updated Date: Oct 28, 2019
+2.4 - All Turbonomic STAGE and DEV SPNs
+Updated Date: Nov. 16, 2019 - 9:30PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -108,22 +108,22 @@ foreach($storloc in $vmsloc){
     if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
         $newsub = Read-Host -Prompt 'Cannot find Turbonomic Custom Role in subscription, please enter a subscription ID that already has it listed:'
         $readNewSub = Select-AzureRmSubscription -Subscription $newsub -ErrorAction Stop
-        #add step to add scope
-        Write-Host "Waiting 3 mins for Azure AD Sync to complete before checking again..." -ForegroundColor Green
-        Start-Sleep 180
+        $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
+        $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
+        $turboCustomRoleName = $turboCustomRole.Name
+        Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
+        $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
+        Write-Host "Waiting 5 mins for Azure AD Sync to complete before checking again..." -ForegroundColor Green
+        Start-Sleep 300
+        $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
         if(($turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly') -eq $null){
             Write-Host "Still cannot find Turbonomic Custom Role in Azure AD, please run the script again after verifying role exists in the subscription" -ForegroundColor Red -BackgroundColor Black
             Write-Host "**Script will now exit" -ForegroundColor Red -BackgroundColor Black 
             Exit
         } else {
             Write-Host "Found Turbonomic Custom Role and assigning scope" -ForegroundColor Green    
-            $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
-            $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
-            $turboCustomRoleName = $turboCustomRole.Name
-            Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
-            $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
-            Start-Sleep 60
             $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
+            $turboCustomRoleName = $turboCustomRole.Name
             if ($environment -eq "STAGE"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
@@ -174,7 +174,8 @@ foreach($storloc in $vmsloc){
         $turboCustomRoleName = $turboCustomRole.Name
         Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
         $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
-        Start-Sleep 60
+        Write-Host "Waiting 5 mins for Azure AD Sync to complete before proceeding..." -ForegroundColor Green
+        Start-Sleep 300
         if ($environment -eq "STAGE"){
             $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
             $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
