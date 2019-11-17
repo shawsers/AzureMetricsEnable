@@ -74,7 +74,6 @@ foreach ($azuresub in $readsubsfile){
     foreach ($turbostor in $storageTurboName){
         $storageaccountname = $turbostor.StorageAccountName
         $error.clear()
-            $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
             if ($environment -eq "PROD"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
