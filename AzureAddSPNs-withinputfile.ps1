@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.71 - All Turbonomic All SPNs
-Updated Date: Nov. 18, 2019 - 12:28AM
+Updated Date: Nov. 18, 2019 - 12:28PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -27,8 +27,8 @@ Make sure to create a file named subs-prod.txt and that it is in the directory y
 #STAGE3 - which will apply the role and scope for Stage3, Dev
 
 #Make sure the sub in the parameter below is one that has already been onboarded
-#example: .\AzureCreateStorageAccount.ps1 -subid SUB-ID -environment PROD
-#example: .\AzureCreateStorageAccount.ps1 -subid #################### -environment PROD
+#example: .\AzureCreateStorageAccount.ps1 -subid SUB-ID -environment PROD2
+#example: .\AzureCreateStorageAccount.ps1 -subid a1555999-e2gg-5fd9-zb1a-e4food7d1a8e -environment PROD2
 #>
 
 param(
