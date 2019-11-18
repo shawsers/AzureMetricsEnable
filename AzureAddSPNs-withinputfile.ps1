@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.7 - All Turbonomic All SPNs
-Updated Date: Nov. 18, 2019 - 9:42AM
+Updated Date: Nov. 18, 2019 - 9:49AM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -46,6 +46,7 @@ foreach ($azuresub in $readsubsfile){
     $selectSub = Select-AzureRmSubscription -SubscriptionName $azuresub -InformationAction SilentlyContinue
     $subscriptionId = $selectSub.subscription.Id
     $subname = $azuresub
+    write-host "starting sub: $subname now" -ForegroundColor Green
     if((Test-Path -Path .\$subname) -ne 'True'){
         Write-Host "Creating new sub directory for log files" -ForegroundColor Green
         $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
@@ -77,6 +78,7 @@ foreach ($azuresub in $readsubsfile){
             Write-Host "**Script started at $date" -ForegroundColor Green
             #look at adding error checking for no Turbo storage account found
             $turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
+            if ($turboCustomRole -eq $null){write-host "Turbonomic Custom Role not found in sub: $subname, please onboard this sub and re-run" -ForegroundColor Red -BackgroundColor Black}
             #Write-Host "Found Turbonomic Custom Role and assigning scope" -ForegroundColor Green    
             #$turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
             #$turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
