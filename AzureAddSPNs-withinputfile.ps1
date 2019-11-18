@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.6 - All Turbonomic All SPNs
-Updated Date: Nov. 16, 2019 - 10:01PM
+Updated Date: Nov. 18, 2019 - 8:05PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -27,23 +27,18 @@ Make sure to create a file named subs-prod.txt and that it is in the directory y
 #STAGE3 - which will apply the role and scope for Stage3, Dev
 
 #Make sure the sub in the parameter below is one that has already been onboarded
-#example: .\AzureCreateStorageAccount.ps1 -subid SUB-ID-HERE -environment PROD
-#example: .\AzureCreateStorageAccount.ps1 -subid 82cdab36-1a2a-123a-1234-f9e83f17944b -environment PROD
+#example: .\AzureCreateStorageAccount.ps1 -environment PROD
+#example: .\AzureCreateStorageAccount.ps1 -environment PROD
 #>
 
 param(
- [Parameter(Mandatory=$True)]
- [string] $subId,
-
  [Parameter(Mandatory=$True)]
  [string] $environment
 )
 $error.clear()
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
 $readsubsfile = get-content -path .\subs-prod.txt
-if($subId){
-    $logsub = Login-AzureRmAccount -SubscriptionId $subId -ErrorAction Stop
-    }
+connect-azurermaccount -ErrorAction Stop
 foreach ($azuresub in $readsubsfile){
     $selectSub = Select-AzureRmSubscription -SubscriptionName $azuresub -InformationAction SilentlyContinue
     $subscriptionId = $selectSub.subscription.Id
@@ -147,7 +142,8 @@ foreach ($azuresub in $readsubsfile){
                     $error.clear()
                     }    
     }
+}
 $date = date
 Write-Host "**Script completed at $date" -ForegroundColor Green
 Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
-}
+#END OF SCRIPT
