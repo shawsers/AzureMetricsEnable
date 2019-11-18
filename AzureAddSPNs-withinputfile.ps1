@@ -73,6 +73,7 @@ foreach ($azuresub in $readsubsfile){
                 $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
                 Write-Host "Waiting 5 mins for Azure AD Sync to complete before checking again..." -ForegroundColor Green
                 Start-Sleep 300
+                $selectSub = Select-AzureRmSubscription -SubscriptionName $azuresub -InformationAction SilentlyContinue
             }
             $date = date
             Write-Host "**Script started at $date" -ForegroundColor Green
