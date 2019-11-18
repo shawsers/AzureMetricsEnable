@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.6
-Updated Date: Nov. 18, 2019 - 4:34PM
+Updated Date: Nov. 18, 2019 - 4:37PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -17,10 +17,7 @@ If you run the script and do not specify a pre-existing storage account the scri
 
 Create a new folder for the script to run in as it will save logs, xml and json files to the folder the script is run in
 
-To enable for one runnning VM make sure to specify the VM name
- .\AzureEnableMetricsPerSub.ps1 -subscriptionId SUB-ID-HERE -vmname vm_name -resourcegroup resourcegroup_of_vm -storageaccount storageaccount_name
-
-To enable for ALL running VMs in a Subscription just specify your subscription id and storage account where the metrics will be stored in that subscription
+To enable for ALL running VMs in a Subscription just specify your subscription id you want to enable the memory metrics on
  .\AzureEnableMetricsPerSub.ps1 -subscriptionId SUB-ID-HERE
 #>
 param(
@@ -72,7 +69,7 @@ if($subscriptionId){
     }
     #Verify if storage account already exists, if not exit the script
     Write-Host "Verifying if storage account exists..." -ForegroundColor Green
-    $storageAll = get-azurermresourcegroup | where {$_.ResourceGroupName -like '*turbo*'}
+    $storageAll = get-azurermresourcegroup | where {$_.ResourceGroupName -like '*turbo*'} | select -First 1
     $storagersgName = $storageAll.ResourceGroupName
     $storageTurboName = Get-AzureRmStorageAccount -ResourceGroupName $storagersgName | where {$_.StorageAccountName -like '*turbo*'} | select -First 1
     $storageName = $storageTurboName.StorageAccountName
