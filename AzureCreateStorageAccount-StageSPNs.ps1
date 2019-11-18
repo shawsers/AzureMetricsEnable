@@ -1,7 +1,7 @@
 <#
 .VERSION
 2.4 - All Turbonomic STAGE and DEV SPNs
-Updated Date: Nov. 16, 2019 - 9:30PM
+Updated Date: Nov. 18, 2019 - 4:33PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -41,6 +41,22 @@ param(
  [string] $environment
 )
 $error.clear()
+#check if Azure cmdlets are installed, if not install or update them
+write-host "checking if AzureRM cmdlet is install, if not it will install/update it as needed" -ForegroundColor Green
+$azurecmdlets = Get-InstalledModule -Name AzureRM
+if ($azurecmdlets -eq $null){
+    Write-Host "AzureRM module not found, installing.....this can take a few mins to complete...." -ForegroundColor Green
+    Install-Module -name azurerm -scope CurrentUser
+    Write-Host "AzureRM module installed, continuing..." -ForegroundColor Green
+} else {
+    $azuremodver = get-installedmodule -Name AzureRM -MinimumVersion 6.13.1 -ErrorAction SilentlyContinue
+    if ($azuremodver -eq $null){
+        Write-Host "AzureRM module out of date, updating.....this can take a few mins to complete...." -ForegroundColor Green
+        Update-Module -Name AzureRM -Force
+        Write-Host "AzureRM module updated, continuing..." -ForegroundColor Green
+    }
+}
+write-host "AzureRM cmdlet is current.....proceeding...." -ForegroundColor Green
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
 #Login Azure Account
 login-azurermaccount -Subscription $subscriptionId -ErrorAction Stop
