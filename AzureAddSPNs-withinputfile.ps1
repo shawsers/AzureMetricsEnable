@@ -50,15 +50,6 @@ foreach ($azuresub in $readsubsfile){
     $turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
     $turboCustomRoleName = $turboCustomRole.Name
     write-host "starting sub: $subname now" -ForegroundColor Green
-    if((Test-Path -Path .\$subname) -ne 'True'){
-        Write-Host "Creating new sub directory for log files" -ForegroundColor Green
-        $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
-        $fullPath = $path.FullName
-    } else {
-        Write-Host "Using existing directory for logs" -ForegroundColor Green
-        $path = Get-Location
-        $fullPath = $path.Path + "\" + $subname 
-    }
     Write-Host "checking Turbo resource groups" -ForegroundColor Green
     $storageAll = get-azurermresourcegroup | where {$_.ResourceGroupName -like '*turbo*'}
     foreach ($rsg in $storageAll){
@@ -96,8 +87,8 @@ foreach ($azuresub in $readsubsfile){
                 Write-Host "Assinging Turbonomic PROD SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
             if ($environment -eq "PRODEU"){
@@ -106,8 +97,8 @@ foreach ($azuresub in $readsubsfile){
                 Write-Host "Assinging Turbonomic PROD EU SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
             if ($environment -eq "PROD2"){
@@ -116,8 +107,8 @@ foreach ($azuresub in $readsubsfile){
                 Write-Host "Assinging Turbonomic PROD2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
             if ($environment -eq "STAGE"){
@@ -130,8 +121,8 @@ foreach ($azuresub in $readsubsfile){
                 $assignCustomDev = new-azurermroleassignment -ObjectId $turboSPNdevid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
             if ($environment -eq "STAGE2"){
@@ -144,8 +135,8 @@ foreach ($azuresub in $readsubsfile){
                 $assignCustomDev = new-azurermroleassignment -ObjectId $turboSPNdevid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage2id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
             if ($environment -eq "STAGE3"){
@@ -158,8 +149,8 @@ foreach ($azuresub in $readsubsfile){
                 $assignCustomDev = new-azurermroleassignment -ObjectId $turboSPNdevid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage3id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage3id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }    
         }
@@ -167,5 +158,5 @@ foreach ($azuresub in $readsubsfile){
 }
 $date = date
 Write-Host "**Script completed at $date" -ForegroundColor Green
-Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
+Write-Host "**Check file named TurboRoleAddedToSubScope.csv for the logs" -ForegroundColor Green
 #END OF SCRIPT
