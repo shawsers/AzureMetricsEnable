@@ -61,7 +61,7 @@ foreach ($azuresub in $readsubsfile){
     }
     Write-Host "checking Turbo resource groups" -ForegroundColor Green
     $storageAll = get-azurermresourcegroup | where {$_.ResourceGroupName -like '*turbo*'}
-    foreach ($rsg in $storageTurboName){
+    foreach ($rsg in $storageAll){
         $resourceGroup = $rsg.ResourceGroupName
         Write-Host "checking Turbo storage accounts" -ForegroundColor Green
         $storageTurboName = Get-AzureRmStorageAccount -ResourceGroupName $resourceGroup | where {$_.StorageAccountName -like '*turbo*'}
