@@ -1,7 +1,7 @@
 <#
 .VERSION
-2.72 - All Turbonomic All SPNs
-Updated Date: Nov. 19, 2019 - 1:40PM
+2.73 - All Turbonomic All SPNs
+Updated Date: Nov. 19, 2019 - 2:02PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
