@@ -1,7 +1,7 @@
 <#
 .VERSION
-2.74 - All Turbonomic All SPNs
-Updated Date: Nov. 21, 2019 - 11:09AM
+2.75 - All Turbonomic All SPNs
+Updated Date: Nov. 21, 2019 - 11:57AM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -48,7 +48,6 @@ foreach ($azuresub in $readsubsfile){
     $subname = $azuresub
     Write-Host "finding Turbo custom role" -ForegroundColor Green
     $turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
-    $turboCustomRoleName = $turboCustomRole.Name
     write-host "starting sub: $subname now" -ForegroundColor Green
     Write-Host "checking Turbo resource groups" -ForegroundColor Green
     $storageAll = get-azurermresourcegroup | where {$_.ResourceGroupName -like '*turbo*'}
@@ -61,27 +60,31 @@ foreach ($azuresub in $readsubsfile){
             $error.clear()
             #check for Turbonomic custom role if exists
             if($turboCustomRole -eq $null){
-                $readNewSub = Select-AzureRmSubscription -Subscription $subid -ErrorAction Stop
-                $turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
-                $turboCustomRoleName = $turboCustomRole.Name
-                $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
-                $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
+                $readNewSub = Select-AzureRmSubscription -Subscription $subid -InformationAction SilentlyContinue
+                $readNewSubName = $readNewSub.subscription.name
+                Write-Host "Found Turbo custom role....continuing" -ForegroundColor Green
+                $turboCustomRoleCheck = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
+                $turboCustomRoleName = $turboCustomRoleCheck.Name
+                $turboCustomRoleCheck.AssignableScopes.Add("/subscriptions/$subscriptionId")
+                $turboCustomRoleCheck.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
                 Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
-                $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
+                $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRoleCheck -ErrorAction SilentlyContinue
                 Write-Host "Waiting 5 mins for Azure AD Sync to complete before checking again..." -ForegroundColor Green
                 Start-Sleep 300
                 $selectSub = Select-AzureRmSubscription -SubscriptionName $azuresub -InformationAction SilentlyContinue
+            } else {
+                $turboCustomRoleName = $turboCustomRoleCheck.Name
             }
             $date = date
             Write-Host "**Script started at $date" -ForegroundColor Green
             #look at adding error checking for no Turbo storage account found
-            if ($turboCustomRole -eq $null){write-host "Turbonomic Custom Role not found in sub: $subname, please onboard this sub and re-run" -ForegroundColor Red -BackgroundColor Black}
+            #if ($turboCustomRole -eq $null){write-host "Turbonomic Custom Role not found in sub: $subname, please onboard this sub and re-run" -ForegroundColor Red -BackgroundColor Black}
             #Write-Host "Found Turbonomic Custom Role and assigning scope" -ForegroundColor Green    
             #$turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
             #$turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
             #Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
             #$setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
-            Start-Sleep 60
+            #Start-Sleep 60
             if ($environment -eq "PROD"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
