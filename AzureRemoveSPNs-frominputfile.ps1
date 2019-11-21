@@ -1,7 +1,7 @@
 <#
 .VERSION
-1.5 - All Turbonomic SPNs
-Updated Date: Nov. 16, 2019 - 10:55PM
+1.6 - All Turbonomic SPNs
+Updated Date: Nov. 20, 2019 - 6:05PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -42,9 +42,12 @@ param(
      $sub = $azuresub
      write-host "starting Sub named ""$sub"" now" -ForegroundColor Green
      #Find Turbonomic RG and Storage
+     Write-Host "checking Turbo resource groups" -ForegroundColor Green
      $storageAll = get-azurermresourcegroup | where {$_.ResourceGroupName -like '*turbo*'}
-     $resourceGroup = $storageAll.ResourceGroupName
-     $storageTurboName = Get-AzureRmStorageAccount -ResourceGroupName $resourceGroup | where {$_.StorageAccountName -like '*turbo*'}
+     foreach ($rsg in $storageAll){
+        $resourceGroup = $rsg.ResourceGroupName
+        Write-Host "checking Turbo storage accounts" -ForegroundColor Green
+        $storageTurboName = Get-AzureRmStorageAccount -ResourceGroupName $resourceGroup | where {$_.StorageAccountName -like '*turbo*'}
      foreach ($turbostor in $storageTurboName){
         $storageaccountname = $turbostor.StorageAccountName
         $storpath = $turbostor.Id.Guid
@@ -176,6 +179,7 @@ param(
             $error.clear()
         }
      }
+    }
  }
  write-host "script is done please review the log files named RemovedAzureRoles.csv in the current working directory" -ForegroundColor Green
  write-host "**SCRIPT IS DONE NOW**" -ForegroundColor Green 
