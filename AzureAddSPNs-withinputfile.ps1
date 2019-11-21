@@ -73,7 +73,7 @@ foreach ($azuresub in $readsubsfile){
                 Start-Sleep 300
                 $selectSub = Select-AzureRmSubscription -SubscriptionName $azuresub -InformationAction SilentlyContinue
             } else {
-                $turboCustomRoleName = $turboCustomRoleCheck.Name
+                $turboCustomRoleName = $turboCustomRole.Name
             }
             $date = date
             Write-Host "**Script started at $date" -ForegroundColor Green
