@@ -62,9 +62,10 @@ foreach ($azuresub in $readsubsfile){
             #check for Turbonomic custom role if exists
             if($turboCustomRole -eq $null){
                 $readNewSub = Select-AzureRmSubscription -Subscription $subid -ErrorAction Stop
+                $turboCustomRole = Get-AzureRmRoleDefinition -Name 'Turbonomic Operator ReadOnly'
+                $turboCustomRoleName = $turboCustomRole.Name
                 $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionId")
                 $turboCustomRole.AssignableScopes.Add("/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname")
-                $turboCustomRoleName = $turboCustomRole.Name
                 Write-Host "Updating Turbonomic custom role scope" -ForegroundColor Green
                 $setRole = Set-AzureRmRoleDefinition -Role $turboCustomRole -ErrorAction SilentlyContinue
                 Write-Host "Waiting 5 mins for Azure AD Sync to complete before checking again..." -ForegroundColor Green
