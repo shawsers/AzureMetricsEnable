@@ -541,7 +541,8 @@ if (($runningJobs.count) -gt 0){
   foreach($runningJob in $runningJobs){
     $count++
     $jobId = $runningJob.Id
-    Receive-Job -Id $jobId | Out-File .\$subname\LongRunningJob_$count.txt
+    #Receive-Job -Id $jobId | Out-File .\$subname\LongRunningJob_$count.txt
+    Get-Job -Id $jobId | Out-File .\$subname\LongRunningJob_$count.txt
   }
 } else {
   Write-Host "All background jobs have finished running now, saving job log files" -ForegroundColor Green
