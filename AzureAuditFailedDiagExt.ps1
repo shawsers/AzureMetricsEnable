@@ -1,3 +1,5 @@
+#Created by: Jason.Shaw@turbonomic.com
+#Version 1.1 - Dec. 18 at 3PM
 #Script to audit Windows and Linux Diagnostic Extensions
 #Make sure to create and update the auditsubs.txt file with the names of the subs you want to audit your VM's Diagnostic extensions in
 Connect-AzureRmAccount
