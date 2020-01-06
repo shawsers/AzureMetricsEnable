@@ -583,3 +583,4 @@ $date = date
 Write-Host "**Script finished at $date " -ForegroundColor Green
 Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
 }
+#END OF SCRIPT
