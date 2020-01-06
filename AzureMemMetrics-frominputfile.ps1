@@ -108,11 +108,21 @@ $vmList = $null
     Write-Host "Getting all VM's in the subscription" -ForegroundColor Green
     $vmList = Get-AzureRmVM -Status
     Write-Host "Getting list of running Linux VMs that do not have metrics enabled yet..." -ForegroundColor Green
-    $LinuxVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Linux'} | where{$_.Extensions.Id -notlike '*LinuxDiagnostic*'}
+    #$LinuxVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Linux'} | where{$_.Extensions.Id -notlike '*LinuxDiagnostic*'}
+    $LinuxVmsRunning=@()    
+    $vmList | where{$.PowerState -eq 'VM running' -and $.StorageProfile.OsDisk.OsType -eq 'Linux'} | %{if (!($.Extensions | ?{$.Id -like 'LinuxDiagnostic'})){$LinuxVmsRunning+= $_ }}
     Write-Host "Getting list of running Windows VMs that do not have metrics enabled yet..." -ForegroundColor Green
-    $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notlike '*Microsoft.Insights.VMDiagnosticsSettings*'}
+    #$WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notlike '*Microsoft.Insights.VMDiagnosticsSettings*'}
+    $WinVmsRunning=@()
+    $vmList | where{$.PowerState -eq 'VM running' -and $.StorageProfile.OsDisk.OsType -eq 'Windows'} | %{if (!($.Extensions | ?{$.Id -like 'VMDiagnosticsSettings'})){$WinVmsRunning+= $_ }}
+    $countwin = ($WinVmsRunning).count
+    $countlin = ($LinuxVmsRunning).count
+    Write-Host "There are $countwin Windows VM's to be updated" -ForegroundColor Green
+    Write-Host "There are $countlin Linux VM's to be updated" -ForegroundColor Green
     Write-Host "Getting list of VMs that are NOT running and logging that for later..." -ForegroundColor Green
     $vmsNotRunning = $vmList | where{$_.PowerState -ne 'VM running'}
+    $countnot = ($vmsNotRunning).count
+    Write-Host "There are $countnot VM's that are not running and cannot be updated" -ForegroundColor Green
     if($vmsNotRunning -eq $null){
       Write-Host "All VMs in the subscription are running" -ForegroundColor Green
     } else {
@@ -141,6 +151,7 @@ $vmList = $null
 if($vmList){
     $vmsCompleted = 0
     Write-Host "Starting Windows VMs" -ForegroundColor Green
+    Write-Host "There are $countwin Windows VM's to be updated" -ForegroundColor Green
     foreach($vm in $WinVmsRunning){
         $countjobs = (get-job -state Running).count
         Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
@@ -268,7 +279,9 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
     }
 
   Write-Host "Starting Linux VMs" -ForegroundColor Green
-    foreach($lvm in $LinuxVmsRunning){
+  Write-Host "There are $countlin Linux VM's to be updated" -ForegroundColor Green
+  if ($countlin -ne 0){  
+  foreach($lvm in $LinuxVmsRunning){
       $countjobs = (get-job -state Running).count
       Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
       Write-Host "Number of VMs completed is ""$vmsCompleted""" -ForegroundColor Green
@@ -491,6 +504,9 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
       get-job -State Failed | remove-job -confirm:$false -force
       $vmsCompleted++
     }
+  } else {
+    Write-Host "There are no Linux VM's to be updated....continuing" -ForegroundColor Green
+  }
 } else {
     Write-Host "Couldn't find any powered on VMs in your subscription" -ForegroundColor Red -BackgroundColor Black
     Write-Output "Couldn't find any powered on VMs in your subscription" | Out-File -FilePath .\$subname\NoVMs_$TimeStampLog.csv
