@@ -1,12 +1,13 @@
 <#
 .VERSION
 3.0 - All Turbonomic Prod SPNs
-Updated Date: Jan. 16, 2019 - 11:50PM
+Updated Date: Jan. 16, 2019 - 2:20PM
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
 #This script will add the Prod SPN's to the Azure sub
 #This script assumes that you have already run the Step1 script which is to create the required RG and Storage account and assign the Dev and Stage SPN's to them.
+#This script also assumes you have an RG and Storage account already created both with "turbo" in the name of them.
 
 Make sure to create a file named subs-prod.txt and that it is in the directory you are running the script from.  It needs to contain a list of sub names to read in and run the script against
 
