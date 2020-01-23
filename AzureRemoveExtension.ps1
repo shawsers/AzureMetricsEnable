@@ -1,7 +1,7 @@
 <#
 .VERSION
-1.0 - Remove Diagnostic Extension
-Updated Date: Jan 22, 2020
+1.1 - Remove Diagnostic Extension
+Updated Date: Jan 23, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -29,24 +29,25 @@ foreach ($vm in $subsandvms){
         write-host "VM named ""$vmname"" is not running.....exiting script...." -ForegroundColor Red -BackgroundColor Black
         Exit
     } else {
-        $osType = $vm.StorageProfile.OsDisk.OsType
+        $osType = $vmrunning.StorageProfile.OsDisk.OsType
         Write-Output "OS Type:" $osType
         if($osType -eq "Windows"){
             Write-Output "VM Type Detected is Windows"
-            $WinVM = remove-azurermvmdiagnosticsextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName
+            $WinVM = remove-azurermvmdiagnosticsextension -ResourceGroupName $vmrunning.ResourceGroupName -VMName $vmname
             $WinVMStatus = $WinVM.Statuses.DisplayStatus
             $WinVM.Statuses.Message | out-file .\Message.txt
             $WinVMMessage = get-content .\Message.txt | select -First 1
             @($WinVMMessage).Replace(",","")
-            Add-Content -Path .\RemoveExtLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$WinVMStatus,$WinVMMessage"
+            Add-Content -Path .\RemoveExtLog_$TimeStampLog.csv -Value "$subname,$vmname,$osType,$WinVMStatus,$WinVMMessage"
         } else {
             Write-Output "VM Type Detected is Linux "
-            $LinuxVM = remove-azurermvmextension -ResourceGroupName $vm.ResourceGroupName -VMName $vmName -Name LinuxDiagnostic -Force
+            $LinuxVM = remove-azurermvmextension -ResourceGroupName $vmrunning.ResourceGroupName -VMName $vmname -Name LinuxDiagnostic -Force
             $LinuxVMStatus = $LinuxVM.Statuses.DisplayStatus
             $LinuxVM.Statuses.Message | out-file .\Message.txt
             $LinuxVMMessage = get-content .\Message.txt | select -First 1
             @($LinuxVMMessage).Replace(",","")
-            Add-Content -Path .\RemoveExtLog_$TimeStampLog.csv -Value "$subname,$vmName,$osType,$LinuxVMStatus,$LinuxVMMessage"
+            Add-Content -Path .\RemoveExtLog_$TimeStampLog.csv -Value "$subname,$vmname,$osType,$LinuxVMStatus,$LinuxVMMessage"
         }
     }
 }
+#END OF SCRIPT
