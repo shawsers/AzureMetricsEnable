@@ -6,8 +6,8 @@ Updated By: Jason Shaw
 Email: Jason.Shaw@turbonomic.com
 
 #This will add the SPNs roles and scope of the subscription and the existing Turbonomic storage account(s)
-#You need to specify a correctly formatted CSV file with the "SUBNAME, VMNAME"
-#Make sure to update the import-csv file path below with the path to your actual file
+#You need to specify a correctly formatted CSV file with the column headers "SUBNAME,VMNAME"
+#Make sure to store the input file named "subsandvms.csv" in the same directory as the script is being run
 
 #example: .\AzureRemoveExtension.ps1
 #>
