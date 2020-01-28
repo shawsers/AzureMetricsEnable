@@ -33,20 +33,39 @@ foreach ($vm in $subsandvms){
         Write-Output "OS Type:" $osType
         if($osType -eq "Windows"){
             Write-Output "VM Type Detected is Windows"
-            $WinVM = remove-azurermvmdiagnosticsextension -ResourceGroupName $vmrunning.ResourceGroupName -VMName $vmname
-            $WinVMStatus = $WinVM.Statuses.DisplayStatus
-            $WinVM.Statuses.Message | out-file .\Message.txt
-            $WinVMMessage = get-content .\Message.txt | select -First 1
-            @($WinVMMessage).Replace(",","")
-            Add-Content -Path .\RemoveExtLog_$TimeStampLog.csv -Value "$subname,$vmname,$osType,$WinVMStatus,$WinVMMessage"
+            $vmrg = $vmrunning.ResourceGroupName
+            $windiag = "Microsoft.Insights.VMDiagnosticsSettings"
+            [scriptblock]$winsb = { param($vmrg, $vmname)
+                remove-azurermvmextension -ResourceGroupName $vmrg -VMName $vmname -Name $windiag -Force
+            }
+            $numjobs = (get-job -State Running).count
+            write-host "There are currently $numjobs background jobs running...."
+            while((get-job -State Running).count -ge 20){start-sleep 1}
+
+            Start-Job -Name $vmname -ScriptBlock $winsb -ArgumentList $vmrg, $vmname, $windiag
+            #$WinVM = remove-azurermvmdiagnosticsextension -ResourceGroupName $vmrg -VMName $vmname
+            #$WinVMStatus = $WinVM.Statuses.DisplayStatus
+            #$WinVM.Statuses.Message | out-file .\Message.txt
+            #$WinVMMessage = get-content .\Message.txt | select -First 1
+            #@($WinVMMessage).Replace(",","")
+            #Add-Content -Path .\RemoveExtLog_$TimeStampLog.csv -Value "$subname,$vmname,$osType,$WinVMStatus,$WinVMMessage"
         } else {
             Write-Output "VM Type Detected is Linux "
-            $LinuxVM = remove-azurermvmextension -ResourceGroupName $vmrunning.ResourceGroupName -VMName $vmname -Name LinuxDiagnostic -Force
-            $LinuxVMStatus = $LinuxVM.Statuses.DisplayStatus
-            $LinuxVM.Statuses.Message | out-file .\Message.txt
-            $LinuxVMMessage = get-content .\Message.txt | select -First 1
-            @($LinuxVMMessage).Replace(",","")
-            Add-Content -Path .\RemoveExtLog_$TimeStampLog.csv -Value "$subname,$vmname,$osType,$LinuxVMStatus,$LinuxVMMessage"
+            $linrg = $vmrunning.ResourceGroupName
+            $lindiag = "LinuxDiagnostic"
+            [scriptblock]$linsb = { param($linrg, $vmname, $lindiag)
+                remove-azurermvmextension -ResourceGroupName $linrg -VMName $vmname -Name $lindiag -Force
+            }
+            write-host "There are currently $numjobs background jobs running...."
+            while((get-job -State Running).count -ge 20){start-sleep 1}
+
+            Start-Job -Name $vmname -ScriptBlock $linsb -ArgumentList $linrg, $vmname, $lindiag
+            #$LinuxVM = remove-azurermvmextension -ResourceGroupName $linrg -VMName $vmname -Name LinuxDiagnostic -Force
+            #$LinuxVMStatus = $LinuxVM.Statuses.DisplayStatus
+            #$LinuxVM.Statuses.Message | out-file .\Message.txt
+            #$LinuxVMMessage = get-content .\Message.txt | select -First 1
+            #@($LinuxVMMessage).Replace(",","")
+            #Add-Content -Path .\RemoveExtLog_$TimeStampLog.csv -Value "$subname,$vmname,$osType,$LinuxVMStatus,$LinuxVMMessage"
         }
     }
 }
