@@ -16,13 +16,13 @@ write-host "Starting the script $TimeStamp " -ForegroundColor Green
 write-host "Reading input file..." -ForegroundColor Green
 $subsandvms = Import-Csv .\subsandvms.csv
 $countvms = ($subsandvms).count
-Write-Host "there is a total of $countvms to be processed....." -ForegroundColor Gray
+Write-Host "there is a total of $countvms to be processed....." -ForegroundColor Green
 login-azurermaccount -ErrorAction Stop
 #Add-Content -Path .\AddedAzureRoles.csv -Value "Sub Name,Sub ID,SPN Name,Storage Path Scope,Errors, SPN Role after Chanage, SPN Scope after Change"
 Add-Content -Path .\PoweredOffVMs.csv -Value "Powered Off VMs"
 Add-Content -Path .\CompletedVMs.csv -Value "Completed VMs"
 $vmscompleted = 0
-Write-Host "Clearing all completed background jobs..."
+Write-Host "Clearing all completed background jobs..." -ForegroundColor Green
 $removejobs = get-job -State Completed | Remove-Job -Force -Confirm:$false
 foreach ($vm in $subsandvms){
     $vmname = $vm.VMNAME
@@ -49,7 +49,7 @@ foreach ($vm in $subsandvms){
                 remove-azurermvmextension -ResourceGroupName $vmrg -VMName $vmname -Name $windiag -Force
             }
             while((get-job -State Running).count -ge 25){start-sleep 1}
-            Start-Job -Name $vmname -ScriptBlock $winsb -ArgumentList $vmrg, $vmname, $windiag
+            $winjob = Start-Job -Name $vmname -ScriptBlock $winsb -ArgumentList $vmrg, $vmname, $windiag
             $vmscompleted++
             foreach ($job in (get-job -state Completed)){
                 $jobname = $job.Name
@@ -70,7 +70,7 @@ foreach ($vm in $subsandvms){
                 remove-azurermvmextension -ResourceGroupName $linrg -VMName $vmname -Name $lindiag -Force
             }
             while((get-job -State Running).count -ge 25){start-sleep 1}
-            Start-Job -Name $vmname -ScriptBlock $linsb -ArgumentList $linrg, $vmname, $lindiag
+            $linjob = Start-Job -Name $vmname -ScriptBlock $linsb -ArgumentList $linrg, $vmname, $lindiag
             $vmscompleted++
             foreach ($job in (get-job -state Completed)){
                 $jobname = $job.Name
