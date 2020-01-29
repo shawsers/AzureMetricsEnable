@@ -1,7 +1,7 @@
 <#
 .VERSION
-1.2 - Remove Diagnostic Extension
-Updated Date: Jan 28, 2020
+1.3 - Remove Diagnostic Extension
+Updated Date: Jan 29, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -45,11 +45,9 @@ foreach ($vm in $subsandvms){
             Write-Output "VM Type Detected is Windows"
             $vmrg = $vmrunning.ResourceGroupName
             $windiag = "Microsoft.Insights.VMDiagnosticsSettings"
-            [scriptblock]$winsb = { param($vmrg, $vmname)
-                remove-azurermvmextension -ResourceGroupName $vmrg -VMName $vmname -Name $windiag -Force
-            }
+            [scriptblock]$winsb = { param($vmrg, $vmname, $windiag) remove-azurermvmextension -ResourceGroupName $vmrg -VMName $vmname -Name $windiag -Force }
             while((get-job -State Running).count -ge 25){start-sleep 1}
-            $winjob = Start-Job -Name $vmname -ScriptBlock $winsb -ArgumentList $vmrg, $vmname, $windiag
+            Start-Job -Name $vmname -ScriptBlock $winsb -ArgumentList $vmrg, $vmname, $windiag
             $vmscompleted++
             foreach ($job in (get-job -state Completed)){
                 $jobname = $job.Name
@@ -66,11 +64,9 @@ foreach ($vm in $subsandvms){
             Write-Output "VM Type Detected is Linux "
             $linrg = $vmrunning.ResourceGroupName
             $lindiag = "LinuxDiagnostic"
-            [scriptblock]$linsb = { param($linrg, $vmname, $lindiag)
-                remove-azurermvmextension -ResourceGroupName $linrg -VMName $vmname -Name $lindiag -Force
-            }
+            [scriptblock]$linsb = { param($linrg, $vmname, $lindiag) remove-azurermvmextension -ResourceGroupName $linrg -VMName $vmname -Name $lindiag -Force }
             while((get-job -State Running).count -ge 25){start-sleep 1}
-            $linjob = Start-Job -Name $vmname -ScriptBlock $linsb -ArgumentList $linrg, $vmname, $lindiag
+            Start-Job -Name $vmname -ScriptBlock $linsb -ArgumentList $linrg, $vmname, $lindiag
             $vmscompleted++
             foreach ($job in (get-job -state Completed)){
                 $jobname = $job.Name
