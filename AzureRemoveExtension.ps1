@@ -117,4 +117,5 @@ foreach ($job in (get-job -state Completed)){
     Add-Content -Path .\CompletedVMs.csv -Value "$jobname"
     get-job -Name $jobname | Remove-Job -Force -Confirm:$false
 }
+Write-Host "script has completed, please make sure to review the output files PoweredOffVMs.csv and CompletedVMs.csv" -ForegroundColor Green
 #END OF SCRIPT
