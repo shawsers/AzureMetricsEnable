@@ -44,10 +44,10 @@ foreach ($vm in $subsandvms){
         if($osType -eq "Windows"){
             Write-Output "VM Type Detected is Windows"
             $vmrg = $vmrunning.ResourceGroupName
-            $windiag = "Microsoft.Insights.VMDiagnosticsSettings"
-            [scriptblock]$winsb = { param($vmrg, $vmname, $windiag) remove-azurermvmextension -ResourceGroupName $vmrg -VMName $vmname -Name $windiag -Force }
+            #$windiag = "Microsoft.Insights.VMDiagnosticsSettings"
+            [scriptblock]$winsb = { param($vmrg, $vmname) remove-azurermvmextension -ResourceGroupName $vmrg -VMName $vmname -Name Microsoft.Insights.VMDiagnosticsSettings -Force }
             while((get-job -State Running).count -ge 25){start-sleep 1}
-            Start-Job -Name $vmname -ScriptBlock $winsb -ArgumentList $vmrg, $vmname, $windiag
+            Start-Job -Name $vmname -ScriptBlock $winsb -ArgumentList $vmrg, $vmname
             $vmscompleted++
             foreach ($job in (get-job -state Completed)){
                 $jobname = $job.Name
@@ -63,10 +63,10 @@ foreach ($vm in $subsandvms){
         } else {
             Write-Output "VM Type Detected is Linux "
             $linrg = $vmrunning.ResourceGroupName
-            $lindiag = "LinuxDiagnostic"
-            [scriptblock]$linsb = { param($linrg, $vmname, $lindiag) remove-azurermvmextension -ResourceGroupName $linrg -VMName $vmname -Name $lindiag -Force }
+            #$lindiag = "LinuxDiagnostic"
+            [scriptblock]$linsb = { param($linrg, $vmname) remove-azurermvmextension -ResourceGroupName $linrg -VMName $vmname -Name LinuxDiagnostic -Force }
             while((get-job -State Running).count -ge 25){start-sleep 1}
-            Start-Job -Name $vmname -ScriptBlock $linsb -ArgumentList $linrg, $vmname, $lindiag
+            Start-Job -Name $vmname -ScriptBlock $linsb -ArgumentList $linrg, $vmname
             $vmscompleted++
             foreach ($job in (get-job -state Completed)){
                 $jobname = $job.Name
