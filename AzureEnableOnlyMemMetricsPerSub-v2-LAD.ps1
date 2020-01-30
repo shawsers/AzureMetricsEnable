@@ -130,8 +130,8 @@ if($vmname -and $storageaccount){
     } else {
       $vmList = Get-AzureRmVM -Name $vmname -ResourceGroupName $resourcegroup
       Write-Host "Checking if VM is running, if it is Windows or Linux and if metrics enabled yet or not..." -ForegroundColor Green
-      $LinuxVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Linux'} | where{$_.Extensions.Id -notlike '*LinuxDiagnostic*'}
-      $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notlike '*Microsoft.Insights.VMDiagnosticsSettings*'}  
+      $LinuxVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Linux'} | where{$_.Extensions.Id -notcontains '*LinuxDiagnostic*'}
+      $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notcontains '*Microsoft.Insights.VMDiagnosticsSettings*'}  
     }
     Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value 'Date and Time,Subscription Name,VM Name,OS Type,Errors'
 }
@@ -139,9 +139,9 @@ else{
     Write-Host "Getting all VM's in the subscription" -ForegroundColor Green
     $vmList = Get-AzureRmVM -Status
     Write-Host "Getting list of running Linux VMs that do not have metrics enabled yet..." -ForegroundColor Green
-    $LinuxVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Linux'} | where{$_.Extensions.Id -notlike '*LinuxDiagnostic*'}
+    $LinuxVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Linux'} | where{$_.Extensions.Id -notcontains '*LinuxDiagnostic*'}
     Write-Host "Getting list of running Windows VMs that do not have metrics enabled yet..." -ForegroundColor Green
-    $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notlike '*Microsoft.Insights.VMDiagnosticsSettings*'}
+    $WinVmsRunning = $vmList | where{$_.PowerState -eq 'VM running'} | where{$_.StorageProfile.OsDisk.OsType -eq 'Windows'} | where{$_.Extensions.Id -notcontains '*Microsoft.Insights.VMDiagnosticsSettings*'}
     Write-Host "Getting list of VMs that are NOT running and logging that for later..." -ForegroundColor Green
     $vmsNotRunning = $vmList | where{$_.PowerState -ne 'VM running'}
     if($vmsNotRunning -eq $null){
