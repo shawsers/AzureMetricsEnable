@@ -1,7 +1,7 @@
 <#
 .VERSION
-1.3 - Remove Diagnostic Extension
-Updated Date: Jan 29, 2020
+1.4 - Remove Diagnostic Extension
+Updated Date: Jan 30, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -116,6 +116,32 @@ foreach ($job in (get-job -state Completed)){
     $jobname = $job.Name
     Add-Content -Path .\CompletedVMs.csv -Value "$jobname"
     get-job -Name $jobname | Remove-Job -Force -Confirm:$false
+}
+foreach ($vm in $subsandvms){
+    $vmname = $vm.VMNAME
+    $subname = $vm.SUBNAME
+    $selectSub = Select-AzureRmSubscription -Subscription $subname
+    write-host "starting post validation of all VM's in the input file now, this will take some time....." -ForegroundColor Green
+    $vmcheck = get-azurermvm -Status | where {$_.Name -eq $vmname} | where {$_.PowerState -eq "VM running"}
+    if ($vmcheck -eq $null){
+        Write-Host "VM $vmname is powered off, skipping..." -ForegroundColor Red -BackgroundColor Black
+    } elseif ($vmcheck.StorageProfile.OsDisk.OsType -eq "Windows") {
+        if (($vmcheck.Extensions.Id -like '*Microsoft.Insights.VMDiagnosticsSettings*') -eq $null) {
+            Write-Host "Windows VM diagnostics extension removed from VM $vmname" -ForegroundColor Green
+            Add-Content -Path .\CompletedVMs-verifiedremoved.csv -Value "$vmname"
+        } else {
+            Write-Host "Windows VM diagnostic extension not removed from VM $vmname" -ForegroundColor Red -BackgroundColor Black
+            Add-Content -Path .\CompletedVMs-verifiedNOTremoved.csv -Value "$vmname"
+        }
+    } elseif ($vmcheck.StorageProfile.OsDisk.OsType -eq "Linux") {
+        if (($vmcheck.Extensions.Id -like '*LinuxDiagnostic*') -eq $null) {
+            Write-Host "Linux VM diagnostics extension removed from VM $vmname" -ForegroundColor Green
+            Add-Content -Path .\CompletedVMs-verifiedremoved.csv -Value "$vmname"
+        } else {
+            Write-Host "Linux VM diagnostic extension not removed from VM $vmname" -ForegroundColor Red -BackgroundColor Black
+            Add-Content -Path .\CompletedVMs-verifiedNOTremoved.csv -Value "$vmname"
+        }
+    }   
 }
 Write-Host "script has completed, please make sure to review the output files PoweredOffVMs.csv and CompletedVMs.csv" -ForegroundColor Green
 #END OF SCRIPT
