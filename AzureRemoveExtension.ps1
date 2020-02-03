@@ -1,7 +1,7 @@
 <#
 .VERSION
-1.4 - Remove Diagnostic Extension
-Updated Date: Jan 30, 2020
+1.5 - Remove Diagnostic Extension
+Updated Date: Feb, 3 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -21,6 +21,8 @@ login-azurermaccount -ErrorAction Stop
 #Add-Content -Path .\AddedAzureRoles.csv -Value "Sub Name,Sub ID,SPN Name,Storage Path Scope,Errors, SPN Role after Chanage, SPN Scope after Change"
 Add-Content -Path .\PoweredOffVMs.csv -Value "Powered Off VMs"
 Add-Content -Path .\CompletedVMs.csv -Value "Completed VMs"
+Add-Content -Path .\CompletedVMs-verifiedremoved.csv -Value "VM's Ext Removed"
+Add-Content -Path .\CompletedVMs-verifiedNOTremoved.csv -Value "VM's Ext NOT Removed"
 $vmscompleted = 0
 Write-Host "Clearing all completed background jobs..." -ForegroundColor Green
 $removejobs = get-job -State Completed | Remove-Job -Force -Confirm:$false
@@ -123,25 +125,28 @@ foreach ($vm in $subsandvms){
     $selectSub = Select-AzureRmSubscription -Subscription $subname
     write-host "starting post validation of all VM's in the input file now, this will take some time....." -ForegroundColor Green
     $vmcheck = get-azurermvm -Status | where {$_.Name -eq $vmname} | where {$_.PowerState -eq "VM running"}
+    if ($vmcheck -ne $null){
+        $ext = $vmcheck.Extensions.Id 
+    }
     if ($vmcheck -eq $null){
         Write-Host "VM $vmname is powered off, skipping..." -ForegroundColor Red -BackgroundColor Black
     } elseif ($vmcheck.StorageProfile.OsDisk.OsType -eq "Windows") {
-        if (($vmcheck.Extensions.Id -like '*Microsoft.Insights.VMDiagnosticsSettings*') -eq $null) {
+        if ((select-string -Pattern "Microsoft.Insights.VMDiagnosticsSettings" -InputObject $ext) -eq $null) {
             Write-Host "Windows VM diagnostics extension removed from VM $vmname" -ForegroundColor Green
             Add-Content -Path .\CompletedVMs-verifiedremoved.csv -Value "$vmname"
         } else {
-            Write-Host "Windows VM diagnostic extension not removed from VM $vmname" -ForegroundColor Red -BackgroundColor Black
+            Write-Host "Windows VM diagnostic extension was NOT removed from VM $vmname" -ForegroundColor Red -BackgroundColor Black
             Add-Content -Path .\CompletedVMs-verifiedNOTremoved.csv -Value "$vmname"
         }
     } elseif ($vmcheck.StorageProfile.OsDisk.OsType -eq "Linux") {
-        if (($vmcheck.Extensions.Id -like '*LinuxDiagnostic*') -eq $null) {
+        if ((select-string -Pattern "LinuxDiagnostic" -InputObject $ext) -eq $null) {
             Write-Host "Linux VM diagnostics extension removed from VM $vmname" -ForegroundColor Green
             Add-Content -Path .\CompletedVMs-verifiedremoved.csv -Value "$vmname"
         } else {
-            Write-Host "Linux VM diagnostic extension not removed from VM $vmname" -ForegroundColor Red -BackgroundColor Black
+            Write-Host "Linux VM diagnostic extension was NOT removed from VM $vmname" -ForegroundColor Red -BackgroundColor Black
             Add-Content -Path .\CompletedVMs-verifiedNOTremoved.csv -Value "$vmname"
         }
     }   
 }
-Write-Host "script has completed, please make sure to review the output files PoweredOffVMs.csv and CompletedVMs.csv" -ForegroundColor Green
+Write-Host "script has completed, please make sure to review the output files PoweredOffVMs.csv, CompletedVMs.csv, CompletedVMs-verifiedremoved.csv, CompletedVMs-verifiedNOTremoved.csv" -ForegroundColor Green
 #END OF SCRIPT
