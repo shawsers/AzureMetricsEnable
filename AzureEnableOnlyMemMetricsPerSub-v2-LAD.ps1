@@ -1,31 +1,26 @@
 <#
 .VERSION
-2.8
+2.9
 Updated Date: Feb. 5, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
 .SYNOPSIS
-This script will the enable the defauilt Azure Basic Metrics on all running Windows and Linux VMs in a single subscription that currently don't have metrics enabled.
-If the VM already has the metrics enabled it will skip it and output that to the log for tracking.
-If the VM is NOT running it will skip it and output that to the log for tracking.
+This script will the enable the defauilt Azure Basic Memory Metrics on all running Windows and Linux VMs in a single subscription that currently don't have metrics enabled.
+If the VM already has the metrics enabled or the VM is NOT running it will skip it.
 
 .DESCRIPTION
-Use the script to Enable the Default Basic Metrics on all running Windows and Linux VMs in an Azure subscription
-The script will configure the VM's to write the metrics to a single pre-existing storage account specified as the storageaccount parameter when running the script
-If you run the script and do not specify a pre-existing storage account the script will error out and tell you as such to re-run it.
+Use the script to Enable the Default Basic Memory Metrics on all running Windows and Linux VMs in an Azure subscription
+The script will configure the VM's to write the metrics to a single pre-existing turbo storage account that has "turbo" in the storage account name
 
 Create a new folder for the script to run in as it will save logs, xml and json files to the folder the script is run in
+Also make sure you have a file named subs.txt with the list of subs you want to run the script against
 
-To enable for ALL running VMs in a Subscription just specify your subscription id you want to enable the memory metrics on
- .\AzureEnableMetricsPerSub.ps1 -subscriptionId SUB-ID-HERE
+Just run the script as shown below from command line
+ .\AzureEnableMetricsPerSub.ps1
 #>
-param(
 
- [Parameter(Mandatory=$True)]
- [string]
- $subscriptionId
-)
+$login = connect-azurermaccount -ErrorAction Stop
 
 $TimeStampLog = Get-Date -Format o | foreach {$_ -replace ":", "."}
 $error.clear()
@@ -52,12 +47,12 @@ function Get-TimeStamp {
 }
 
 $deployExtensionLogDir = split-path -parent $MyInvocation.MyCommand.Definition
+write-host "Starting the script $TimeStamp " -ForegroundColor Green
+write-host "Reading input file..." -ForegroundColor Green
+$readsubsfile = get-content -path .\subs.txt
 
-if($subscriptionId){
-    Login-AzureRmAccount -SubscriptionId $subscriptionId -ErrorAction Stop
-    $getsub = get-azurermsubscription -subscriptionId $subscriptionId
-    $subname = $getsub.Name
-    $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId -InformationAction SilentlyContinue
+foreach($subname in $readsubsfile){
+    $selectSub = Select-AzureRmSubscription -Subscription $subname -InformationAction SilentlyContinue
     if((Test-Path -Path .\$subname) -ne 'True'){
       Write-Host "Creating new sub directory for log files" -ForegroundColor Green
       $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
@@ -116,10 +111,6 @@ if($subscriptionId){
     $LinExtensionPublisher = "Microsoft.OSTCExtensions"
     #$LinExtensionVersion = "3.0"
     $LinExtensionVersion = "2.3"
-} else {
-    #Login-AzureRmAccount -ErrorAction Stop
-    Exit
-}
 
 $vmList = $null
 if($vmname -and $storageaccount){
@@ -534,6 +525,7 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
     Write-Host "**Script finished at $date " -ForegroundColor Green
     Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
     Exit
+}
 }
 Write-Host "Waiting for all background jobs to complete now...this can take some time" -ForegroundColor Green
 Write-Host "Waiting for up to 25 mins for all background jobs to complete..." -ForegroundColor Green
