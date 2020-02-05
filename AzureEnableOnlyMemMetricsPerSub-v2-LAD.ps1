@@ -1,7 +1,7 @@
 <#
 .VERSION
-2.7
-Updated Date: Jan. 30, 2020 - 4:37PM
+2.8
+Updated Date: Feb. 5, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -179,7 +179,8 @@ if($vmList){
         Write-Host "Number of VMs completed is ""$vmsCompleted""" -ForegroundColor Green
         
         while((get-job -State Running).count -ge 50){start-sleep 1}
-
+        $ext = $vm.Extensions.Id
+        if ((select-string -Pattern "Microsoft.Insights.VMDiagnosticsSettings" -InputObject $ext) -eq $null){
         $rsgName = $vm.ResourceGroupName
         $rsg = Get-AzureRmResourceGroup -Name $rsgName
         $rsgLocation = $vm.Location
@@ -298,7 +299,7 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
         get-job -State Failed | remove-job -confirm:$false -force
         $vmsCompleted++
     }
-
+  }
   Write-Host "Starting Linux VMs" -ForegroundColor Green
     foreach($lvm in $LinuxVmsRunning){
       $countjobs = (get-job -state Running).count
@@ -306,7 +307,8 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
       Write-Host "Number of VMs completed is ""$vmsCompleted""" -ForegroundColor Green
 
       while((get-job -State Running).count -ge 50){start-sleep 1}
-
+      $lext = $lvm.Extensions.Id
+      if ((select-string -Pattern "LinuxDiagnostic" -InputObject $lext) -eq $null){
       $rsgName = $lvm.ResourceGroupName
       $rsg = Get-AzureRmResourceGroup -Name $rsgName
       $rsgLocation = $lvm.Location
@@ -524,6 +526,7 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
       get-job -State Failed | remove-job -confirm:$false -force
       $vmsCompleted++
     }
+  }
 } else {
     Write-Host "Couldn't find any powered on VMs in your subscription" -ForegroundColor Red -BackgroundColor Black
     Write-Output "Couldn't find any powered on VMs in your subscription" | Out-File -FilePath .\$subname\NoVMs_$TimeStampLog.csv
@@ -598,3 +601,4 @@ $vmstat | out-file .\$subname\VMsRunningPostChange_$TimeStampLog.csv -Append asc
 $date = date
 Write-Host "**Script finished at $date " -ForegroundColor Green
 Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
+#END OF SCRIPT
