@@ -43,7 +43,6 @@ write-host "AzureRM cmdlet is current.....proceeding...." -ForegroundColor Green
 function Get-TimeStamp {
 
     return "[{0:dd/MM/yy} {0:HH:mm:ss}]" -f (Get-Date)
-
 }
 
 $deployExtensionLogDir = split-path -parent $MyInvocation.MyCommand.Definition
