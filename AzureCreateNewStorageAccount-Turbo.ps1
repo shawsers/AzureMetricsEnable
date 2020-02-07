@@ -5,17 +5,14 @@ Updated Date: Feb. 7, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
-#The script will create a new Azure storage account per location that the VM's are in and a new resrouce group unless the one provided already exists, then it will use it.
-#The location specified will only be used if a new resource account is needed to be created and must be in the short name ex. eastus or westus
-#It will also make the changes in the subscription specificed
+#The script will create a new Azure storage account in and a new resrouce group unless the ones provided already exists, then it will use it.
+#The Azure location specified will only be used if a new resource group and storage account is needed to be created and must be in the short name ex. eastus or westus
 
-#This will also add the scope of the subscription and the new storage account(s) to the Turbonomic custom role
-#It will also add all of the Turbonomic Service Principals to the Turbonomic custom role scoped to the new storage account(s)
-#Both above are required for Turbonomic to read the sub and read the memory metrics from the new storage account(s)
+#It will also add all of the Turbonomic Service Principal to the the new storage account
+#Both above are required for Turbonomic to read the memory metrics from the new storage account(s)
 
 #Make sure to specify a unique storage account name, otherwise the script will exit/stop
-
-#You also have to specify an environment parameter now which you have to input one of the following
+#You also have to specify the Turbonomic SPN that was created in Azure as a parameter
 
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid SUB-ID-HERE -location AZURE-LOCATION -resourcegroup NEW-RES-GROUP-NAME -storageaccount NEW-DIAG-STORAGE -spn TURBO-SPN-NAME
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount turbostorage001 -spn turbonomic_spn
