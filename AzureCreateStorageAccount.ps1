@@ -1,7 +1,7 @@
 <#
 .VERSION
-2.1 - All Turbonomic SPNs
-Updated Date: Sep 20, 2019
+2.2 - All Turbonomic SPNs
+Updated Date: Feb 7, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -17,7 +17,7 @@ Email: Jason.Shaw@turbonomic.com
 #of the storage accounts created.  So if you have VM's in 3 locations in the sub, it will create 3 new storage accounts starting with #1, then #2, then #3
 
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid SUB-ID-HERE -location AZURE-LOCATION -resourcegroup NEW-RES-GROUP-NAME -storageaccount NEW-DIAG-STORAGE
-#example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount diagstorage00
+#example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount diagstorage001
 #>
 
 param(
@@ -36,10 +36,9 @@ param(
 $error.clear()
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
 #Login Azure Account
-login-azurermaccount -Subscription $subscriptionId -ErrorAction Stop
-$sub = Get-AzureRmSubscription -subscriptionid $subscriptionId
-$subname = $sub.Name
+$login = login-azurermaccount -Subscription $subscriptionId -ErrorAction Stop
 $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
+$subname = $selectSub.Name
 $date = date
 Write-Host "**Script started at $date" -ForegroundColor Green
 if((Test-Path -Path .\$subname) -ne 'True'){
