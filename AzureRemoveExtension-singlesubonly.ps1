@@ -9,7 +9,7 @@ Email: Jason.Shaw@turbonomic.com
 #You need to specify a correctly formatted CSV file with the column headers "SUBNAME and VMNAME and the list of each under that heading"
 #Make sure to store the input file named "subsandvms.csv" in the same directory as the script is being run
 
-#example: .\AzureRemoveExtension.ps1 -subname AZURE-SUB-NAME
+#example: .\AzureRemoveExtension-singlesubonly.ps1 -subname AZURE-SUB-NAME
 #>
 param(
 
