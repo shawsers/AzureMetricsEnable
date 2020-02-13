@@ -1,7 +1,7 @@
 <#
 .VERSION
-1.0 - Remove Diagnostic Extension - single sub only
-Updated Date: Feb, 12 2020
+1.2 - Remove Diagnostic Extension - single sub only
+Updated Date: Feb, 13 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -34,6 +34,62 @@ Write-Host "Clearing all completed background jobs..." -ForegroundColor Green
 $removejobs = get-job -State Completed | Remove-Job -Force -Confirm:$false
 $selectSub = Select-AzureRmSubscription -Subscription $subname
 $getvms = get-azurermvm -Status
+foreach ($vm in $subsandvms){
+    $vmname = $vm.VMNAME
+    write-host "starting VM named ""$vmname"" now" -ForegroundColor Green
+    write-host "getting VM power state now" -ForegroundColor Green
+    $vmrunning = $getvms | where {$_.Name -eq $vmname} | where {$_.PowerState -eq "VM running"}
+    if ($vmrunning -eq $null) {
+        write-host "VM named ""$vmname"" is not running.....skipping VM...." -ForegroundColor Red -BackgroundColor Black
+        Add-Content -Path .\PoweredOffVMs.csv -Value "$vmname"
+    } else {
+        Write-Host "There have been $vmscompleted VMs completed so far..."
+        $numjobs = (get-job -State Running).count
+        write-host "There are currently $numjobs background jobs running...." -ForegroundColor Green
+        $osType = $vmrunning.StorageProfile.OsDisk.OsType
+        Write-Output "OS Type:" $osType
+        if($osType -eq "Windows"){
+            Write-Output "VM Type Detected is Windows"
+            $vmrg = $vmrunning.ResourceGroupName
+            #$windiag = "Microsoft.Insights.VMDiagnosticsSettings"
+            [scriptblock]$winsb = { param($vmrg, $vmname) remove-azurermvmextension -ResourceGroupName $vmrg -VMName $vmname -Name Microsoft.Insights.VMDiagnosticsSettings -Force }
+            while((get-job -State Running).count -ge 25){start-sleep 1}
+            Start-Job -Name $vmname -ScriptBlock $winsb -ArgumentList $vmrg, $vmname
+            $vmscompleted++
+            foreach ($job in (get-job -state Completed)){
+                $jobname = $job.Name
+                Add-Content -Path .\CompletedVMs.csv -Value "$jobname"
+                get-job -Name $jobname | Remove-Job -Force -Confirm:$false
+            }
+            #$WinVM = remove-azurermvmdiagnosticsextension -ResourceGroupName $vmrg -VMName $vmname
+            #$WinVMStatus = $WinVM.Statuses.DisplayStatus
+            #$WinVM.Statuses.Message | out-file .\Message.txt
+            #$WinVMMessage = get-content .\Message.txt | select -First 1
+            #@($WinVMMessage).Replace(",","")
+            #Add-Content -Path .\RemoveExtLog_$TimeStampLog.csv -Value "$subname,$vmname,$osType,$WinVMStatus,$WinVMMessage"
+        } else {
+            Write-Output "VM Type Detected is Linux "
+            $linrg = $vmrunning.ResourceGroupName
+            #$lindiag = "LinuxDiagnostic"
+            [scriptblock]$linsb = { param($linrg, $vmname) remove-azurermvmextension -ResourceGroupName $linrg -VMName $vmname -Name LinuxDiagnostic -Force }
+            while((get-job -State Running).count -ge 25){start-sleep 1}
+            Start-Job -Name $vmname -ScriptBlock $linsb -ArgumentList $linrg, $vmname
+            $vmscompleted++
+            foreach ($job in (get-job -state Completed)){
+                $jobname = $job.Name
+                Add-Content -Path .\CompletedVMs.csv -Value "$jobname"
+                get-job -Name $jobname | Remove-Job -Force -Confirm:$false
+            }
+            #$LinuxVM = remove-azurermvmextension -ResourceGroupName $linrg -VMName $vmname -Name LinuxDiagnostic -Force
+            #$LinuxVMStatus = $LinuxVM.Statuses.DisplayStatus
+            #$LinuxVM.Statuses.Message | out-file .\Message.txt
+            #$LinuxVMMessage = get-content .\Message.txt | select -First 1
+            #@($LinuxVMMessage).Replace(",","")
+            #Add-Content -Path .\RemoveExtLog_$TimeStampLog.csv -Value "$subname,$vmname,$osType,$LinuxVMStatus,$LinuxVMMessage"
+        }
+    }
+}
+#run the removal again to ensure it actually gets removed
 foreach ($vm in $subsandvms){
     $vmname = $vm.VMNAME
     write-host "starting VM named ""$vmname"" now" -ForegroundColor Green
