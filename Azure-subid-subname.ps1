@@ -1,6 +1,6 @@
 #START SCRIPT
 #Make sure to create a file named sub-ids.txt and add all of the sub names to it you want to run the script on
-$login = connect-azurermaccount -ErrorAction Stop
+$login = login-azurermaccount -ErrorAction Stop
 $date = date
 Write-Host "Script started at: $date"
 Write-Host "Reading input file"
