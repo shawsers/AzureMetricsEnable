@@ -13,10 +13,10 @@ add-type @"
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12'
 ​
 ## Enter the Turbo/CWOM API url here
-$url = "https://turbonomic2.pwcinternal.com/api/v2/markets/_0x3OYUglEd-gHc4L513yOA/"
+$url = "https://10.16.172.238/api/v2/markets/_0x3OYUglEd-gHc4L513yOA/"
 ​
 ## Enter the export path for the CSV here
-$csvPath = 'C:\Users\jshaw037\Downloads\scripts\output\Turbonomic_Actions.csv'
+$csvPath = '.\Turbonomic_Actions.csv'
 ​
 $Credentials = Get-Credential -Credential $null
 $RESTAPIUser = $Credentials.UserName
