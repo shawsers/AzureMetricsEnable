@@ -1,6 +1,6 @@
 #Created by Jason Shaw - jason.shaw@turbonomic.com
 #Dated: March 18, 2020
-#tags script for Turbo RG's and Storage accounts
+#adds required tags to Turbo RG's and Storage accounts that have "turbo" in the name for all subs
 login-azurermaccount
 $date = date
 add-content -Path .\TurboTagsReport.csv -value "Start date and time: $date"
