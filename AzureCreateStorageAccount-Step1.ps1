@@ -1,7 +1,7 @@
 <#
 .VERSION
-3.0 - All Turbonomic STAGE and DEV SPNs
-Updated Date: Jan. 16, 2020 - 10:37AM
+3.1 - All Turbonomic STAGE and DEV SPNs
+Updated Date: Mar. 27, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -19,6 +19,7 @@ Email: Jason.Shaw@turbonomic.com
 #STAGE1 - which will apply the role and scope for Stage1, Dev
 #STAGE2 - which will apply the role and scope for Stage2, Dev
 #STAGE3 - which will apply the role and scope for Stage3, Dev
+#STAGE4 - which will apply the role and scope for Stage4, Dev
 
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid SUB-ID-HERE -location AZURE-LOCATION -resourcegroup NEW-RES-GROUP-NAME -storageaccount NEW-DIAG-STORAGE -environment STAGE1
 #example: .\AzureCreateStorageAccount.ps1 -subscriptionid 82cdab36-1a2a-123a-1234-f9e83f17944b -location eastus -resourcegroup RES-NAME-01 -storageaccount turbostorage001 -environment STAGE1
@@ -163,8 +164,23 @@ foreach($storloc in $vmsloc){
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$turboCustomRoleName,$environment"
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
-                }    
+                }
+                if ($environment -eq "STAGE4"){
+                $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
+                $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
+                $turboSPNstage1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-Stage4'}
+                $turboSPNstage1id = $turboSPNstage1.Id.Guid
+                Write-Host "Assinging Turbonomic Dev and Stage 4 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+                $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$turboCustomRoleName,$environment"
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                $error.clear()
+                }
         }
 $date = date
 Write-Host "**Script completed at $date" -ForegroundColor Green
 Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
+#END OF SCRIPT
