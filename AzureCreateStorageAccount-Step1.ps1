@@ -172,7 +172,7 @@ foreach($storloc in $vmsloc){
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
-                if ($environment -eq "STAGE4"){
+             if ($environment -eq "STAGE4"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
                 $turboSPNstage1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-Stage4'}
@@ -186,7 +186,7 @@ foreach($storloc in $vmsloc){
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
-                if ($environment -eq "Assurance"){
+             if ($environment -eq "Assurance"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Assurance-Trubonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
                 Write-Host "Assinging Turbonomic Assurance SPN App Reg permissions on subscription and storage" -ForegroundColor Green
@@ -196,33 +196,63 @@ foreach($storloc in $vmsloc){
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
-                if ($environment -eq "Advisory"){
+             if ($environment -eq "Advisory"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Advisory-Turbonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
-                Write-Host "Assinging Turbonomic Assurance SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+                Write-Host "Assinging Turbonomic Advisory SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$turboCustomRoleName,$environment"
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
-                if ($environment -eq "USFirm1"){
+             if ($environment -eq "USFirm1"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'USFIRM1-Turbonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
-                Write-Host "Assinging Turbonomic Assurance SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+                Write-Host "Assinging Turbonomic USFirm1 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$turboCustomRoleName,$environment"
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
-                if ($environment -eq "USFirm2"){
+             if ($environment -eq "USFirm2"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'USFirm2-Turbonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
-                Write-Host "Assinging Turbonomic Assurance SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+                Write-Host "Assinging Turbonomic USFirm2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$turboCustomRoleName,$environment"
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                $error.clear()
+                }
+             if ($environment -eq "PROD1"){
+                $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
+                $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
+                Write-Host "Assinging Turbonomic PROD 1 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+                $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                $error.clear()
+                }
+            if ($environment -eq "PRODEU"){
+                $turboSPNprodeu = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-EU'}
+                $turboSPNprodeuid = $turboSPNprodeu.Id.Guid
+                Write-Host "Assinging Turbonomic PROD EU SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+                $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                $error.clear()
+                }
+            if ($environment -eq "PROD2"){
+                $turboSPNprodus2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-US-2'}
+                $turboSPNprodus2id = $turboSPNprodus2.Id.Guid
+                Write-Host "Assinging Turbonomic PROD 2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
+                $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
