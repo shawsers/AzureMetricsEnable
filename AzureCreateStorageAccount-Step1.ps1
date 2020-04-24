@@ -1,7 +1,7 @@
 <#
 .VERSION
-3.3 - All Turbonomic SPNs
-Updated Date: Apr. 9, 2020
+3.4 - All Turbonomic SPNs
+Updated Date: Apr. 24, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -135,6 +135,10 @@ foreach($storloc in $vmsloc){
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
                 $turboSPNstage1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-Stage'}
                 $turboSPNstage1id = $turboSPNstage1.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic Dev and Stage 1 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
@@ -149,6 +153,10 @@ foreach($storloc in $vmsloc){
                 $turboSPNprodeuid = $turboSPNprodeu.Id.Guid
                 $turboSPNstage2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Stage2'}
                 $turboSPNstage2id = $turboSPNstage2.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic Dev and Stage 2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
@@ -163,6 +171,10 @@ foreach($storloc in $vmsloc){
                 $turboSPNprodus2id = $turboSPNprodus2.Id.Guid
                 $turboSPNstage3 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Stage3'}
                 $turboSPNstage3id = $turboSPNstage3.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic Dev and Stage 3 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
@@ -177,6 +189,10 @@ foreach($storloc in $vmsloc){
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
                 $turboSPNstage1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-Stage4'}
                 $turboSPNstage1id = $turboSPNstage1.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic Dev and Stage 4 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
@@ -189,6 +205,10 @@ foreach($storloc in $vmsloc){
              if ($environment -eq "Assurance"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Assurance-Trubonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic Assurance SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
@@ -199,6 +219,10 @@ foreach($storloc in $vmsloc){
              if ($environment -eq "Advisory"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Advisory-Turbonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic Advisory SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
@@ -209,6 +233,10 @@ foreach($storloc in $vmsloc){
              if ($environment -eq "USFirm1"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'USFIRM1-Turbonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic USFirm1 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
@@ -219,6 +247,10 @@ foreach($storloc in $vmsloc){
              if ($environment -eq "USFirm2"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'USFirm2-Turbonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic USFirm2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
@@ -229,6 +261,10 @@ foreach($storloc in $vmsloc){
              if ($environment -eq "PROD1"){
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
                 $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic PROD 1 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
@@ -239,6 +275,10 @@ foreach($storloc in $vmsloc){
             if ($environment -eq "PRODEU"){
                 $turboSPNprodeu = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-EU'}
                 $turboSPNprodeuid = $turboSPNprodeu.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic PROD EU SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
@@ -249,6 +289,10 @@ foreach($storloc in $vmsloc){
             if ($environment -eq "PROD2"){
                 $turboSPNprodus2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-US-2'}
                 $turboSPNprodus2id = $turboSPNprodus2.Id.Guid
+                $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                $turboSaaSProdid = $turboSaaSProd.Id.Guid
                 Write-Host "Assinging Turbonomic PROD 2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
