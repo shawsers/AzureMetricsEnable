@@ -86,7 +86,7 @@ if((Test-Path -Path .\$subname) -ne 'True'){
 if (($valres = Get-AzureRmResourceGroup -Name $resourcegroup -ErrorAction SilentlyContinue) -eq $null){
     Write-Host "Resource Group does not exist, creating new one" -ForegroundColor Green
     #Create new Resource Group for the new Stoage Account
-    $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location -tag @{"ghs-solution"="turbonomic_pwcit"; "ghs-environment"="turbonomic_pwcit_prod"; "ghs-los"="ifs"; "ghs-appid"="hycsapp1883"; "ghs-owner"="jerry.trollo@pwc.com"; "ghs-tariff"="zae"; "ghs-apptioid"="globalnis645"; "ghs-solutionexposure"="FLASE"; "ghs-environmenttype"="Production"; "ghs-deployedby"="Turbonomic Automated Process"; "ghs-dataclassification"="dc2"} -ErrorAction Stop
+    $newresgroup = New-AzurermResourceGroup -Name $resourcegroup -Location $location -tag @{"ghs-solution"="turbonomic_pwcit"; "ghs-environment"="turbonomic_pwcit_prod"; "ghs-los"="ifs"; "ghs-appid"="hycsapp1883"; "ghs-owner"="jerry.trollo@pwc.com"; "ghs-tariff"="zae"; "ghs-apptioid"="globalnis645"; "ghs-solutionexposure"="FALSE"; "ghs-environmenttype"="Production"; "ghs-deployedby"="Turbonomic Automated Process"; "ghs-dataclassification"="dc2"; "ghs-envid"="turbo"} -ErrorAction Stop
 } else {
     write-host "Resource Group already exists, using exising" -ForegroundColor Green
 }
@@ -111,7 +111,7 @@ foreach($storloc in $vmsloc){
         #Creating new storage account
         $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
         $error.clear()
-        $newStorage = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS -EnableHttpsTrafficOnly $true -tag @{"ghs-solution"="turbonomic_pwcit"; "ghs-environment"="turbonomic_pwcit_prod"; "ghs-los"="ifs"; "ghs-appid"="hycsapp1883"; "ghs-owner"="jerry.trollo@pwc.com"; "ghs-tariff"="zae"; "ghs-apptioid"="globalnis645"; "ghs-solutionexposure"="FLASE"; "ghs-environmenttype"="Production"; "ghs-deployedby"="Turbonomic Automated Process"; "ghs-dataclassification"="dc2"} -ErrorAction Stop
+        $newStorage = New-AzurermStorageAccount -ResourceGroupName $resourcegroup -Name $storageaccountname -Location $storloc -Kind StorageV2 -SkuName Standard_LRS -EnableHttpsTrafficOnly $true -tag @{"ghs-solution"="turbonomic_pwcit"; "ghs-environment"="turbonomic_pwcit_prod"; "ghs-los"="ifs"; "ghs-appid"="hycsapp1883"; "ghs-owner"="jerry.trollo@pwc.com"; "ghs-tariff"="zae"; "ghs-apptioid"="globalnis645"; "ghs-solutionexposure"="FALSE"; "ghs-environmenttype"="Production"; "ghs-deployedby"="Turbonomic Automated Process"; "ghs-dataclassification"="dc2"; "ghs-envid"="turbo"} -ErrorAction Stop
         if(($error) -like '*is already taken*'){
             Write-Host "Storage account name ""$storageaccountname"" is already in use in Azure and is NOT unique" -ForegroundColor Red -BackgroundColor Black
             Write-Host "please re-run the script and specify a unique storage account name" -ForegroundColor Red -BackgroundColor Black
