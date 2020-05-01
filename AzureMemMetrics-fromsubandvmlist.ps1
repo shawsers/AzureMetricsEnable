@@ -1,7 +1,7 @@
 <#
 .VERSION
-1.0 - read sub list from subsandvms.csv file
-Updated Date: Jan. 30, 2020
+1.1 - read sub list from subsandvms.csv file
+Updated Date: May 1, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -206,6 +206,7 @@ $extensionTemplatePath = Join-Path $deployExtensionLogDir "extensionTemplateForW
 Out-File -FilePath $extensionTemplatePath -Force -Encoding utf8 -InputObject $extensionTemplate
 
     [scriptblock]$sb = { param($rsgName, $vmName, $storageName, $storageKey, $extensionName, $vmLocation, $extensionTemplatePath)
+    set-azurermcontext -subscriptionname $subname
     Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storageName -StorageAccountKey $storageKey `
     -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $extensionTemplatePath -AutoUpgradeMinorVersion $True
 }
@@ -434,6 +435,7 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
       #set this up to run via start-job
       #make sure to remove the -AsJob at the end of the script before adding to start-job
       [scriptblock]$sbl = { param($LinExtensionType, $LinExtensionPublisher, $rsgName, $vmName, $LinExtensionName, $vmLocation, $LinExtensionVersion, $jsonfilelinux, $privateCfg)
+        set-azurermcontext -subscriptionname $subname
         Set-AzureRmVMExtension -ExtensionType $LinExtensionType -Publisher $LinExtensionPublisher -ResourceGroupName $rsgName -VMName $vmName -Name $LinExtensionName -Location $vmLocation -TypeHandlerVersion $LinExtensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg
         }
 
