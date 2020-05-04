@@ -51,7 +51,7 @@ write-host "Reading input file..." -ForegroundColor Green
 $readsubsfile = get-content -path .\subs.txt
 
 foreach($subname in $readsubsfile){
-    $selectSub = Select-AzureRmSubscription -Subscription $subname -InformationAction SilentlyContinue
+    $selectSub = Select-AzureRmSubscription -Subscription $subname -InformationAction SilentlyContinue | set-azurermcontext
     if((Test-Path -Path .\$subname) -ne 'True'){
       Write-Host "Creating new sub directory for log files" -ForegroundColor Green
       $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
