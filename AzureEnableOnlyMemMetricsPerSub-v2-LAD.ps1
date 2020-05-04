@@ -168,7 +168,7 @@ if($vmList){
         Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
         Write-Host "Number of VMs completed is ""$vmsCompleted""" -ForegroundColor Green
         
-        while((get-job -State Running).count -ge 50){start-sleep 1}
+        while((get-job -State Running).count -ge 20){start-sleep 1}
         $ext = $vm.Extensions.Id
         if ((select-string -Pattern "Microsoft.Insights.VMDiagnosticsSettings" -InputObject $ext) -eq $null){
         $rsgName = $vm.ResourceGroupName
@@ -297,7 +297,7 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
       Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
       Write-Host "Number of VMs completed is ""$vmsCompleted""" -ForegroundColor Green
 
-      while((get-job -State Running).count -ge 50){start-sleep 1}
+      while((get-job -State Running).count -ge 20){start-sleep 1}
       $lext = $lvm.Extensions.Id
       if ((select-string -Pattern "LinuxDiagnostic" -InputObject $lext) -eq $null){
       $rsgName = $lvm.ResourceGroupName
