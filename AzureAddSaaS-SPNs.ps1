@@ -35,53 +35,33 @@ foreach ($azuresub in $readsubsfile){
     if ($storageAll -eq $null){
         Write-Host "No Turbonomic RG found in $subname ....exiting script" -ForegroundColor Red -BackgroundColor Black
     } else {
-    foreach ($turborg in $storageAll){
-        $resourceGroup = $turborg.ResourceGroupName
-        $storageTurboName = Get-AzureRmStorageAccount -ResourceGroupName $resourceGroup | where {$_.StorageAccountName -like '*turbo*'}
-        if ($storageTurboName -eq $null){
-            Write-Host "No Turbonomic Storage Account found in $subname ....exiting script" -ForegroundColor Red -BackgroundColor Black
-        } else {
-        #look at adding error checking for no Turbo storage account found
-        foreach ($turbostor in $storageTurboName){
-            $storageaccountname = $turbostor.StorageAccountName
-            $error.clear()
-            $turboCustomRoleName = "Reader and Data Access"
-            $selectSub = Select-AzureRmSubscription -Subscription $subscriptionId
-            if ($environment -eq "PROD1"){
-                $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'turbonomic'}
-                $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
-                Write-Host "Assinging Turbonomic PROD 1 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
-                $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
-                $error.clear()
+        foreach ($turborg in $storageAll){
+            $resourceGroup = $turborg.ResourceGroupName
+            $storageTurboName = Get-AzureRmStorageAccount -ResourceGroupName $resourceGroup | where {$_.StorageAccountName -like '*turbo*'}
+            if ($storageTurboName -eq $null){
+                Write-Host "No Turbonomic Storage Account found in $subname ....exiting script" -ForegroundColor Red -BackgroundColor Black
+            } else {
+                #look at adding error checking for no Turbo storage account found
+                foreach ($turbostor in $storageTurboName){
+                    $storageaccountname = $turbostor.StorageAccountName
+                    $error.clear()
+                    $turboCustomRoleName = "Reader and Data Access"
+                    $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
+                    $turboSaaSDevid = $turboSaaSDev.Id.Guid
+                    $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
+                    $turboSaaSProdid = $turboSaaSProd.Id.Guid
+                    Write-Host "Assinging Turbonomic SaaS SPN permissions and storage account: $storageaccountname" -ForegroundColor Green
+                    $assignSaaSDevC = new-azurermroleassignment -ObjectId $turboSaaSDevid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                    $assignSaaSProdC = new-azurermroleassignment -ObjectId $turboSaaSProdid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                    Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$turboCustomRoleName,$environment"
+                    Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
+                    $error.clear()                
                 }
-            if ($environment -eq "PRODEU"){
-                $turboSPNprodeu = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-EU'}
-                $turboSPNprodeuid = $turboSPNprodeu.Id.Guid
-                Write-Host "Assinging Turbonomic PROD EU SPN App Reg permissions on subscription and storage" -ForegroundColor Green
-                $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
-                $error.clear()
-                }
-            if ($environment -eq "PROD2"){
-                $turboSPNprodus2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-US-2'}
-                $turboSPNprodus2id = $turboSPNprodus2.Id.Guid
-                Write-Host "Assinging Turbonomic PROD 2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
-                $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodus2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$TurboCustomRoleName,$environment"
-                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
-                $error.clear()
-                }
+            }
         }
     }
-    }
-    }
+}
 $date = date
 Write-Host "**Script completed at $date" -ForegroundColor Green
 Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
-}
+#END SCRIPT
