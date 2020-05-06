@@ -13,7 +13,6 @@ Email: Jason.Shaw@turbonomic.com
 $logsub = Login-AzureRmAccount -ErrorAction Stop -InformationAction SilentlyContinue
 $error.clear()
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
-#$readsubsfile = get-content -path .\subs-prod.txt
 $readsubsfile = get-AzureRmSubscription
 foreach ($azuresub in $readsubsfile){
     $subname = $azuresub.subscriptionname
