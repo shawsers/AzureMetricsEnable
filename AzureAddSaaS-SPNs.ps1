@@ -5,10 +5,9 @@ Updated Date: May 6, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
-#This script will add the SaaS SPN's to the Azure subs storage accounts
+#This script will add the SaaS SPN's to all the Azure subs turbo storage accounts that you have elevated access to
 #This script also assumes you have an RG and Storage account already created both with "turbo" in the name of them.
 
-#Make sure the sub in the parameter below is one that has already been onboarded
 #example: .\AzureCreateStorageAccount.ps1
 #>
 $logsub = Login-AzureRmAccount -ErrorAction Stop -InformationAction SilentlyContinue
