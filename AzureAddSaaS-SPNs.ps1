@@ -1,7 +1,7 @@
 <#
 .VERSION
-3.1 - Add Turbonomic SaaS SPNs
-Updated Date: May 5, 2020
+3.2 - Add Turbonomic SaaS SPNs
+Updated Date: May 6, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -34,12 +34,14 @@ foreach ($azuresub in $readsubsfile){
     $storageAll = get-azurermresourcegroup | where {$_.ResourceGroupName -like '*turbo*'}
     if ($storageAll -eq $null){
         Write-Host "No Turbonomic RG found in $subname ....exiting script" -ForegroundColor Red -BackgroundColor Black
+        Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,NO TURBO RG FOUND"
     } else {
         foreach ($turborg in $storageAll){
             $resourceGroup = $turborg.ResourceGroupName
             $storageTurboName = Get-AzureRmStorageAccount -ResourceGroupName $resourceGroup | where {$_.StorageAccountName -like '*turbo*'}
             if ($storageTurboName -eq $null){
                 Write-Host "No Turbonomic Storage Account found in $subname ....exiting script" -ForegroundColor Red -BackgroundColor Black
+                Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,NO TURBO STORAGE FOUND"
             } else {
                 #look at adding error checking for no Turbo storage account found
                 foreach ($turbostor in $storageTurboName){
