@@ -17,7 +17,7 @@ $readsubsfile = get-AzureRmSubscription
 foreach ($azuresub in $readsubsfile){
     $subname = $azuresub.subscriptionname
     $subscriptionId = $azuresub.subscription.Id
-    $selectSub = Select-AzureRmSubscription -SubscriptionId $subscriptionId -InformationAction SilentlyContinue
+    $selectSub = Select-AzureRmSubscription -SubscriptionId $subscriptionId -InformationAction SilentlyContinue | set-azurermcontext
     $date = date
     Write-Host "**Script started at $date" -ForegroundColor Green
     if((Test-Path -Path .\$subname) -ne 'True'){
