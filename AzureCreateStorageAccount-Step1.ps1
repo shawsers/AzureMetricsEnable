@@ -1,7 +1,7 @@
 <#
 .VERSION
-3.4 - All Turbonomic SPNs
-Updated Date: Apr. 24, 2020
+3.5 - All Turbonomic SPNs
+Updated Date: Jun. 9, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -17,7 +17,7 @@ Email: Jason.Shaw@turbonomic.com
 
 #You also have to specify an environment parameter now which you have to input one of the following
 #STAGE1 - which will apply the role and scope for Stage1, Dev
-#STAGE2 - which will apply the role and scope for Stage2, Dev
+#SAAS - which will apply the role and scope for SAAS
 #STAGE3 - which will apply the role and scope for Stage3, Dev
 #STAGE4 - which will apply the role and scope for Stage4, Dev
 #Assurance - will apply the rols and scope for Assurance
@@ -152,20 +152,12 @@ foreach($storloc in $vmsloc){
                 Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
                 $error.clear()
                 }
-            if ($environment -eq "STAGE2"){
-                $turboSPNprodeu = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Dev'}
-                $turboSPNprodeuid = $turboSPNprodeu.Id.Guid
-                $turboSPNstage2 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic_Stage2'}
-                $turboSPNstage2id = $turboSPNstage2.Id.Guid
+            if ($environment -eq "SAAS"){
                 $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Dev'}
                 $turboSaaSDevid = $turboSaaSDev.Id.Guid
                 $turboSaaSProd = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-SaaS-Prod'}
                 $turboSaaSProdid = $turboSaaSProd.Id.Guid
-                Write-Host "Assinging Turbonomic Dev and Stage 2 SPN App Reg permissions on subscription and storage" -ForegroundColor Green
-                $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                $assignCustomProd = new-azurermroleassignment -ObjectId $turboSPNprodeuid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                $assignReaderStage = new-azurermroleassignment -ObjectId $turboSPNstage2id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                $assignCustomStage = new-azurermroleassignment -ObjectId $turboSPNstage2id -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                Write-Host "Assinging Turbonomic SaaS SPN App Reg permissions on subscription and storage" -ForegroundColor Green
                 $assignSaaSDevR = new-azurermroleassignment -ObjectId $turboSaaSDevid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignSaaSDevC = new-azurermroleassignment -ObjectId $turboSaaSDevid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                 $assignSaaSProdR = new-azurermroleassignment -ObjectId $turboSaaSProdid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
