@@ -1,7 +1,7 @@
 <#
 .VERSION
-3.3
-Updated Date: June 10, 2020
+3.4
+Updated Date: July 8, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -52,6 +52,11 @@ $readsubsfile = get-content -path .\subs.txt
 
 foreach($subname in $readsubsfile){
     $selectSub = Select-AzureRmSubscription -Subscription $subname -InformationAction SilentlyContinue | set-azurermcontext
+    #added check below for Disable sub state, should skip to next sub
+    if($selectSub.subscription.state -eq "Disabled"){
+      write-host "$subname is Disabled, skipping....." -ForegroundColor Red
+      continue
+    }
     if((Test-Path -Path .\$subname) -ne 'True'){
       Write-Host "Creating new sub directory for log files" -ForegroundColor Green
       $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
@@ -69,7 +74,8 @@ foreach($subname in $readsubsfile){
     $storageName = $storageTurboName.StorageAccountName
     if($storageName -eq $null){
       write-host "Storage account specified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red -BackgroundColor Black
-      exit
+      continue
+      #replaced exit with continue
     } else {
       Write-Host "Storage account found, proceeding..." -ForegroundColor Green 
     }
@@ -77,6 +83,11 @@ foreach($subname in $readsubsfile){
     Write-Host "**Script started at $date" -ForegroundColor Green
     Write-Host "Getting VM's current status" -ForegroundColor Green
     $vmstat = get-azurermvm -status
+    #add VM count check below, this should skip to next sub if 0 VMs found in sub
+    if(($vmstat).count -eq 0){
+      write-host "$subname does not have any VMs, skipping....." -ForegroundColor Red
+      continue
+    }
     $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
 
     Write-Host "Saving total VM's and total VM's where power status = running to log file" -ForegroundColor Green
