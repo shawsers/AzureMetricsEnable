@@ -1,6 +1,6 @@
 <#
 .VERSION
-1.0 - Add Turbonomic ParkMyCloud (PMC) SPNs
+1.0 - Add Turbonomic ParkMyCloud (PMC) SPN
 Updated Date: July 9, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
@@ -13,33 +13,21 @@ Email: Jason.Shaw@turbonomic.com
 $logsub = Login-AzureRmAccount -ErrorAction Stop -InformationAction SilentlyContinue
 $error.clear()
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
+Add-Content -Path .\TurboPMCRoleAddedToSubs.csv -Value "SUB NAME,SUB ID,SPN NAME"
 $readsubsfile = get-content -path .\subs.txt
 foreach ($azuresub in $readsubsfile){
     $selectSub = Select-AzureRmSubscription -Subscriptionname $azuresub -InformationAction SilentlyContinue | set-azurermcontext
     $subscriptionId = $selectSub.subscription.Id
     $subname = $selectSub.subscriptionname
     $date = date
-    Write-Host "**Script started at $date" -ForegroundColor Green
-    if((Test-Path -Path .\$subname) -ne 'True'){
-        Write-Host "Creating new sub directory for log files" -ForegroundColor Green
-        $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
-        $fullPath = $path.FullName
-    } else {
-        Write-Host "Using existing directory for logs" -ForegroundColor Green
-        $path = Get-Location
-        $fullPath = $path.Path + "\" + $subname 
-    }
-                    $error.clear()
-                    $turboSaaSDev = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-PMC'}
-                    $turboSaaSDevid = $turboSaaSDev.Id.Guid
-                    Write-Host "Assinging Turbonomic SaaS SPN permissions and storage account: $storageaccountname" -ForegroundColor Green
-                    $assignSaaSDevC = new-azurermroleassignment -ObjectId $turboSaaSDevid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                    $assignSaaSProdC = new-azurermroleassignment -ObjectId $turboSaaSProdid -RoleDefinitionName $turboCustomRoleName -Scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroup/providers/Microsoft.Storage/storageAccounts/$storageaccountname" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-                    Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$subname,$subscriptionId,$turboCustomRoleName,$environment"
-                    Add-Content -Path .\$subname\TurboRoleAddedToSubScope.csv -Value "$error"
-                    $error.clear()                
+    Write-Host "**Script started sub: $subname at $date" -ForegroundColor Green
+                $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-PMC'}
+                $turboSPNprodus1id = $turboSPNprodus1.Id.Guid
+                Write-Host "Assinging Turbonomic PMC SPN Reader permission on sub: $subname" -ForegroundColor Green
+                $assignReaderProd = new-azurermroleassignment -ObjectId $turboSPNprodus1id -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                Add-Content -Path .\TurboPMCRoleAddedToSubs.csv -Value "$subname,$subscriptionId,Turbonomic-PMC"
 }
 $date = date
 Write-Host "**Script completed at $date" -ForegroundColor Green
-Write-Host "**Check path: ""$fullPath"" for the logs" -ForegroundColor Green
+Write-Host "**Check file name: TurboPMCRoleAddedToSubs.csv for the logs" -ForegroundColor Green
 #END SCRIPT
