@@ -1,7 +1,7 @@
 <#
 .VERSION
-3.5 - All Turbonomic SPNs
-Updated Date: Jun. 9, 2020
+3.6 - All Turbonomic SPNs
+Updated Date: July 13, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
