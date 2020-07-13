@@ -1,7 +1,7 @@
 <#
 .VERSION
-1.0 - Add Turbonomic ParkMyCloud (PMC) SPN
-Updated Date: July 9, 2020
+1.1 - Add Turbonomic ParkMyCloud (PMC) SPN
+Updated Date: July 13, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -18,7 +18,7 @@ $readsubsfile = get-content -path .\subs.txt
 foreach ($azuresub in $readsubsfile){
     $selectSub = Select-AzureRmSubscription -Subscriptionname $azuresub -InformationAction SilentlyContinue | set-azurermcontext
     $subscriptionId = $selectSub.subscription.Id
-    $subname = $selectSub.subscriptionname
+    $subname = $selectSub.subscription.name
     $date = date
     Write-Host "**Script started sub: $subname at $date" -ForegroundColor Green
                 $turboSPNprodus1 = get-azurermadserviceprincipal | where-object{$_.DisplayName -eq 'Turbonomic-PMC'}
