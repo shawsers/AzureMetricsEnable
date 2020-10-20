@@ -39,7 +39,7 @@ if ($azurecmdlets -eq $null){
 
 #If Azure AZ cmdlet installed then continue
 
-login-azaccount
+login-azaccount -ErrorAction Stop
 
 #START MAIN SCRIPT
 $starttime = date
