@@ -39,6 +39,8 @@ if ($azurecmdlets -eq $null){
 
 #If Azure AZ cmdlet installed then continue
 
+login-azaccount
+
 #START MAIN SCRIPT
 $starttime = date
 $date = get-date -Format m
