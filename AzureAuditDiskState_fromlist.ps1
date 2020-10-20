@@ -4,8 +4,42 @@
 
 #Input file name needs to be in the same directory you are running the file from
 #Input file name needs to be disklist.csv
+#Input file contents needs to be in 3 columns with the header names in order: TARGET,RGNAME,DISKNAME
+#TARGET is the Azure sub name
+#RGNAME is the Azure Resource Group name
+#DISKNAME is the Azure Disk Name
+#Input example looks like the below (minus the #):
+#TARGET,RGNAME,DISKNAME
+#My Sub 1,my-rg-one,my-disk-name1
+#My Sub 1,my-rg-two,my-disk-name3
+#My Other Sub,my-other-rg,my-other-disk
 
-#START SCRIPT
+#Check if Azure AZ PowerShell cmdlet is installed
+$azurecmdlets = Get-InstalledModule -Name az
+if ($azurecmdlets -eq $null){
+    Write-Host "Azure AZ module not found, installing.....this can take a few mins to complete...." -ForegroundColor Green
+    Install-Module -name az -scope CurrentUser
+    Write-Host "Azure AZ module installed, checking..." -ForegroundColor Green
+    $azuremodver = get-installedmodule -Name az -MinimumVersion 3.5.0 -ErrorAction SilentlyContinue
+    if ($azuremodver -eq $null){
+        Write-Host "Azure AZ module not installed, quitting script..." -ForegroundColor Red
+        Write-Host "**Please manually install Azure AZ module or try running the script again**" -ForegroundColor Red
+        Exit
+        #Script exits if the Azure AZ cmdlet not installed as it is required to continue the script
+    }
+} else {
+    $azuremodver = get-installedmodule -Name az -MinimumVersion 3.5.0 -ErrorAction SilentlyContinue
+    if ($azuremodver -eq $null){
+        Write-Host "Azure AZ module out of date, updating.....this can take a few mins to complete...." -ForegroundColor Green
+        #If out of date Azure AZ cmdlet found, it will attempt to update it to the current verison
+        Update-Module -Name az -Force
+        Write-Host "Azure AZ module updated, continuing..." -ForegroundColor Green
+    }
+}
+
+#If Azure AZ cmdlet installed then continue
+
+#START MAIN SCRIPT
 $starttime = date
 $date = get-date -Format m
 $month = $date.replace(" ","_")
@@ -53,3 +87,4 @@ write-host "script started: $starttime" -ForegroundColor Green
 write-host "script ended: $endtime" -ForegroundColor Green
 write-host "check output file: Disk_State_$month.csv"
 #END SCRIPT
+#View the output file contents to view the state of each disk
