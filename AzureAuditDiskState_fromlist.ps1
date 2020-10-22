@@ -38,8 +38,16 @@ if ($azurecmdlets -eq $null){
 }
 
 #If Azure AZ cmdlet installed then continue
-
+#Login to Aure
 login-azaccount -ErrorAction Stop
+
+#verify if the account logged in is correct and ask the user to verify
+$con = Get-AzContext
+$user = $con.Account.id
+write-host "you are currently logged in with userid: $user" -ForegroundColor DarkRed
+write-host "you must be logged in with a user that has access to the subs in the input file" -ForegroundColor Green
+write-host "if the account above is NOT correct please stop the script by pressing ctrl-C.... and retry with the correct account" -ForegroundColor Green
+pause
 
 #START MAIN SCRIPT
 $starttime = date
