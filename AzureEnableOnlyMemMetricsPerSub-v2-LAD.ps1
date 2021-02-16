@@ -1,7 +1,7 @@
 <#
 .VERSION
-2.9
-Updated Date: Feb. 5, 2020
+3.4
+Updated Date: July 8, 2020
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
@@ -51,7 +51,12 @@ write-host "Reading input file..." -ForegroundColor Green
 $readsubsfile = get-content -path .\subs.txt
 
 foreach($subname in $readsubsfile){
-    $selectSub = Select-AzureRmSubscription -Subscription $subname -InformationAction SilentlyContinue
+    $selectSub = Select-AzureRmSubscription -Subscription $subname -InformationAction SilentlyContinue | set-azurermcontext
+    #added check below for Disable sub state, should skip to next sub
+    if($selectSub.subscription.state -eq "Disabled"){
+      write-host "$subname is Disabled, skipping....." -ForegroundColor Red
+      continue
+    }
     if((Test-Path -Path .\$subname) -ne 'True'){
       Write-Host "Creating new sub directory for log files" -ForegroundColor Green
       $path = new-item -Path . -ItemType "directory" -Name $subname -InformationAction SilentlyContinue -ErrorAction Stop
@@ -69,7 +74,8 @@ foreach($subname in $readsubsfile){
     $storageName = $storageTurboName.StorageAccountName
     if($storageName -eq $null){
       write-host "Storage account specified does not exist, please re-run script with a pre-existing storage account" -ForegroundColor Red -BackgroundColor Black
-      exit
+      continue
+      #replaced exit with continue
     } else {
       Write-Host "Storage account found, proceeding..." -ForegroundColor Green 
     }
@@ -77,6 +83,11 @@ foreach($subname in $readsubsfile){
     Write-Host "**Script started at $date" -ForegroundColor Green
     Write-Host "Getting VM's current status" -ForegroundColor Green
     $vmstat = get-azurermvm -status
+    #add VM count check below, this should skip to next sub if 0 VMs found in sub
+    if(($vmstat).count -eq 0){
+      write-host "$subname does not have any VMs, skipping....." -ForegroundColor Red
+      continue
+    }
     $vmpowerstate = $vmstat | select-object -ExpandProperty "PowerState"
 
     Write-Host "Saving total VM's and total VM's where power status = running to log file" -ForegroundColor Green
@@ -168,7 +179,7 @@ if($vmList){
         Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
         Write-Host "Number of VMs completed is ""$vmsCompleted""" -ForegroundColor Green
         
-        while((get-job -State Running).count -ge 50){start-sleep 1}
+        while((get-job -State Running).count -ge 20){start-sleep 1}
         $ext = $vm.Extensions.Id
         if ((select-string -Pattern "Microsoft.Insights.VMDiagnosticsSettings" -InputObject $ext) -eq $null){
         $rsgName = $vm.ResourceGroupName
@@ -271,12 +282,13 @@ if($vmList){
 $extensionTemplatePath = Join-Path $deployExtensionLogDir "extensionTemplateForWindows.json"
 Out-File -FilePath $extensionTemplatePath -Force -Encoding utf8 -InputObject $extensionTemplate
 
-    [scriptblock]$sb = { param($rsgName, $vmName, $storageName, $storageKey, $extensionName, $vmLocation, $extensionTemplatePath)
+    [scriptblock]$sb = { param($rsgName, $vmName, $storageName, $storageKey, $extensionName, $vmLocation, $extensionTemplatePath, $subname)
+    #set-azurermcontext -subscriptionname $subname
     Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $rsgName -VMName $vmName -StorageAccountName $storageName -StorageAccountKey $storageKey `
     -Name $extensionName -Location $vmLocation -DiagnosticsConfigurationPath $extensionTemplatePath -AutoUpgradeMinorVersion $True
 }
 
-Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $storageName, $storageKey, $extensionName, $vmLocation, $extensionTemplatePath
+Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $storageName, $storageKey, $extensionName, $vmLocation, $extensionTemplatePath, $subname
         $WinOS = "Windows"
         $date = date
         Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$date,$subname,$vmName,$WinOS,$error"
@@ -296,7 +308,7 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
       Write-Host "Number of running jobs is ""$countjobs""" -ForegroundColor Green
       Write-Host "Number of VMs completed is ""$vmsCompleted""" -ForegroundColor Green
 
-      while((get-job -State Running).count -ge 50){start-sleep 1}
+      while((get-job -State Running).count -ge 20){start-sleep 1}
       $lext = $lvm.Extensions.Id
       if ((select-string -Pattern "LinuxDiagnostic" -InputObject $lext) -eq $null){
       $rsgName = $lvm.ResourceGroupName
@@ -499,11 +511,12 @@ Start-Job -Name $vmName -ScriptBlock $sb -ArgumentList $rsgName, $vmName, $stora
       #set this up to run via start-job
       #make sure to remove the -AsJob at the end of the script before adding to start-job
       #Set-AzureRmVMExtension -ResourceGroupName $rsgName -VMName $vmName -Name $LinExtensionName -ExtensionType $LinExtensionType -Publisher $LinExtensionPublisher -TypeHandlerVersion $LinExtensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg -Location $vmLocation -AsJob
-      [scriptblock]$sbl = { param($LinExtensionType, $LinExtensionPublisher, $rsgName, $vmName, $LinExtensionName, $vmLocation, $LinExtensionVersion, $jsonfilelinux, $privateCfg)
+      [scriptblock]$sbl = { param($LinExtensionType, $LinExtensionPublisher, $rsgName, $vmName, $LinExtensionName, $vmLocation, $LinExtensionVersion, $jsonfilelinux, $privateCfg, $subname)
+        #set-azurermcontext -subscriptionname $subname
         Set-AzureRmVMExtension -ExtensionType $LinExtensionType -Publisher $LinExtensionPublisher -ResourceGroupName $rsgName -VMName $vmName -Name $LinExtensionName -Location $vmLocation -TypeHandlerVersion $LinExtensionVersion -Settingstring $jsonfilelinux -ProtectedSettingString $privateCfg
         }
 
-      Start-Job -Name $vmName -ScriptBlock $sbl -ArgumentList $LinExtensionType, $LinExtensionPublisher, $rsgName, $vmName, $LinExtensionName, $vmLocation, $LinExtensionVersion, $jsonfilelinux, $privateCfg
+      Start-Job -Name $vmName -ScriptBlock $sbl -ArgumentList $LinExtensionType, $LinExtensionPublisher, $rsgName, $vmName, $LinExtensionName, $vmLocation, $LinExtensionVersion, $jsonfilelinux, $privateCfg, $subname
       $LinOS = "Linux"
       $date = date
       Add-Content -Path .\$subname\InstallLog_$TimeStampLog.csv -Value "$date,$subname,$vmName,$LinOS,$error"
