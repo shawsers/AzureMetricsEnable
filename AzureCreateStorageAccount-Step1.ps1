@@ -42,7 +42,7 @@ param(
 )
 $error.clear()
 #check if Azure cmdlets are installed, if not install or update them
-write-host "checking if AzureRM cmdlet is install, if not it will install/update it as needed" -ForegroundColor Green
+write-host "checking if AzureRM cmdlet is installed, if not it will install/update it as needed" -ForegroundColor Green
 $azurecmdlets = Get-InstalledModule -Name AzureRM
 if ($azurecmdlets -eq $null){
     Write-Host "AzureRM module not found, installing.....this can take a few mins to complete...." -ForegroundColor Green
