@@ -1,11 +1,14 @@
 <#
 .VERSION
 1.0
-Updated Date: Feb. 14, 2021
+Updated Date: Feb. 16, 2021
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
 .SYNOPSIS
+#NOTE - an Azure VM can only be connected to one Log Analytics workspace at a time, please validate your Azure environment first
+##NOTE - before you continue make sure you actually need a new Log Analytics workspace created for your VM to be connected to
+###NOTE - make sure you also need a new Azure policy created to manage connecting VM's to Log Analytics
 This script will create a new Log Analytics Workspace, new Resource Group and new Policy Assignment in the region and subscription defined
 The script assumes you have at least Contributor access to the sub when running the script, if not you will receive errors and the script will fail
 
