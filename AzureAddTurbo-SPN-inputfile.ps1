@@ -19,7 +19,9 @@ example of how to run the script: .\AzureAddTurbo-SPN-inputfile.ps1
 Script will work in Azure Cloud Shell and from your system,
 as long as it already has the Azure az cmdlets installed.
 #>
-$turbospnname = 'svc-turbonomic' 
+#START SCRIPT
+Write-Host "Starting script..." -ForegroundColor Green
+
 $error.clear()
 
 #Checking if the script is running from Azure Cloud Shell or not
@@ -38,6 +40,20 @@ if (($host.name) -eq 'ConsoleHost'){
     }
     write-host "Not using Azure Cloud Shell, prompting to login to Azure now...." -ForegroundColor Blue
     $logsub = Login-azAccount -ErrorAction Stop
+}
+
+#Prompt for custom Turbonomic SPN if needed other than the default of svc-turbonomic
+$customspn = read-host -Prompt 'Input your Turbonomic SPN Display Name (press enter for using default of ''svc-turbonomic'')'
+if ($customspn -eq $null) {
+    $turbospnname = 'svc-turbonomic'
+} else {
+    $turbospnname = $customspn
+}
+
+$verifyturbospn = get-azadserviceprincipal | where-object{$_.DisplayName -eq $turbospnname}
+if ($verifyturbospn -eq $null) {
+    Write-Host "Turbonomic SPN named: $turbospnname not found, exiting script, please verify and run script again..." -ForegroundColor Red
+    Exit
 }
 
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
@@ -68,7 +84,7 @@ foreach ($azuresub in $readsubsfile){
         if ($checkturbospn -eq $null){
             $turbospn = get-azadserviceprincipal | where-object{$_.DisplayName -eq $turbospnname}
             $turbospnid = $turbospn.Id
-            Write-Host "Assinging Turbonomic SPN Reader permission to Sub: $subname" -ForegroundColor Green
+            Write-Host "Assinging Turbonomic SPN Reader permission to Sub: $subname"
             $assignturbospn = new-azroleassignment -ObjectId $turbospnid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             Add-Content -Path .\TurboRoleAddedToSubs_$TimeStamp.csv -Value "$subname,$subscriptionId,Reader"
             $successcount ++
