@@ -5,7 +5,7 @@ Updated Date: Aug. 16, 2021
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
-#This script will add the Turbonomic SPN name svc-turbonomic to the Azure subs specified, 
+#This script will add the Turbonomic SPN named svc-turbonomic to the Azure subs specified, 
 #in the subs.txt file that you have Owner access to
 
 #Make sure the subs.txt file exists and has the list of sub names only you want, 
@@ -36,7 +36,7 @@ foreach ($azuresub in $readsubsfile){
     $subname = $azuresub
     $date = date
     Write-Host "**Script started at $date" -ForegroundColor Green
-    $turbospn = get-azadserviceprincipal | where-object{$_.DisplayName -eq 'svc-turbo2'}
+    $turbospn = get-azadserviceprincipal | where-object{$_.DisplayName -eq 'svc-turbonomic'}
     $turbospnid = $turbospn.Id
     Write-Host "Assinging Turbonomic SPN Reader permission to Sub: $subname" -ForegroundColor Green
     $assignturbospn = new-azroleassignment -ObjectId $turbospnid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
