@@ -1,12 +1,14 @@
 <#
 .VERSION
-1.0 - Add Turbonomic SPN
-Updated Date: Aug. 16, 2021
+1.1 - Add Turbonomic SPN
+Updated Date: Aug. 17, 2021
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
-This script will add the Turbonomic SPN named svc-turbonomic to the Azure subs specified, 
-in the subs.txt file that you have Owner access to
+This script will add the Turbonomic SPN named 'svc-turbonomic' to the Azure subs specified, 
+in the subs.txt file that you have Owner access to.
+
+If you are using a different SPN name you need to change it in the $turbospnname variable below
 
 Make sure the subs.txt file exists in the same directory as the script,
 and has the list of sub names you want to run the script against, 
@@ -17,6 +19,7 @@ example of how to run the script: .\AzureAddTurbo-SPN-inputfile.ps1
 Script will work in Azure Cloud Shell and from your system,
 as long as it already has the Azure az cmdlets installed.
 #>
+$turbospnname = 'svc-turbonomic' 
 $error.clear()
 
 #Checking if the script is running from Azure Cloud Shell or not
@@ -43,17 +46,26 @@ Write-Host "Reading subs.txt file..." -ForegroundColor Green
 $readsubsfile = get-content -path .\subs.txt -ErrorAction Stop
 Add-Content -Path .\TurboRoleAddedToSubs_$TimeStamp.csv -Value "Subscription Name,Subscription ID,Role Name"
 foreach ($azuresub in $readsubsfile){
-    $selectSub = Select-AzSubscription -Subscriptionname $azuresub -InformationAction SilentlyContinue | set-azurermcontext
+    $selectSub = Select-AzSubscription -Subscriptionname $azuresub -InformationAction SilentlyContinue | set-azcontext
     $subscriptionId = $selectSub.subscription.Id
-    $subname = $azuresub
-    $date = date
-    Write-Host "**Script started at $date" -ForegroundColor Green
-    $turbospn = get-azadserviceprincipal | where-object{$_.DisplayName -eq 'svc-turbonomic'}
-    $turbospnid = $turbospn.Id
-    Write-Host "Assinging Turbonomic SPN Reader permission to Sub: $subname" -ForegroundColor Green
-    $assignturbospn = new-azroleassignment -ObjectId $turbospnid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
-    Add-Content -Path .\TurboRoleAddedToSubs_$TimeStamp.csv -Value "$subname,$subscriptionId,Reader"
-    $error.clear()                
+    $subname = $selectSub.subscription.name
+    if ($subname -eq $null) {
+        Write-Host "Subscription not found: ""$azuresub"" skipping, please verify and update Sub name in input file and try again" -ForegroundColor Red
+    } else {
+        $date = date
+        Write-Host "**Script started for Sub: $subname at $date" -ForegroundColor Green
+        $checkturbospn = get-azroleassignment | where-object{$_.DisplayName -eq $turbospnname} | where-object{$_.RoleDefinitionName -eq 'Reader'}
+        if ($checkturbospn -eq $null){
+            $turbospn = get-azadserviceprincipal | where-object{$_.DisplayName -eq $turbospnname}
+            $turbospnid = $turbospn.Id
+            Write-Host "Assinging Turbonomic SPN Reader permission to Sub: $subname" -ForegroundColor Green
+            $assignturbospn = new-azroleassignment -ObjectId $turbospnid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+            Add-Content -Path .\TurboRoleAddedToSubs_$TimeStamp.csv -Value "$subname,$subscriptionId,Reader"
+        } else {
+            Write-Host "Turbonomic SPN already has Reader role assigned on Sub: $subname skipping"
+        } 
+    }    
+    $error.clear()      
 }
 $date = date
 Write-Host "**Script completed at $date" -ForegroundColor Green
