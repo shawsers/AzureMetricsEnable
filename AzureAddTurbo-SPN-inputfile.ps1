@@ -45,12 +45,19 @@ $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
 Write-Host "Reading subs.txt file..." -ForegroundColor Green
 $readsubsfile = get-content -path .\subs.txt -ErrorAction Stop
 Add-Content -Path .\TurboRoleAddedToSubs_$TimeStamp.csv -Value "Subscription Name,Subscription ID,Role Name"
+Add-Content -Path .\TurboRoleAdded_Errors_$TimeStamp.csv -Value "Failed Subscription,Reason"
+$errorcount = 0
+$subcount = ($readsubsfile).count
+$counter = 0
 foreach ($azuresub in $readsubsfile){
+    $counter ++
+    Write-Host "Starting Subscription name: $azuresub which is Sub number $counter of $subcount"
     $selectSub = Select-AzSubscription -Subscriptionname $azuresub -InformationAction SilentlyContinue | set-azcontext
     $subscriptionId = $selectSub.subscription.Id
     $subname = $selectSub.subscription.name
     if ($subname -eq $null) {
         Write-Host "Subscription not found: ""$azuresub"" skipping, please verify and update Sub name in input file and try again" -ForegroundColor Red
+        Add-Content -Path .\TurboRoleAdded_Errors_$TimeStamp.csv -Value "$azuresub,Subscription Name not found or invalid"
     } else {
         $date = date
         Write-Host "**Script started for Sub: $subname at $date" -ForegroundColor Green
@@ -65,9 +72,11 @@ foreach ($azuresub in $readsubsfile){
             Write-Host "Turbonomic SPN already has Reader role assigned on Sub: $subname skipping"
         } 
     }    
-    $error.clear()      
+    $error.clear()
+    $subcount ++      
 }
 $date = date
 Write-Host "**Script completed at $date" -ForegroundColor Green
-Write-Host "**Check output file: TurboRoleAddedToSubs_$TimeStamp.csv for the logs" -ForegroundColor Green
+Write-Host "**Check output file for successful subs: TurboRoleAddedToSubs_$TimeStamp.csv for the logs" -ForegroundColor Green
+Write-Host "**Check error output file for failed subs: TurboRoleAdded_Errors_$TimeStamp.csv if any" -ForegroundColor Red
 #END SCRIPT
