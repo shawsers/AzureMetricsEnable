@@ -5,12 +5,17 @@ Updated Date: Aug. 16, 2021
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
 
-#This script will add the Turbonomic SPN named svc-turbonomic to the Azure subs specified, 
-#in the subs.txt file that you have Owner access to
+This script will add the Turbonomic SPN named svc-turbonomic to the Azure subs specified, 
+in the subs.txt file that you have Owner access to
 
-#Make sure the subs.txt file exists and has the list of sub names only you want, 
-#each on a separate line to run the script against in it
-#example: .\AzureAddTurbo-SPN-inputfile.ps1
+Make sure the subs.txt file exists in the same directory as the script,
+and has the list of sub names you want to run the script against, 
+each sub name needs to be on a separate line in the file.
+
+example of how to run the script: .\AzureAddTurbo-SPN-inputfile.ps1
+
+Script will work in Azure Cloud Shell and from your system,
+as long as it already has the Azure az cmdlets installed.
 #>
 $error.clear()
 
@@ -19,11 +24,18 @@ write-host "Checking if running script in Azure Cloud Shell...." -ForegroundColo
 if (($host.name) -eq 'ConsoleHost'){
     write-host "Azure Cloud Shell in use, continuing...." -ForegroundColor Green
     $cloudshell = $True
-    #continue
   } else {
+    write-host "checking if Azure Az cmdlet is installed, if not it will install/update it as needed" -ForegroundColor Blue
+    $azurecmdlets = Get-InstalledModule -Name Az
+    if ($azurecmdlets -eq $null){
+        Write-Host "Azure Az module not found, installing.....this can take a few mins to complete...." -ForegroundColor White
+        Install-Module -name az -AllowClobber -scope CurrentUser
+    } else {
+        Write-Host "Azure Az module installed, continuing..." -ForegroundColor Green
+    }
     write-host "Not using Azure Cloud Shell, prompting to login to Azure now...." -ForegroundColor Blue
     $logsub = Login-azAccount -ErrorAction Stop
-  }
+}
 
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
 #Reading subs.txt file
