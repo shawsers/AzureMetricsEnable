@@ -1,6 +1,6 @@
 <#
 .VERSION
-1.1 - Add Turbonomic SPN
+1.2 - Add Turbonomic SPN
 Updated Date: Aug. 17, 2021
 Updated By: Jason Shaw 
 Email: Jason.Shaw@turbonomic.com
@@ -24,6 +24,14 @@ Write-Host "Starting script..." -ForegroundColor Green
 
 $error.clear()
 
+#Reading subs.txt file
+Write-Host "Reading subs.txt input file..." -ForegroundColor Green
+$readsubsfile = get-content -path .\subs.txt -ErrorAction SilentlyContinue -InformationAction SilentlyContinue -WarningAction SilentlyContinue
+if ($readsubsfile -eq $null) {
+    write-host "Input file subs.txt not found or it is empty, please verify and try again, exiting script..." -ForegroundColor Red
+    Exit
+}
+
 #Checking if the script is running from Azure Cloud Shell or not
 write-host "Checking if running script in Azure Cloud Shell...." -ForegroundColor Blue
 if (($host.name) -eq 'ConsoleHost'){
@@ -44,7 +52,7 @@ if (($host.name) -eq 'ConsoleHost'){
 
 #Prompt for custom Turbonomic SPN if needed other than the default of svc-turbonomic
 $customspn = read-host -Prompt 'Input your Turbonomic SPN Display Name (press enter for using default of ''svc-turbonomic'')'
-if ($customspn -eq $null) {
+if ($customspn -eq "") {
     $turbospnname = 'svc-turbonomic'
 } else {
     $turbospnname = $customspn
@@ -52,14 +60,12 @@ if ($customspn -eq $null) {
 
 $verifyturbospn = get-azadserviceprincipal | where-object{$_.DisplayName -eq $turbospnname}
 if ($verifyturbospn -eq $null) {
-    Write-Host "Turbonomic SPN named: $turbospnname not found, exiting script, please verify and run script again..." -ForegroundColor Red
+    Write-Host "Turbonomic SPN named: ""$turbospnname"" not found, exiting script, please verify and run script again..." -ForegroundColor Red
     Exit
 }
 
 $TimeStamp = Get-Date -Format o | foreach {$_ -replace ":", "."}
-#Reading subs.txt file
-Write-Host "Reading subs.txt file..." -ForegroundColor Green
-$readsubsfile = get-content -path .\subs.txt -ErrorAction Stop
+
 Add-Content -Path .\TurboRoleAddedToSubs_$TimeStamp.csv -Value "Subscription Name,Subscription ID,Role Name"
 Add-Content -Path .\TurboRoleAdded_Errors_$TimeStamp.csv -Value "Failed Subscription,Reason"
 $subcount = 0
@@ -69,8 +75,8 @@ $subcount = ($readsubsfile).count
 $counter = 0
 foreach ($azuresub in $readsubsfile){
     $counter ++
-    Write-Host "Starting Subscription name: $azuresub which is Sub number $counter of $subcount"
-    $selectSub = Select-AzSubscription -Subscriptionname $azuresub -InformationAction SilentlyContinue | set-azcontext
+    Write-Host "Starting Subscription named: ""$azuresub"" which is Sub number $counter of $subcount"
+    $selectSub = Select-AzSubscription -Subscriptionname $azuresub -ErrorAction SilentlyContinue -InformationAction SilentlyContinue -WarningAction SilentlyContinue | set-azcontext
     $subscriptionId = $selectSub.subscription.Id
     $subname = $selectSub.subscription.name
     if ($subname -eq $null) {
@@ -79,23 +85,24 @@ foreach ($azuresub in $readsubsfile){
         $errorcount ++
     } else {
         $date = date
-        Write-Host "**Script started for Sub: $subname at $date" -ForegroundColor Green
         $checkturbospn = get-azroleassignment | where-object{$_.DisplayName -eq $turbospnname} | where-object{$_.RoleDefinitionName -eq 'Reader'}
         if ($checkturbospn -eq $null){
             $turbospn = get-azadserviceprincipal | where-object{$_.DisplayName -eq $turbospnname}
             $turbospnid = $turbospn.Id
-            Write-Host "Assinging Turbonomic SPN Reader permission to Sub: $subname"
+            Write-Host "Assinging Turbonomic SPN Reader permission to Sub: $subname" -ForegroundColor Green
             $assignturbospn = new-azroleassignment -ObjectId $turbospnid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             Add-Content -Path .\TurboRoleAddedToSubs_$TimeStamp.csv -Value "$subname,$subscriptionId,Reader"
             $successcount ++
         } else {
-            Write-Host "Turbonomic SPN already has Reader role assigned on Sub: $subname skipping"
+            Write-Host "Turbonomic SPN already has Reader role assigned on Sub: $subname skipping" -ForegroundColor Green
         } 
     }    
     $error.clear()
+    Write-Host " "
 }
 $date = date
 Write-Host "**Script completed at $date" -ForegroundColor Green
+Write-Host " "
 if ($errorcount -gt 0) {
     Write-Host "**Check error output file for failed subs and details: TurboRoleAdded_Errors_$TimeStamp.csv" -ForegroundColor Red
 }
