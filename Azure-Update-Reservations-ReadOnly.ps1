@@ -51,7 +51,7 @@ if ($azurecmdlets -eq $null){
     Write-Host "AzureAZ module installed, continuing..." -ForegroundColor Green
 } else {
     $azuremodver = $azurecmdlets.version
-    if ($azuremodver -ne "5.5.0"){
+    if ($azuremodver -ne "6.3.0"){
         Write-Host "AzureAZ module out of date, updating.....this can take a few mins to complete...." -ForegroundColor White
         Update-Module -Name Az -Force
         Write-Host "AzureAZ module updated, continuing..." -ForegroundColor Green
