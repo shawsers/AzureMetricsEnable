@@ -46,7 +46,9 @@ Write-Host "Reading subs.txt file..." -ForegroundColor Green
 $readsubsfile = get-content -path .\subs.txt -ErrorAction Stop
 Add-Content -Path .\TurboRoleAddedToSubs_$TimeStamp.csv -Value "Subscription Name,Subscription ID,Role Name"
 Add-Content -Path .\TurboRoleAdded_Errors_$TimeStamp.csv -Value "Failed Subscription,Reason"
+$subcount = 0
 $errorcount = 0
+$successcount = 0
 $subcount = ($readsubsfile).count
 $counter = 0
 foreach ($azuresub in $readsubsfile){
@@ -58,6 +60,7 @@ foreach ($azuresub in $readsubsfile){
     if ($subname -eq $null) {
         Write-Host "Subscription not found: ""$azuresub"" skipping, please verify and update Sub name in input file and try again" -ForegroundColor Red
         Add-Content -Path .\TurboRoleAdded_Errors_$TimeStamp.csv -Value "$azuresub,Subscription Name not found or invalid"
+        $errorcount ++
     } else {
         $date = date
         Write-Host "**Script started for Sub: $subname at $date" -ForegroundColor Green
@@ -68,15 +71,19 @@ foreach ($azuresub in $readsubsfile){
             Write-Host "Assinging Turbonomic SPN Reader permission to Sub: $subname" -ForegroundColor Green
             $assignturbospn = new-azroleassignment -ObjectId $turbospnid -RoleDefinitionName Reader -Scope "/subscriptions/$subscriptionid" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
             Add-Content -Path .\TurboRoleAddedToSubs_$TimeStamp.csv -Value "$subname,$subscriptionId,Reader"
+            $successcount ++
         } else {
             Write-Host "Turbonomic SPN already has Reader role assigned on Sub: $subname skipping"
         } 
     }    
     $error.clear()
-    $subcount ++      
 }
 $date = date
 Write-Host "**Script completed at $date" -ForegroundColor Green
-Write-Host "**Check output file for successful subs: TurboRoleAddedToSubs_$TimeStamp.csv for the logs" -ForegroundColor Green
-Write-Host "**Check error output file for failed subs: TurboRoleAdded_Errors_$TimeStamp.csv if any" -ForegroundColor Red
+if ($errorcount -gt 0) {
+    Write-Host "**Check error output file for failed subs and details: TurboRoleAdded_Errors_$TimeStamp.csv" -ForegroundColor Red
+}
+if ($successcount -gt 0) {
+    Write-Host "**Check output file for successful subs: TurboRoleAddedToSubs_$TimeStamp.csv for the logs" -ForegroundColor Green
+}
 #END SCRIPT
