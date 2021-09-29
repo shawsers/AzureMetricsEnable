@@ -6,7 +6,7 @@ $date = get-date -Format m
 $month = $date.replace(" ","_")
 
 login-azaccount -ErrorAction Stop
-add-content -Path .\AHUB_Status_$month.csv -value "Sub Name,RG Name,VM Name,VM Size,VM OS Type,AHUB Status,VM Owner"
+add-content -Path .\AHUB_Status_$month.csv -value "Sub Name,RG Name,VM Name,VM Size,VM OS Type,AHUB Status"
 $azuresub = get-azsubscription
 foreach ($sub in $azuresub){
     $subid = $sub.id
@@ -20,14 +20,8 @@ foreach ($sub in $azuresub){
         $vmname = $winvm.Name
         $rgname = $winvm.ResourceGroupName
         $vmsize = $winvm.HardwareProfile.VmSize
-        $tags = (Get-AzResourceGroup -Name $rgname).tags
-        $owner = $tags["ghs-owner"]
-        if ($owner -eq $null) {
-            $tags = (get-azvm -ResourceGroupName $rgname -Name $vmname).tags
-            $owner = $tags["ghs-owner"]
-            }
         write-host "Starting Windows VM named: $vmname in Sub: $subname" -ForegroundColor Green
-        add-content -path .\AHUB_Status_$month.csv -value "$subname,$rgname,$vmname,$vmsize,$offer,$ahub,$owner"
+        add-content -path .\AHUB_Status_$month.csv -value "$subname,$rgname,$vmname,$vmsize,$offer,$ahub"
         }
     }
 $endtime = date
