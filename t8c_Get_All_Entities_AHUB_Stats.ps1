@@ -1,4 +1,7 @@
-$turboInstance = read-host -prompt 'input Turbo servername like: https://servername.com'
+#This script will query the Turbonomic/CWOM API for Cloud VM's and list their AHUB status
+#It will prompt for the URL of the Turbo/CWOM Server to query and for the username and password
+
+$turboInstance = read-host -prompt 'input Turbo/CWOM servername like: https://servername.com'
 $loginURI = "$turboInstance/vmturbo/rest/login"
 $apiBaseUri = "$turboInstance/vmturbo/rest"
 $date = get-date -format MMddyyyyHHmm
